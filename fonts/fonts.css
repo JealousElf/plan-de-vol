@@ -1,0 +1,7 @@
+/* B612 (The B612 Project Authors) et Spectral (The Spectral Project Authors), SIL Open Font License 1.1 : voir OFL.txt */
+@font-face { font-family: "B612"; font-style: normal; font-weight: 400; font-display: swap; src: url(b612-latin-400-normal.woff2) format("woff2"); }
+@font-face { font-family: "B612"; font-style: normal; font-weight: 700; font-display: swap; src: url(b612-latin-700-normal.woff2) format("woff2"); }
+@font-face { font-family: "Spectral"; font-style: normal; font-weight: 400; font-display: swap; src: url(spectral-latin-400-normal.woff2) format("woff2"); }
+@font-face { font-family: "Spectral"; font-style: normal; font-weight: 500; font-display: swap; src: url(spectral-latin-500-normal.woff2) format("woff2"); }
+@font-face { font-family: "Spectral"; font-style: normal; font-weight: 600; font-display: swap; src: url(spectral-latin-600-normal.woff2) format("woff2"); }
+@font-face { font-family: "Spectral"; font-style: italic; font-weight: 400; font-display: swap; src: url(spectral-latin-400-italic.woff2) format("woff2"); }
