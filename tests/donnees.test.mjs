@@ -82,3 +82,14 @@ test('le pack d\'actualité a la forme attendue', () => {
   const vus = new Set(faits.map((f) => f.id));
   for (const f of actu.faits) { verifierFait(f); assert.ok(!vus.has(f.id), `identifiant en double : ${f.id}`); vus.add(f.id); }
 });
+
+test('la version est la même partout, et config.js désigne un service bien formé', () => {
+  const lire = (f) => readFileSync(new URL('../' + f, import.meta.url), 'utf8');
+  const version = JSON.parse(lire('package.json')).version;
+  assert.match(version, /^\d+\.\d+\.\d+$/);
+  assert.equal(lire('app.js').match(/var VERSION_APP = '([^']+)'/)[1], version, 'app.js');
+  assert.equal(lire('CHANGELOG.md').match(/^## (\d+\.\d+\.\d+)/m)[1], version, 'CHANGELOG.md');
+  const carnets = lire('config.js').match(/DATA\.carnets = '([^']*)';/)[1];
+  assert.match(carnets, /^$|^https:\/\/[a-z0-9-]+(\.[a-z0-9-]+)*\.(firebasedatabase\.app|firebaseio\.com)$/, 'adresse du service : vide, ou une base Firebase sans barre finale');
+});
+

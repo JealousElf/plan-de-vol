@@ -14,9 +14,13 @@ export async function demarrer() {
   return { url: serveur.url, navigateur, arreter: async () => { await navigateur.close(); await serveur.fermer(); } };
 }
 
-/** Ouvre l'application dans un contexte neuf (stockage vide). Sans service worker, sauf demande contraire. */
-export async function ouvrir(navigateur, url, options = {}) {
+/** config.js sans service de synchronisation : les tests ne doivent jamais dépendre du service réel, ni l'appeler. */
+export const SANS_SERVICE = { contentType: 'text/javascript', body: 'window.PDV = window.PDV || { packs: [], sujets: [] }; window.PDV.carnets = "";' };
+
+/** Ouvre l'application dans un contexte neuf (stockage vide). Sans service worker ni service de synchronisation, sauf demande contraire. */
+export async function ouvrir(navigateur, url, { configReelle = false, ...options } = {}) {
   const contexte = await navigateur.newContext({ ...TELEPHONE, serviceWorkers: 'block', ...options });
+  if (!configReelle) await contexte.route('**/config.js', (route) => route.fulfill(SANS_SERVICE));
   const page = await contexte.newPage();
   const erreurs = [];
   page.on('pageerror', (e) => erreurs.push(e.message));

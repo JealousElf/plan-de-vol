@@ -255,3 +255,41 @@ test('écran large : accueil et carnet sur deux colonnes, onglets dans l\'en-tê
   await contexte.close();
 });
 
+test('en-tête : un bouton Réglages explicite, à côté de l\'état de synchronisation', async () => {
+  const { contexte, page, erreurs } = await ouvrir(env.navigateur, env.url);
+  assert.equal((await texte(page, '#vers-reglages')).trim(), 'Réglages');
+  assert.equal(await texte(page, '#sync'), 'Progression sur cet appareil');
+  const bouton = await page.locator('#vers-reglages').boundingBox(), etat = await page.locator('#sync').boundingBox();
+  assert.ok(bouton.height >= 40 && bouton.x + bouton.width <= 390, 'bouton assez grand pour le doigt, sans déborder');
+  assert.ok(etat.x + etat.width <= bouton.x, 'l\'état de synchronisation ne passe pas sous le bouton');
+  await page.click('#vers-reglages');
+  await page.waitForFunction(() => document.querySelector('h1.page-t').textContent === 'Réglages');
+  assert.equal(await page.locator('#vers-reglages').getAttribute('aria-current'), 'page');
+  await page.click('#nav a[href="#accueil"]');
+  await page.waitForFunction(() => document.querySelector('h1.page-t').textContent !== 'Réglages');
+  assert.equal(await page.locator('#vers-reglages').getAttribute('aria-current'), null);
+  await page.click('[data-a="jour"]');
+  await page.waitForSelector('.ecran-seance');
+  assert.equal(await page.locator('#vers-reglages').isVisible(), false, 'pas de sortie accidentelle pendant une séance');
+  assert.deepEqual(erreurs, []);
+  await contexte.close();
+});
+
+test('après une mise à jour, l\'accueil annonce une seule fois la version installée', async () => {
+  const { contexte, page, erreurs } = await ouvrir(env.navigateur, env.url);
+  assert.equal(await page.locator('.bravo').count(), 0, 'rien à annoncer à la première ouverture');
+  const version = await page.evaluate(() => localStorage.getItem('pdv.version'));
+  assert.match(version, /^\d+\.\d+\.\d+$/);
+  await page.evaluate(() => localStorage.setItem('pdv.version', '0.9.0'));
+  await page.reload();
+  assert.equal(await texte(page, '.bravo'), 'Application mise à jour : version ' + version + '.');
+  await page.reload();
+  await page.waitForSelector('h1.page-t');
+  assert.equal(await page.locator('.bravo').count(), 0);
+  await page.click('#vers-reglages');
+  await page.waitForSelector('#version');
+  assert.equal(await texte(page, '#version'), version);
+  assert.deepEqual(erreurs, []);
+  await contexte.close();
+});
+

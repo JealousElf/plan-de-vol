@@ -9,7 +9,7 @@ before(async () => { env = await demarrer(); });
 after(async () => { await env.arreter(); });
 
 test('tout est mis en cache à l\'installation, puis l\'application marche hors connexion', async () => {
-  const { contexte, page, erreurs } = await ouvrir(env.navigateur, env.url, { serviceWorkers: 'allow' });
+  const { contexte, page, erreurs } = await ouvrir(env.navigateur, env.url, { serviceWorkers: 'allow', configReelle: true });
   const rates = [];
   page.on('requestfailed', (r) => rates.push(r.url()));
 
@@ -27,6 +27,11 @@ test('tout est mis en cache à l\'installation, puis l\'application marche hors 
 
   await page.goto(env.url + '#reglages');
   await page.waitForFunction(() => document.getElementById('hors-detail').textContent.includes('Prête'));
+  const version = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8')).version;
+  assert.equal(await texte(page, '#version'), version);
+  await page.click('[data-a="maj"]');
+  await page.waitForFunction(() => /à jour \(version/.test(document.getElementById('maj-msg').textContent));
+  assert.equal(await texte(page, '#maj-msg'), 'L\'application est à jour (version ' + version + ').');
 
   await contexte.setOffline(true);
   rates.length = 0;

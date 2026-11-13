@@ -1,5 +1,12 @@
 # Journal des versions
 
+## 1.3.0, 13 novembre 2026
+
+- La synchronisation par code est en service sur le site : Réglages, « Créer un code de synchronisation ».
+- Bouton « Réglages » explicite dans l'en-tête ; l'état de synchronisation reste affiché sous le nom de l'application.
+- Réglages affiche la version installée et propose « Rechercher une mise à jour » ; après une mise à jour, l'accueil annonce la nouvelle version.
+- Si la synchronisation par code s'interrompt, Réglages en donne la raison en clair.
+
 ## 1.2.0, 13 novembre 2026
 
 - Synchronisation par code : un code de seize caractères, créé sur un appareil et tapé une fois sur l'autre, remplace le jeton GitHub. Ni compte ni mot de passe.

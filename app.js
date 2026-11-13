@@ -6,7 +6,7 @@
   var LS = 'pdv.progression.v1';
   /* Dépôt qui reçoit les signalements d'erreur. À changer seulement si tu maintiens ta propre version des fiches. */
   var DEPOT = DATA.depot || 'JealousElf/plan-de-vol';
-  var VERSION_APP = '13 novembre 2026';
+  var VERSION_APP = '1.3.0', DATE_APP = '13 novembre 2026';
   var JOUR = 86400000;
   var IV = [0, 1, 2, 4, 8, 16, 32];
   var MOIS = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
@@ -163,12 +163,23 @@
       etat = s;
       var el = document.getElementById('sync'); if (el) { el.textContent = LIB[s]; el.setAttribute('data-s', s); }
       var d = document.getElementById('sync-detail'); if (d) d.textContent = LIB[s];
+      var m = document.getElementById('sync-motif'); if (m) m.textContent = raison();
+    }
+    /* En clair, pourquoi la synchronisation par code est interrompue (vide si tout va bien). */
+    function raison() {
+      if (etat !== 'off' || !motif) return '';
+      if (motif === '401' || motif === '403') return 'Le service refuse l\'accès : les règles de la base ne sont pas celles du guide.';
+      if (motif === '404') return 'Le service est introuvable : l\'adresse indiquée dans config.js n\'est pas la bonne.';
+      if (motif === 'format') return 'La copie en ligne vient d\'une version plus récente de l\'application : mets cet appareil à jour.';
+      if (motif === 'cle') return 'La copie en ligne est illisible avec ce code.';
+      if (motif === 'reseau') return 'Le service ne répond pas. Vérifie ta connexion : un nouvel essai partira à ta prochaine réponse.';
+      return 'Le service a répondu par une erreur (' + motif + '). Un nouvel essai partira à ta prochaine réponse.';
     }
     /* Hors de Claude, deux façons de relier ses appareils. Par code : la progression, chiffrée ici, part dans le service indiqué
        par config.js (git = { code, id, k, vu }). Par jeton : elle vit dans un gist privé du compte GitHub (git = { token, gist }). */
     var API = 'https://api.github.com', FICHIER = 'plan-de-vol-progression.json';
     var CODE = DATA.synchro, BASE = CODE && CODE.disponible() && /^https:\/\//.test(DATA.carnets || '') ? DATA.carnets : '';
-    var git = lireCfg(), enVol = false, encore = false, dernier = 0, ecoute = false;
+    var git = lireCfg(), enVol = false, encore = false, dernier = 0, ecoute = false, motif = '';
     function lireCfg() {
       try {
         var c = JSON.parse(window.localStorage.getItem(CFG) || 'null');
@@ -252,13 +263,14 @@
       }).then(function () {
         enVol = false;
         if (git !== moi) return;
-        dernier = Date.now(); dire('ok');
+        motif = ''; dernier = Date.now(); dire('ok');
         if (encore || sale) planifier();
       }).catch(function (e) {
         enVol = false;
         if (git !== moi) return;
         var s = e && e.status;
         sale = true;
+        motif = moi.code ? String(s || (e && e.name === 'OperationError' ? 'cle' : 'reseau')) : '';
         if (!moi.code && (s === 401 || s === 403)) dire('refus');
         else dire(window.navigator.onLine === false ? 'hors' : 'off');
       });
@@ -359,7 +371,7 @@
         }).catch(function () { /* pas de packs distants */ });
       } catch (e) { /* idem */ }
     }
-    return { init: init, pousser: pousser, vite: vite, etat: function () { return etat; }, activer: activer, relier: relier, couper: couper,
+    return { init: init, pousser: pousser, vite: vite, etat: function () { return etat; }, raison: raison, activer: activer, relier: relier, couper: couper,
       git: function () { return !!(git && git.token); },                 // relié par jeton GitHub
       code: function () { return git && git.code ? git.code : ''; },    // relié par code : le code, sinon ''
       parCode: function () { return !!BASE; } };                         // la synchronisation par code est-elle proposée ici ?
@@ -727,7 +739,9 @@
   function accueil() {
     var b = bilan(tous()), plan = planJour(), jr = joursRestants(), premiere = !Object.keys(P.cards).length && !P.diag;
     var pa = b.n ? 100 * b.acquis / b.n : 0, pc = b.n ? 100 * (b.acquis + b.cours) / b.n : 0;
-    var h = '<section class="cols vaste"><div class="pile"><div class="bloc"><h1 class="page-t">' + titreAccueil(jr) + '</h1>';
+    var h = '<section class="cols vaste"><div class="pile">';
+    if (S.msg) { h += '<p class="bravo" role="status">' + esc(S.msg) + '</p>'; S.msg = null; }
+    h += '<div class="bloc"><h1 class="page-t">' + titreAccueil(jr) + '</h1>';
     h += '<div class="piste espace' + (jr !== null && jr > 0 ? '' : ' sans-num') + '" role="img" aria-label="' + b.acquis + ' repères acquis, ' + b.cours + ' en cours, ' + b.neuf + ' à découvrir">' +
       '<span class="encours" style="width:' + pc.toFixed(1) + '%"></span><span class="acquis" style="width:' + pa.toFixed(1) + '%"></span>' +
       '<span class="seuil"></span><span class="axe"></span><span class="numero">' + (jr !== null && jr > 0 ? 'J-' + jr : '') + '</span></div>';
@@ -1281,7 +1295,7 @@
       } else {
         h += '<div class="rangee espace"><button class="btn" data-a="code-copier">Copier le code</button><button class="btn" data-a="couper-oui">Ne plus synchroniser cet appareil</button></div>';
       }
-      h += '<p class="note espace" id="code-msg" role="status"></p>';
+      h += '<p class="note espace" id="sync-motif" role="status">' + esc(Sync.raison()) + '</p><p class="note" id="code-msg" role="status"></p>';
     } else if (Sync.git()) {
       h += '<p class="note espace">Ta progression est enregistrée dans un fichier privé de ton compte GitHub. Elle suit sur chaque appareil où tu as collé le même jeton. Si GitHub refuse le jeton, arrête la synchronisation puis colle-en un nouveau.</p>' +
         '<button class="btn espace" data-a="sync-couper">Arrêter la synchronisation sur cet appareil</button>';
@@ -1298,7 +1312,8 @@
       h += '<p class="note espace">Ta progression est gardée sur cet appareil. Pour la retrouver sur ton téléphone et ton ordinateur, colle le même jeton GitHub sur chacun.</p>' + parJeton;
     }
     h += '</div>';
-    if (!CHEZ_CLAUDE) h += '<div class="bloc"><h2>Hors connexion</h2><p><b id="hors-detail">' + LIB_HORS[HORS.etat] + '</b></p><p class="note espace">Une fois la page ajoutée à l\'écran d\'accueil et ouverte une première fois avec du réseau, tout le contenu reste disponible sans connexion. Pour le vérifier : passe en mode avion, ferme l\'application, puis rouvre-la.</p></div>';
+    if (!CHEZ_CLAUDE) h += '<div class="bloc"><h2>Hors connexion</h2><p><b id="hors-detail">' + LIB_HORS[HORS.etat] + '</b></p><p class="note espace">Une fois la page ajoutée à l\'écran d\'accueil et ouverte une première fois avec du réseau, tout le contenu reste disponible sans connexion. Pour le vérifier : passe en mode avion, ferme l\'application, puis rouvre-la.</p>' +
+      '<p class="espace">Version installée : <b id="version">' + VERSION_APP + '</b></p><button class="btn espace" data-a="maj">Rechercher une mise à jour</button><p class="note espace" id="maj-msg" role="status"></p></div>';
     var sig = Object.keys(P.flags).filter(signale).filter(function (id) { return FACTS[id]; });
     h += '<div class="bloc"><h2>Fiches signalées</h2>' + (sig.length ? '<ul class="rates">' + sig.map(function (id) {
       return '<li><span class="d">' + esc(FACTS[id].d || FACTS[id].g || '') + '</span><span>' + esc(FACTS[id].t) + '</span></li>';
@@ -1308,7 +1323,7 @@
     if (S.raz) h += '<p class="alerte">Toute la progression sera effacée, sur tous tes appareils.</p><div class="rangee espace"><button class="btn danger" data-a="raz-oui">Effacer ma progression</button><button class="btn" data-a="raz-non">Annuler</button></div>';
     else h += '<button class="btn danger" data-a="raz">Effacer ma progression</button>';
     h += '</div><div class="bloc"><h2>À propos</h2><p class="note">Plan de vol est un projet libre et indépendant, sans lien avec le ministère des Armées ni avec une école. Les fiches ont été rédigées avec l\'aide d\'une IA ; les faits d\'actualité ont été recoupés en ligne à la date indiquée. Une erreur reste possible : signale-la.</p>' +
-      '<p class="note espace">Code sous licence MIT, fiches sous licence CC BY-SA 4.0. Version du ' + VERSION_APP + '.</p>' +
+      '<p class="note espace">Code sous licence MIT, fiches sous licence CC BY-SA 4.0. Version ' + VERSION_APP + ' du ' + DATE_APP + '.</p>' +
       '<a class="lien" href="https://github.com/' + esc(DEPOT) + '" target="_blank" rel="noopener">Code source, signalements et contributions</a>';
     return h + '</div></section>';
   }
@@ -1327,6 +1342,8 @@
     for (var i = 0; i < liens.length; i++) {
       if (!focus && liens[i].getAttribute('href') === '#' + p) liens[i].setAttribute('aria-current', 'page'); else liens[i].removeAttribute('aria-current');
     }
+    var br = document.getElementById('vers-reglages');
+    if (br) { if (!focus && p === 'reglages') br.setAttribute('aria-current', 'page'); else br.removeAttribute('aria-current'); }
     G.cacher();
     app.classList.toggle('arrive', !!S.haut);
     app.innerHTML = h;
@@ -1422,6 +1439,19 @@
       Sync.activer(v); rendre();
     },
     'sync-couper': function () { S.couper = false; Sync.couper(); rendre(); },
+    maj: function (b) {
+      var sw = window.navigator.serviceWorker, dit = function (t) { var m = document.getElementById('maj-msg'); if (m) m.textContent = t; };
+      if (!sw) return dit('Cet appareil ne gère pas la mise à jour automatique : ferme l\'application et rouvre-la.');
+      if (window.navigator.onLine === false) return dit('Pas de réseau : impossible de vérifier pour l\'instant.');
+      b.disabled = true; dit('Vérification…');
+      sw.getRegistration().then(function (r) {
+        if (!r) throw new Error('aucun service worker');
+        return r.update().then(function () { return r; });
+      }).then(function (r) {
+        b.disabled = false;
+        dit(r.installing || r.waiting ? 'Nouvelle version trouvée : l\'application se recharge dans un instant.' : 'L\'application est à jour (version ' + VERSION_APP + ').');
+      }, function () { b.disabled = false; dit('Vérification impossible pour l\'instant. Ferme l\'application et rouvre-la.'); });
+    },
     'couper-oui': function () { S.couper = true; rendre(); },
     'couper-non': function () { S.couper = false; rendre(); },
     'code-creer': function (b) {
@@ -1502,6 +1532,11 @@
     tirer: tirer, parTheme: parTheme, packValide: packValide, prevoir: prevoir, faits: function () { return FACTS; }, seance: function () { return S.ses; } };
   appliquerTheme(themeChoisi());
   indexer();
+  (function () {   // après une mise à jour, l'accueil annonce la version installée
+    var avant = null;
+    try { avant = window.localStorage.getItem('pdv.version'); window.localStorage.setItem('pdv.version', VERSION_APP); } catch (e) { return; }
+    if (avant ? avant !== VERSION_APP : Object.keys(P.cards).length > 0) S.msg = 'Application mise à jour : version ' + VERSION_APP + '.';
+  })();
   S.haut = true;
   rendre();
   G.init();

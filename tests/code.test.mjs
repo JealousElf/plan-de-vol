@@ -158,11 +158,30 @@ test('service en panne : l\'état le dit, la progression reste sur l\'appareil e
   service.panne = true;
   await unePartie(a.page, 1);
   await attendreSync(a.page, 'Synchronisation interrompue', 12000);
+  assert.match(await texte(a.page, '#sync-motif'), /^Le service refuse l'accès : les règles de la base/);
   assert.ok(Object.keys((await progression(a.page)).cards).length >= 1);
   service.panne = false;
   await a.page.reload();
   await attendreSync(a.page, 'Synchronisé');
+  assert.equal(await texte(a.page, '#sync-motif'), '');
   await a.contexte.close();
+});
+
+test('avec la configuration du dépôt, le code est proposé et rien ne part en ligne avant un geste de l\'utilisateur', async () => {
+  const contexte = await env.navigateur.newContext({ viewport: { width: 390, height: 844 }, serviceWorkers: 'block' });
+  const appels = [];
+  await contexte.route(/firebasedatabase\.app|firebaseio\.com/, (route) => { appels.push(route.request().url()); return route.abort(); });
+  const page = await contexte.newPage();
+  await page.goto(env.url + '#reglages');
+  await page.waitForSelector('[data-a="code-creer"]');
+  assert.equal(await page.locator('details.releve #jeton').count(), 1, 'le jeton reste proposé, replié');
+  await page.goto(env.url + '#accueil');
+  await page.click('[data-a="jour"]');
+  await jusquAuxChoix(page);
+  await repondre(page, true);
+  await page.waitForTimeout(400);
+  assert.deepEqual(appels, []);
+  await contexte.close();
 });
 
 test('sans service configuré, le code n\'est pas proposé et le jeton reste disponible', async () => {

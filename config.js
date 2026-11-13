@@ -6,7 +6,7 @@
   /* Synchronisation par code : adresse de la base qui garde les progressions chiffrées
      (une base Firebase Realtime Database, par exemple https://mon-projet-default-rtdb.europe-west1.firebasedatabase.app).
      Vide : la synchronisation par code n'est pas proposée. Mise en place en dix minutes : docs/synchronisation.md */
-  DATA.carnets = '';
+  DATA.carnets = 'https://plan-de-vol-6ae7f-default-rtdb.europe-west1.firebasedatabase.app';
 
   /* Dépôt GitHub qui reçoit les signalements d'erreur sur les fiches. */
   DATA.depot = 'JealousElf/plan-de-vol';
