@@ -1,0 +1,39 @@
+name: Proposer une fiche
+description: Un repère qui manque pour l'oral.
+title: "Fiche : "
+labels: ["fiche"]
+body:
+  - type: dropdown
+    id: pack
+    attributes:
+      label: Pack
+      options:
+        - Histoire de France
+        - Conflits depuis 1976
+        - Dates clés de l'ordre mondial
+        - Armée de l'Air et de l'Espace
+        - Opérations et missions
+        - Programmes et projets
+        - Organisation et doctrine
+        - Autre ou nouveau pack
+    validations:
+      required: true
+  - type: input
+    id: titre
+    attributes:
+      label: Titre de la fiche
+    validations:
+      required: true
+  - type: textarea
+    id: contenu
+    attributes:
+      label: Contenu
+      description: Date ou question avec sa réponse, résumé en deux ou trois phrases, phrase à placer à l'oral.
+    validations:
+      required: true
+  - type: input
+    id: source
+    attributes:
+      label: Source publique
+    validations:
+      required: true

@@ -4,6 +4,9 @@
   var DATA = window.PDV || (window.PDV = { packs: [], sujets: [] });
   var app = document.getElementById('app');
   var LS = 'pdv.progression.v1';
+  /* Dépôt qui reçoit les signalements d'erreur. À changer seulement si tu maintiens ta propre version des fiches. */
+  var DEPOT = DATA.depot || 'JealousElf/plan-de-vol';
+  var VERSION_APP = '13 novembre 2026';
   var JOUR = 86400000;
   var IV = [0, 1, 2, 4, 8, 16, 32];
   var MOIS = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
@@ -70,7 +73,7 @@
   /* ---------- progression ---------- */
   function vide() {
     return { v: 1, epoch: 0, cards: {}, days: {}, best: {}, oraux: [], flags: {}, diag: 0,
-      set: { exam: null, neu: 10, prep: 30, expo: 10, quest: 10, blitz: 15, t: 0 } };
+      set: { exam: null, neu: 10, prep: 30, expo: 10, quest: 10, blitz: 15, auto: 1, t: 0 } };
   }
   function normaliser(p) {
     var b = vide(), k;
@@ -482,7 +485,7 @@
     var s = S.ses; arreterChrono();
     while (s.i < s.items.length && !FACTS[s.items[s.i].id]) s.i++;
     if (s.i >= s.items.length) return debrief();
-    s.q = question(FACTS[s.items[s.i].id], s.items[s.i]); s.rep = null;
+    s.q = question(FACTS[s.items[s.i].id], s.items[s.i]); s.rep = null; s.auto = false; s.frais = true;
     S.haut = true; rendre();
     if (s.kind === 'blitz') demarrerChrono();
   }
@@ -541,8 +544,9 @@
       if (s.kind === 'blitz' && i >= 0) s.score = Math.max(0, s.score - 30);
       rater(it);
     }
+    s.auto = bon && (s.kind === 'blitz' || P.set.auto !== 0);
     rendre();
-    if (s.kind === 'blitz' && bon) chrono.auto = setTimeout(function () { chrono.auto = 0; avancer(); }, 900);
+    if (s.auto) chrono.auto = setTimeout(function () { chrono.auto = 0; avancer(); }, s.kind === 'blitz' ? 700 : 1600);
   }
   function autoEval(res) {
     var s = S.ses; if (!s || s.rep !== 'vu') return;
@@ -574,8 +578,13 @@
     return ' <span class="pill ' + esc(f.st) + '">' + esc(libStatut(f)) + '</span>';
   }
   function signale(id) { return !!(P.flags[id] && P.flags[id].on); }
+  function lienSignalement(f) {
+    var p = pack(f.pack);
+    return 'https://github.com/' + DEPOT + '/issues/new?template=erreur-fiche.yml&title=' + encodeURIComponent('Erreur : ' + f.t) +
+      '&fiche=' + encodeURIComponent(f.id + ' : ' + f.t + (p ? ' (' + p.titre + ')' : ''));
+  }
   function boutonFlag(f) {
-    return '<button class="lien" data-a="flag" data-id="' + esc(f.id) + '">' + (signale(f.id) ? 'Signalé. Annuler' : 'Signaler une erreur') + '</button>';
+    return '<a class="lien" data-a="flag" data-lien data-id="' + esc(f.id) + '" href="' + esc(lienSignalement(f)) + '" target="_blank" rel="noopener">Signaler une erreur</a>';
   }
   function ficheHtml(f, p, o) {
     o = o || {};
@@ -667,14 +676,19 @@
     if (s.kind === 'blitz') h += '<div class="chrono-b" id="chrono-b" style="width:100%"></div>';
     return h;
   }
+  function feuille(cl, corps) {
+    return '<div class="feuille' + (cl ? ' ' + cl : '') + '" id="retour" data-a="lire" aria-live="polite">' + corps + '</div>';
+  }
   function vueQuestion() {
-    var s = S.ses, q = s.q, f = FACTS[q.id], p = pack(f.pack), h = '<section>' + barre();
+    var s = S.ses, q = s.q, f = FACTS[q.id], p = pack(f.pack);
+    var h = '<section class="ecran-seance' + (s.frais ? ' entre' : '') + '">' + barre();
+    s.frais = false;
     h += '<p class="contexte">' + esc(p.titre) + (s.kind === 'blitz' ? ', ' + s.score + ' points' : '') + '</p>';
     if (q.fmt === 'decouverte') {
       return h + '<p class="petit">Nouveau repère</p><h1 class="enonce">' + esc(f.t) + '</h1>' + ficheHtml(f, p, { sansTitre: true }) +
-        '<button class="btn primaire large espace" data-a="suite">Compris</button></section>';
+        '<div class="bas"><button class="btn primaire large" data-a="suite">Compris</button></div></section>';
     }
-    h += '<p class="petit">' + esc(q.petit) + '</p><h1 class="enonce">' + esc(q.grand) + '</h1>';
+    h += '<p class="petit">' + esc(q.petit) + '</p><h1 class="enonce">' + esc(q.grand) + '</h1><div class="bas">';
     if (q.opts) {
       h += '<div class="opts' + (q.deux ? ' deux' : '') + '">';
       q.opts.forEach(function (o, i) {
@@ -682,20 +696,21 @@
         if (s.rep !== null) { if (o.ok) cl += ' juste'; else if (i === s.rep) cl += ' faux'; }
         h += '<button class="' + cl + '" data-a="rep" data-i="' + i + '"' + (s.rep !== null ? ' disabled' : '') + '><span class="k">' + (i + 1) + '</span><span>' + esc(o.t) + '</span></button>';
       });
-      h += '</div>';
-      if (s.rep !== null) {
-        var bon = s.rep >= 0 && q.opts[s.rep].ok;
-        h += '<div class="retour" id="retour" aria-live="polite"><p class="verdict ' + (bon ? 'ok' : 'ko') + '">' + (bon ? 'Juste.' : s.rep < 0 ? 'Temps écoulé.' : 'Raté.') + '</p>' +
-          ficheHtml(f, p, q.fmt === 'sur' ? { sansQ: true, sansA: true } : null) + '<div class="rangee espace"><button class="btn primaire" data-a="suite">Continuer</button>' + boutonFlag(f) + '</div></div>';
-      }
-    } else if (s.rep === null) {
-      h += '<button class="btn primaire large" data-a="voir">Afficher le corrigé</button>';
-    } else {
-      h += '<div class="retour" id="retour">' + ficheHtml(f, p, { sansQ: true }) +
-        '<div class="auto"><button class="btn ko" data-a="auto" data-r="ko">À revoir</button><button class="btn mid" data-a="auto" data-r="mid">Presque</button><button class="btn ok" data-a="auto" data-r="ok">Su</button></div>' +
-        '<p class="note espace">Note-toi sans indulgence : « Su » veut dire ' + (aQcm(f) ? 'la bonne réponse, expliquée, sans hésiter' : 'date, faits et portée, sans hésiter') + '.</p>' + boutonFlag(f) + '</div>';
+      h += '</div></div></section>';
+      if (s.rep === null) return h;
+      var bon = s.rep >= 0 && q.opts[s.rep].ok;
+      if (bon && s.kind === 'blitz') return h;
+      var juste = q.opts.filter(function (o) { return o.ok; })[0];
+      return h + feuille(bon ? 'ok' : 'ko',
+        '<p class="verdict ' + (bon ? 'ok' : 'ko') + '">' + (bon ? 'Juste.' : s.rep < 0 ? 'Temps écoulé.' : 'Raté.') + '</p>' +
+        (bon || !juste ? '' : '<p class="bonne">Bonne réponse : <b>' + esc(juste.t) + '</b></p>') +
+        ficheHtml(f, p, q.fmt === 'sur' ? { sansQ: true, sansA: true } : null) +
+        '<div class="actions"><button class="btn primaire' + (s.auto ? ' rebours' : '') + '" data-a="suite">Continuer</button>' + boutonFlag(f) + '</div>');
     }
-    return h + '</section>';
+    if (s.rep === null) return h + '<button class="btn primaire large" data-a="voir">Afficher le corrigé</button></div></section>';
+    return h + '</div></section>' + feuille('', ficheHtml(f, p, { sansQ: true }) +
+      '<p class="note espace">Note-toi sans indulgence : « Su » veut dire ' + (aQcm(f) ? 'la bonne réponse, expliquée, sans hésiter' : 'date, faits et portée, sans hésiter') + '.</p>' +
+      '<div class="actions"><div class="auto"><button class="btn ko" data-a="auto" data-r="ko">À revoir</button><button class="btn mid" data-a="auto" data-r="mid">Presque</button><button class="btn ok" data-a="auto" data-r="ok">Su</button></div></div>' + boutonFlag(f));
   }
   function vueDebrief() {
     var s = S.ses, h = '<section class="pile"><h1 class="page-t">Débriefing</h1><div class="bloc">';
@@ -987,7 +1002,8 @@
     h += '<div class="ligne"><label for="r-prep">Préparation de l\'oral</label><select id="r-prep" data-set="prep">' + options([10, 15, 20, 30, 45, 60], P.set.prep, 'min') + '</select></div>';
     h += '<div class="ligne"><label for="r-expo">Exposé</label><select id="r-expo" data-set="expo">' + options([5, 10, 15, 20], P.set.expo, 'min') + '</select></div>';
     h += '<div class="ligne"><label for="r-quest">Questions du jury</label><select id="r-quest" data-set="quest">' + options([5, 10, 15, 20], P.set.quest, 'min') + '</select></div>';
-    h += '<div class="ligne"><label for="r-blitz">Temps par question en blitz</label><select id="r-blitz" data-set="blitz">' + options([10, 15, 20, 30], P.set.blitz, 's') + '</select></div></div>';
+    h += '<div class="ligne"><label for="r-blitz">Temps par question en blitz</label><select id="r-blitz" data-set="blitz">' + options([10, 15, 20, 30], P.set.blitz, 's') + '</select></div>';
+    h += '<div class="ligne"><label for="r-auto">Enchaîner après une bonne réponse</label><select id="r-auto" data-set="auto"><option value="1"' + (P.set.auto !== 0 ? ' selected' : '') + '>Oui</option><option value="0"' + (P.set.auto === 0 ? ' selected' : '') + '>Non</option></select></div></div>';
     h += '<div class="bloc"><h2>Synchronisation</h2><p><b id="sync-detail">' + LIB[st] + '</b></p>';
     if (Sync.git()) {
       h += '<p class="note espace">Ta progression est enregistrée dans un fichier privé de ton compte GitHub. Elle suit sur chaque appareil où tu as collé le même jeton. Si GitHub refuse le jeton, arrête la synchronisation puis colle-en un nouveau.</p>' +
@@ -1006,11 +1022,14 @@
     var sig = Object.keys(P.flags).filter(signale).filter(function (id) { return FACTS[id]; });
     h += '<div class="bloc"><h2>Fiches signalées</h2>' + (sig.length ? '<ul class="rates">' + sig.map(function (id) {
       return '<li><span class="d">' + esc(FACTS[id].d || FACTS[id].g || '') + '</span><span>' + esc(FACTS[id].t) + '</span></li>';
-    }).join('') + '</ul><p class="note espace">Demande à Claude de les relire : il voit cette liste.</p>' : '<p class="note">Aucune. Le bouton « Signaler une erreur » apparaît sous chaque fiche.</p>') + '</div>';
+    }).join('') + '</ul><button class="lien" data-a="flags-vider">Vider cette liste</button>' : '<p class="note">Aucune. Le lien « Signaler une erreur », sous chaque fiche, ouvre un signalement sur GitHub : la correction profite à tout le monde.</p>') + '</div>';
     h += '<div class="bloc"><h2>Test de positionnement</h2><p class="note">Une trentaine de questions sur toute la base. Les repères réussis sautent les premières étapes.</p><button class="btn espace" data-a="diag">Passer le test</button></div>';
     h += '<div class="bloc"><h2>Remise à zéro</h2>';
     if (S.raz) h += '<p class="alerte">Toute la progression sera effacée, sur tous tes appareils.</p><div class="rangee espace"><button class="btn danger" data-a="raz-oui">Effacer ma progression</button><button class="btn" data-a="raz-non">Annuler</button></div>';
     else h += '<button class="btn danger" data-a="raz">Effacer ma progression</button>';
+    h += '</div><div class="bloc"><h2>À propos</h2><p class="note">Plan de vol est un projet libre et indépendant, sans lien avec le ministère des Armées ni avec une école. Les fiches ont été rédigées avec l\'aide d\'une IA ; les faits d\'actualité ont été recoupés en ligne à la date indiquée. Une erreur reste possible : signale-la.</p>' +
+      '<p class="note espace">Code sous licence MIT, fiches sous licence CC BY-SA 4.0. Version du ' + VERSION_APP + '.</p>' +
+      '<a class="lien" href="https://github.com/' + esc(DEPOT) + '" target="_blank" rel="noopener">Code source, signalements et contributions</a>';
     return h + '</div></section>';
   }
 
@@ -1030,10 +1049,6 @@
     }
     app.innerHTML = h;
     if (S.haut) { S.haut = false; window.scrollTo(0, 0); }
-    else if (S.ses && !S.ses.fini && S.ses.rep !== null) {
-      var r = document.getElementById('retour');
-      if (r && r.scrollIntoView) r.scrollIntoView({ block: 'nearest' });
-    }
     if (S.oral && p === 'oral' && !S.ses && !S.frise && !S.choix) oralBattre();
   }
 
@@ -1056,9 +1071,12 @@
     rejouer: function () { var pid = S.ses ? S.ses.opt.pack : ''; fermer(); lancerBlitz(pid); },
     erreurs: function () { var ids = S.ses ? S.ses.rates.slice() : []; fermer(); lancer('erreurs', ids.filter(function (id) { return FACTS[id]; }).map(function (id) { return { id: id, fmt: qcm(FACTS[id]), dur: false, retry: true }; })); },
     refrise: function () { var pid = S.frise ? S.frise.pack : ''; fermer(); friseNouvelle(pid); },
-    flag: function (b) {
-      var id = b.getAttribute('data-id'); P.flags[id] = { on: !signale(id), t: Date.now() }; commit();
-      b.textContent = signale(id) ? 'Signalé. Annuler' : 'Signaler une erreur';
+    flag: function (b) { var id = b.getAttribute('data-id'); P.flags[id] = { on: true, t: Date.now() }; commit(); },
+    'flags-vider': function () { Object.keys(P.flags).forEach(function (id) { if (signale(id)) P.flags[id] = { on: false, t: Date.now() }; }); commit(); rendre(); },
+    lire: function () {
+      var s = S.ses; if (!s || !s.auto || s.kind === 'blitz') return;
+      s.auto = false; if (chrono.auto) { clearTimeout(chrono.auto); chrono.auto = 0; }
+      var b = document.querySelector('.btn.rebours'); if (b) b.classList.remove('rebours');
     },
     fiches: function (b) { S.fiches.pack = b.getAttribute('data-p'); S.fiches.q = ''; S.fiches.st = ''; S.haut = true; if (page() !== 'fiches') window.location.hash = '#fiches'; else rendre(); },
     fpack: function (b) { S.fiches.pack = b.getAttribute('data-p'); S.fiches.st = ''; rendre(); },
@@ -1131,7 +1149,7 @@
     var b = e.target && e.target.closest ? e.target.closest('[data-a]') : null;
     if (!b || b.disabled) return;
     var fn = ACT[b.getAttribute('data-a')];
-    if (fn) { e.preventDefault(); fn(b); }
+    if (fn) { if (!b.hasAttribute('data-lien')) e.preventDefault(); fn(b); }
   });
   document.addEventListener('change', function (e) {
     var t = e.target, k = t && t.getAttribute ? t.getAttribute('data-set') : null;
@@ -1161,7 +1179,7 @@
   window.addEventListener('hashchange', function () { fermer(); S.raz = false; S.haut = true; rendre(); });
 
   DATA.test = { fusion: fusion, vide: vide, qQuand: qQuand, qQuoi: qQuoi, qSur: qSur, formats: formats, question: question, composer: composer, nouveaux: nouveaux,
-    tirer: tirer, parTheme: parTheme, packValide: packValide, faits: function () { return FACTS; } };
+    tirer: tirer, parTheme: parTheme, packValide: packValide, faits: function () { return FACTS; }, seance: function () { return S.ses; } };
   indexer();
   rendre();
   Sync.init();

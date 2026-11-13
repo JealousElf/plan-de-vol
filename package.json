@@ -1,0 +1,17 @@
+{
+  "name": "plan-de-vol",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Application de révision pour le grand oral : histoire, géopolitique, défense, armées françaises. Installable et utilisable hors connexion.",
+  "license": "MIT",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "servir": "node outils/servir.mjs",
+    "sw": "node outils/generer-sw.mjs",
+    "captures": "node outils/captures.mjs",
+    "test": "node outils/generer-sw.mjs --verifier && node --test --test-concurrency=1 \"tests/*.test.mjs\""
+  },
+  "devDependencies": {
+    "playwright": "^1.50.0"
+  }
+}

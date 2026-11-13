@@ -165,6 +165,36 @@ body.focus .tabs { display: none; }
 @media (hover: none) { .opt .k { display: none; } }
 
 .retour { margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--trait); }
+
+/* Séance : la question en haut, les réponses sous le pouce, la fiche en feuille basse. */
+.ecran-seance .bas { margin-top: 4px; }
+.feuille {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 8;
+  max-width: 660px; margin: 0 auto; max-height: 74vh; overflow-y: auto; overscroll-behavior: contain;
+  padding: 14px 16px 0;
+  background: var(--papier); border: 1px solid var(--trait); border-bottom: 0; border-top: 4px solid var(--bleu);
+  border-radius: 14px 14px 0 0; box-shadow: 0 -12px 32px rgba(18, 35, 61, .18);
+}
+.feuille.ok { border-top-color: var(--ok); }
+.feuille.ko { border-top-color: var(--ko); }
+.feuille .bonne { margin-top: 4px; font-size: 16px; }
+.feuille .fait-t { margin-top: 10px; }
+.feuille .actions {
+  position: sticky; bottom: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px;
+  margin-top: 12px; padding: 12px 0 calc(12px + env(safe-area-inset-bottom, 0px)); background: var(--papier);
+}
+.feuille .actions .auto { flex: 1 1 100%; margin-top: 0; }
+.feuille > .lien { display: inline-block; margin-bottom: calc(8px + env(safe-area-inset-bottom, 0px)); }
+.btn.rebours { position: relative; overflow: hidden; }
+.btn.rebours::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 4px; background: var(--sur-balise); opacity: .6; transform: scaleX(0); transform-origin: left; }
+@media (max-width: 759px) {
+  .ecran-seance { display: flex; flex-direction: column; min-height: calc(100vh - 92px); min-height: calc(100dvh - 92px); }
+  .ecran-seance .bas {
+    margin-top: auto; position: sticky; bottom: 0; z-index: 2;
+    padding: 26px 0 calc(6px + env(safe-area-inset-bottom, 0px));
+    background: linear-gradient(to bottom, transparent, var(--ciel) 24px);
+  }
+}
 .verdict { font-weight: 700; font-size: 16px; }
 .verdict.ok { color: var(--ok); }
 .verdict.ko { color: var(--ko); }
@@ -276,6 +306,16 @@ body.focus .tabs { display: none; }
 
 @media (prefers-reduced-motion: no-preference) {
   .jauge i, .piste .acquis, .piste .encours { transition: width .35s ease; }
+  .ecran-seance.entre > :not(.q-top):not(.chrono-b) { animation: entree .2s ease-out both; }
+  .feuille { animation: monte .22s cubic-bezier(.2, .8, .2, 1) both; }
+  .opt { transition: border-color .12s ease, background-color .12s ease, transform .08s ease; }
+  .opt:active:not([disabled]) { transform: scale(.985); }
+  .opt.juste, .opt.faux { animation: pouls .24s ease-out; }
+  .btn.rebours::after { animation: rebours 1.6s linear both; }
+  @keyframes entree { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  @keyframes monte { from { transform: translateY(100%); } to { transform: none; } }
+  @keyframes pouls { 50% { transform: scale(1.02); } }
+  @keyframes rebours { from { transform: scaleX(0); } to { transform: scaleX(1); } }
 }
 @media (min-width: 760px) {
   .wrap { padding-bottom: 48px; }

@@ -1,20 +1,20 @@
 /* Plan de vol : tout le contenu est mis en cache à l'installation, puis servi sans réseau. */
-var VERSION = "pdv-90339384d68c";
+var VERSION = "pdv-3344b975d113";
 var FICHIERS = [
   "index.html",
   "styles.css",
   "app.js",
   "manifest.webmanifest",
-  "fonts/fonts.css",
   "fonts/b612-latin-400-normal.woff2",
   "fonts/b612-latin-700-normal.woff2",
+  "fonts/fonts.css",
+  "fonts/spectral-latin-400-italic.woff2",
   "fonts/spectral-latin-400-normal.woff2",
   "fonts/spectral-latin-500-normal.woff2",
   "fonts/spectral-latin-600-normal.woff2",
-  "fonts/spectral-latin-400-italic.woff2",
+  "icons/apple-touch-icon.png",
   "icons/icon-192.png",
   "icons/icon-512.png",
-  "icons/apple-touch-icon.png",
   "data/aae.js",
   "data/conflits.js",
   "data/france.js",

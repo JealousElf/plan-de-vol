@@ -1,0 +1,19 @@
+name: Problème ou idée
+description: Un défaut de l'application, ou une amélioration à proposer.
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Ce qui se passe, ou ce que tu proposes
+    validations:
+      required: true
+  - type: textarea
+    id: etapes
+    attributes:
+      label: Comment le reproduire
+      description: Les gestes qui mènent au problème, si c'en est un.
+  - type: input
+    id: appareil
+    attributes:
+      label: Appareil et navigateur
+      description: Par exemple iPhone 15, application ouverte depuis l'écran d'accueil.

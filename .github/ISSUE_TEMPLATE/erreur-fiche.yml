@@ -1,0 +1,27 @@
+name: Erreur dans une fiche
+description: Un fait, une date ou une formulation te paraît faux ou dépassé.
+title: "Erreur : "
+labels: ["fiche"]
+body:
+  - type: input
+    id: fiche
+    attributes:
+      label: Fiche concernée
+      description: Rempli automatiquement depuis l'application. Sinon, indique le titre de la fiche et son pack.
+    validations:
+      required: true
+  - type: textarea
+    id: probleme
+    attributes:
+      label: Ce qui est faux ou dépassé
+    validations:
+      required: true
+  - type: textarea
+    id: correction
+    attributes:
+      label: Correction proposée
+  - type: input
+    id: source
+    attributes:
+      label: Source publique
+      description: Un lien que tout le monde peut consulter.
