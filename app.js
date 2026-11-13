@@ -11,6 +11,10 @@
   var IV = [0, 1, 2, 4, 8, 16, 32];
   var MOIS = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
   var FACTS = {};
+  var SUIVI = DATA.suivi, G = DATA.graph;
+  var JOURS_SEM = ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche'];
+  var MOIS_C = ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'];
+  var THEME = 'pdv.theme';
 
   /* ---------- outils ---------- */
   function esc(s) {
@@ -36,6 +40,12 @@
   }
   function mmss(ms) { var s = Math.max(0, Math.round(ms / 1000)); var m = Math.floor(s / 60); s = s % 60; return m + ':' + (s < 10 ? '0' : '') + s; }
   function pluriel(n, un, des) { return n + ' ' + (n > 1 ? des : un); }
+  function jourTexte(jour, court) { var d = SUIVI.dateDe(jour); return (d.j === 1 ? '1er' : d.j) + ' ' + (court ? MOIS_C[d.m] : MOIS[d.m]); }
+  function jourLong(jour) { return JOURS_SEM[SUIVI.dateDe(jour).s] + ' ' + jourTexte(jour); }
+  function initiale(jour) { return JOURS_SEM[SUIVI.dateDe(jour).s].charAt(0).toUpperCase(); }
+  function pourcent(x) { return Math.round(100 * x) + '\u00a0%'; }
+  function virgule(x) { return (Math.round(x * 10) / 10).toFixed(1).replace('.', ','); }
+  function duree(ms) { var m = Math.max(1, Math.round(ms / 60000)); return m < 60 ? m + ' min' : Math.floor(m / 60) + ' h ' + (m % 60 < 10 ? '0' : '') + (m % 60); }
   function norm(s) { return String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, ''); }
 
   /* ---------- données ---------- */
@@ -95,7 +105,7 @@
   function commit() { elaguer(); ecrireLocal(); Sync.pousser(); }
   function elaguer() {
     var d = auj(), k;
-    for (k in P.days) if (+k < d - 120) delete P.days[k];
+    for (k in P.days) if (+k < d - 400) delete P.days[k];
     if (P.oraux.length > 60) P.oraux = P.oraux.slice(-60);
   }
 
@@ -478,7 +488,7 @@
   function lancer(kind, items, opt) {
     if (!items.length) return;
     S.choix = null;
-    S.ses = { kind: kind, items: items, i: 0, ok: 0, n: 0, rates: [], score: 0, serie: 0, q: null, rep: null, opt: opt || {}, fini: false, reste: 1 };
+    S.ses = { kind: kind, items: items, i: 0, ok: 0, n: 0, rates: [], score: 0, serie: 0, q: null, rep: null, opt: opt || {}, fini: false, reste: 1, tm: Date.now() };
     suivante();
   }
   function suivante() {
@@ -510,6 +520,7 @@
     var jour = P.days[d] ? clone(P.days[d]) : { n: 0, ok: 0, neu: 0 };
     var libre = s.kind === 'blitz';
     jour.n++; if (res === 'ok') jour.ok++;
+    var top = Date.now(); jour.ms = (jour.ms || 0) + Math.min(120000, Math.max(0, top - (s.tm || top))); s.tm = top;
     if (!c.b && !libre) jour.neu = (jour.neu || 0) + 1;
     P.days[d] = jour;
     c.n++; if (res === 'ok') c.ok++;
@@ -601,15 +612,6 @@
   }
   function record(prefixe, pid) { return P.best[prefixe + ':' + (pid || 'tout')] || 0; }
   function meilleur(prefixe) { var m = 0, k; for (k in P.best) if (k.indexOf(prefixe + ':') === 0 && P.best[k] > m) m = P.best[k]; return m; }
-  function barresJours(nb) {
-    var d = auj(), max = 1, i, h = '';
-    for (i = nb - 1; i >= 0; i--) { var j = P.days[d - i]; if (j && j.n > max) max = j.n; }
-    for (i = nb - 1; i >= 0; i--) {
-      var x = P.days[d - i], n = x ? x.n : 0;
-      h += '<i class="' + (n ? (i === 0 ? 'auj' : '') : 'vide') + '" style="height:' + (n ? Math.max(8, Math.round(100 * n / max)) : 3) + '%" title="' + n + ' réponses"></i>';
-    }
-    return '<div class="jours" role="img" aria-label="Réponses par jour sur ' + nb + ' jours">' + h + '</div>';
-  }
 
   /* ---------- accueil ---------- */
   function phraseSeance(nd, nn) {
@@ -618,31 +620,102 @@
     if (nn) a.push(pluriel(nn, 'nouveauté', 'nouveautés'));
     return a.join(' et ');
   }
+  function vusEtAcquis() {
+    var r = { vus: 0, acquis: 0 };
+    tous().forEach(function (f) { var c = P.cards[f.id]; if (c && c.b) { r.vus++; if (c.b >= SUIVI.PALIER) r.acquis++; } });
+    return r;
+  }
+  function prevoir() {
+    var c = vusEtAcquis();
+    return SUIVI.prevision({ total: tous().length, vus: c.vus, acquis: c.acquis, jours: P.days, auj: auj(), exam: P.set.exam ? jourIso(P.set.exam) : null, regle: +P.set.neu || 10 });
+  }
+  function rythmeTexte(p) {
+    var n = Math.round(p.rythme);
+    if (p.source === 'regle') return 'À raison de ' + pluriel(n, 'nouveauté', 'nouveautés') + ' par jour';
+    return 'À ton rythme actuel (' + (n < 1 ? 'moins d\'une nouveauté' : pluriel(n, 'nouveauté', 'nouveautés')) + ' par jour)';
+  }
+  function avantOral(marge) { return marge === 0 ? 'le jour même de l\'oral' : marge === 1 ? 'la veille de l\'oral' : marge + ' jours avant l\'oral'; }
+  /* La prévision en clair : un titre, un ton (ok, attn ou rien), une phrase complète, une phrase courte pour l'accueil, et le rythme à proposer. */
+  function lirePrevision(p) {
+    var r = { titre: '', ton: '', texte: '', court: '', bouton: 0 }, regle = +P.set.neu || 10;
+    var vu = p.jourVu !== null ? jourTexte(p.jourVu) : '', acq = p.jourAcquis !== null ? jourTexte(p.jourAcquis) : '';
+    if (p.etat === 'fini') {
+      r.titre = 'Programme bouclé'; r.ton = 'ok';
+      r.texte = 'Les ' + p.total + ' repères sont acquis. Il reste à les entretenir\u00a0: la séance du jour s\'en charge.';
+    } else if (p.etat === 'passe') {
+      r.titre = 'Oral passé';
+      r.texte = 'La date de l\'oral est passée. Change-la dans les réglages pour préparer le prochain.';
+    } else if (p.etat === 'vu') {
+      r.titre = 'Programme vu'; r.ton = 'ok';
+      r.texte = 'Tout le programme est vu. Il reste ' + pluriel(p.total - p.acquis, 'repère', 'repères') + ' à consolider\u00a0: la séance du jour les ramène au bon moment.';
+      r.court = 'Tout le programme est vu\u00a0: il reste à consolider.';
+    } else if (p.etat !== 'retard') {
+      if (p.jourVu === null) {
+        r.texte = 'Aucune nouveauté ces derniers jours\u00a0: ' + pluriel(p.neufs, 'repère reste', 'repères restent') + ' à découvrir.';
+      } else {
+        r.texte = rythmeTexte(p) + ', tout le programme est vu le ' + vu;
+        r.texte += p.reste === null ? '. Indique la date de l\'oral pour savoir si tu es dans les temps.' : ' et peut être acquis vers le ' + acq + ', ' + avantOral(p.marge) + '.';
+        r.court = (p.source === 'regle' ? 'À ' + pluriel(Math.round(p.rythme), 'nouveauté', 'nouveautés') + ' par jour' : 'À ton rythme actuel') + ', programme vu le ' + vu + '.';
+      }
+      if (p.etat === 'avance') { r.titre = 'Dans les temps'; r.ton = 'ok'; }
+    } else {
+      r.titre = 'En retard sur le plan'; r.ton = 'attn';
+      if (p.reste === 0) r.texte = 'L\'oral est aujourd\'hui et ' + pluriel(p.neufs, 'repère n\'a pas été vu', 'repères n\'ont pas été vus') + '. Révise ce que tu connais déjà.';
+      else {
+        r.texte = p.manque > 0 ? rythmeTexte(p) + ', ' + pluriel(p.manque, 'repère restera', 'repères resteront') + ' à découvrir le jour de l\'oral.'
+          : rythmeTexte(p) + ', tout est vu le ' + vu + ', trop tard pour être consolidé avant l\'oral.';
+        r.court = p.manque > 0 ? 'À ce rythme, ' + pluriel(p.manque, 'repère manquera', 'repères manqueront') + ' le jour de l\'oral.' : 'À ce rythme, les derniers repères arrivent trop tard.';
+        if (p.conseil === null) r.texte += ' Même à 20 nouveautés par jour, tout le programme ne tient plus avant l\'oral\u00a0: commence par les thèmes les plus probables.';
+        else if (p.conseil > regle) { r.texte += ' Passe à ' + p.conseil + ' nouveautés par jour pour tout voir une semaine avant.'; r.bouton = p.conseil; }
+        else r.texte += ' Tiens ' + pluriel(regle, 'nouveauté', 'nouveautés') + ' par jour, tous les jours, pour tout voir une semaine avant.';
+      }
+    }
+    return r;
+  }
+  function titreAccueil(jr) { return jr === null ? 'Cap sur l\'oral' : jr > 0 ? 'Oral dans ' + pluriel(jr, 'jour', 'jours') : jr === 0 ? 'Oral aujourd\'hui' : 'Oral passé'; }
+  /* Après un changement de date depuis l'accueil : on corrige le titre et la piste sans redessiner la page (le champ garde la main). */
+  function majEcheance() {
+    var jr = joursRestants(), t = document.querySelector('#app h1.page-t'), p = document.querySelector('#app .piste'), n = p ? p.querySelector('.numero') : null;
+    if (page() !== 'accueil' || S.ses || S.frise || S.choix || !t) return;
+    t.textContent = titreAccueil(jr);
+    if (n) n.textContent = jr !== null && jr > 0 ? 'J-' + jr : '';
+    if (p) p.classList.toggle('sans-num', !(jr !== null && jr > 0));
+  }
   function accueil() {
-    var b = bilan(tous()), plan = planJour(), jr = joursRestants();
+    var b = bilan(tous()), plan = planJour(), jr = joursRestants(), premiere = !Object.keys(P.cards).length && !P.diag;
     var pa = b.n ? 100 * b.acquis / b.n : 0, pc = b.n ? 100 * (b.acquis + b.cours) / b.n : 0;
-    var titre = jr === null ? 'Cap sur l\'oral' : jr > 0 ? 'Oral dans ' + pluriel(jr, 'jour', 'jours') : jr === 0 ? 'Oral aujourd\'hui' : 'Oral passé';
-    var h = '<section class="pile"><div class="bloc"><h1 class="page-t">' + titre + '</h1>';
+    var h = '<section class="cols vaste"><div class="pile"><div class="bloc"><h1 class="page-t">' + titreAccueil(jr) + '</h1>';
     h += '<div class="piste espace' + (jr !== null && jr > 0 ? '' : ' sans-num') + '" role="img" aria-label="' + b.acquis + ' repères acquis, ' + b.cours + ' en cours, ' + b.neuf + ' à découvrir">' +
       '<span class="encours" style="width:' + pc.toFixed(1) + '%"></span><span class="acquis" style="width:' + pa.toFixed(1) + '%"></span>' +
       '<span class="seuil"></span><span class="axe"></span><span class="numero">' + (jr !== null && jr > 0 ? 'J-' + jr : '') + '</span></div>';
     h += '<div class="legende"><span class="l-acquis">' + b.acquis + ' acquis</span><span class="l-encours">' + b.cours + ' en cours</span><span>' + b.neuf + ' à découvrir</span></div>';
-    if (jr === null) h += '<p class="note espace"><a href="#reglages">Indique la date de l\'oral</a> pour afficher le compte à rebours.</p>';
+    if (!premiere) {
+      var lp = lirePrevision(prevoir());
+      if (lp.court) h += '<p class="cap-ligne' + (lp.ton === 'attn' ? ' attn' : '') + '"><a href="#carnet">' + esc(lp.court) + '</a></p>';
+      if (!P.set.exam) h += '<div class="ligne seule"><label for="a-exam">Date de l\'oral</label><input id="a-exam" type="date" data-set="exam" value=""></div>';
+    }
     h += '</div>';
 
     var nd = plan.dus.length, nn = plan.neufs.length;
-    h += '<div class="bloc seance"><h2>Séance du jour</h2>';
-    if (nd + nn > 0) {
-      h += '<p class="chiffres">' + phraseSeance(nd, nn) + ', ' + Math.max(1, Math.ceil((nd * 20 + nn * 45) / 60)) + ' min environ.</p>';
-      h += '<button class="btn primaire large" data-a="jour">Lancer la séance</button>';
-      if (plan.attente) h += '<p class="note espace">' + pluriel(plan.attente, 'autre révision attend', 'autres révisions attendent') + ' : relance une séance ensuite.</p>';
+    if (premiere) {
+      h += '<div class="bloc seance"><h2>Avant le décollage</h2><p class="chiffres">Dix minutes par jour : chaque repère revient juste avant que tu l\'oublies, de plus en plus rarement.</p>' +
+        '<div class="ligne"><label for="a-exam">Date de l\'oral</label><input id="a-exam" type="date" data-set="exam" value="' + esc(P.set.exam || '') + '"></div>' +
+        '<div class="ligne"><label for="a-neu">Nouveautés par jour</label><select id="a-neu" data-set="neu">' + options([5, 8, 10, 15, 20], P.set.neu) + '</select></div>' +
+        '<button class="btn primaire large espace" data-a="jour">Lancer la première séance</button>' +
+        '<p class="note espace">Tu connais déjà une partie du programme ? <button class="lien" data-a="diag">Passe le test de positionnement</button> pour ne pas tout revoir.</p></div>';
     } else {
-      var reste = nouveaux(1).length;
-      h += '<p class="chiffres">Séance du jour terminée.' + (reste ? '' : ' Tous les repères sont découverts.') + '</p>';
-      if (reste) h += '<button class="btn large" data-a="avance">Prendre de l\'avance : ' + (+P.set.neu || 10) + ' nouveautés</button>';
+      h += '<div class="bloc seance"><h2>Séance du jour</h2>';
+      if (nd + nn > 0) {
+        h += '<p class="chiffres">' + phraseSeance(nd, nn) + ', ' + Math.max(1, Math.ceil((nd * 20 + nn * 45) / 60)) + ' min environ.</p>';
+        h += '<button class="btn primaire large" data-a="jour">Lancer la séance</button>';
+        if (plan.attente) h += '<p class="note espace">' + pluriel(plan.attente, 'autre révision attend', 'autres révisions attendent') + ' : relance une séance ensuite.</p>';
+      } else {
+        var reste = nouveaux(1).length;
+        h += '<p class="chiffres">Séance du jour terminée.' + (reste ? '' : ' Tous les repères sont découverts.') + '</p>';
+        if (reste) h += '<button class="btn large" data-a="avance">Prendre de l\'avance : ' + (+P.set.neu || 10) + ' nouveautés</button>';
+      }
+      h += '</div>';
     }
-    if (!Object.keys(P.cards).length) h += '<p class="note espace">Tu connais déjà une partie du programme ? <button class="lien" data-a="diag">Passe le test de positionnement</button> pour ne pas les revoir.</p>';
-    h += '</div>';
 
     h += '<div class="bloc"><h2>Check-list de maîtrise</h2>';
     parTheme().forEach(function (t) {
@@ -651,18 +724,28 @@
         h += '<button class="check" data-a="fiches" data-p="' + esc(p.id) + '"><span class="nom">' + esc(p.titre) + '</span><span class="pts"></span><span class="val">' + bilan(p.faits).pct + ' %</span></button>';
       });
     });
-    h += '</div>';
+    h += '</div></div>';
 
     var rb = meilleur('blitz'), rf = meilleur('frise'), dernier = P.oraux.length ? P.oraux[P.oraux.length - 1] : null;
-    h += '<div class="pile" style="gap:8px"><h2 class="titre2" style="margin:6px 0 0">Entraînements</h2>';
+    h += '<div class="pile"><div class="pile serre"><h2 class="titre2">Entraînements</h2>';
     h += '<button class="strip" data-a="choix" data-m="blitz"><b>Blitz chrono</b><span class="desc">20 questions, ' + (+P.set.blitz || 15) + ' secondes chacune</span><span class="meta">' + (rb ? 'Record ' + rb : '') + '</span></button>';
     h += '<button class="strip" data-a="choix" data-m="frise"><b>Frise</b><span class="desc">Remets cinq événements dans l\'ordre</span><span class="meta">' + (rf ? 'Record ' + rf + ' / 15' : '') + '</span></button>';
     h += '<a class="strip" href="#oral"><b>Grand oral</b><span class="desc">Deux sujets au choix, ' + P.set.prep + ' min de préparation, exposé, questions</span><span class="meta">' + (dernier ? 'Dernier ' + dernier.total + ' / 20' : '') + '</span></a>';
     h += '</div>';
 
-    var sr = serie();
-    h += '<div class="bloc"><h2>Carnet de vol</h2><p class="note">' + (sr ? 'Série en cours : ' + pluriel(sr, 'jour', 'jours') + '.' : 'Aucune séance pour l\'instant.') + ' Sept derniers jours :</p>' + barresJours(7) + '</div>';
-    return h + '</section>';
+    var sr = serie(), d = auj(), sept = [], maxJ = 0, i;
+    for (i = 6; i >= 0; i--) {
+      var x = P.days[d - i], n = x ? x.n || 0 : 0;
+      if (n > maxJ) maxJ = n;
+      sept.push({ v: n, bulle: n ? pluriel(n, 'réponse', 'réponses') + ', ' + pluriel(x.ok || 0, 'juste', 'justes') : 'Repos', lib: i === 0 ? 'Aujourd\'hui' : jourLong(d - i), x: initiale(d - i), cl: i === 0 ? 'auj' : '' });
+    }
+    h += '<div class="bloc"><h2>Carnet de vol</h2>';
+    if (maxJ) {
+      h += '<p class="note">' + (sr ? 'Série en cours : ' + pluriel(sr, 'jour', 'jours') + '.' : 'Série interrompue.') + ' Réponses des sept derniers jours :</p>' +
+        G.barres(sept, { max: SUIVI.plafond(maxJ), aria: 'Réponses par jour sur les sept derniers jours', h: 72, focus: 6 }) + '<p class="espace"><a href="#carnet">Ouvrir le carnet</a></p>';
+    } else if (Object.keys(P.days).length) h += '<p class="note">Aucune séance depuis une semaine. <a href="#carnet">Ouvrir le carnet</a></p>';
+    else h += '<p class="note">Aucune séance pour l\'instant : le carnet se remplit dès la première.</p>';
+    return h + '</div></div></section>';
   }
 
   /* ---------- séance ---------- */
@@ -974,23 +1057,158 @@
   }
 
   /* ---------- carnet et réglages ---------- */
+  function tuile(valeur, label, plus) {
+    return '<div class="tuile"><b>' + valeur + '</b><span>' + esc(label) + '</span>' + (plus ? '<small' + (plus.cl ? ' class="' + plus.cl + '"' : '') + '>' + esc(plus.t) + '</small>' : '') + '</div>';
+  }
+  /* Prévision : la phrase qui répond à « serai-je prêt ? », puis la courbe des repères vus, réelle puis prolongée jusqu'à l'oral. */
+  function blocCap(p) {
+    var lp = lirePrevision(p), d = auj(), h = '<div class="bloc cap"><h2>Prévision</h2>';
+    if (lp.titre) h += '<p class="statut' + (lp.ton ? ' ' + lp.ton : '') + '">' + esc(lp.titre) + '</p>';
+    h += '<p class="chiffres">' + esc(lp.texte) + '</p>';
+    if (lp.bouton) h += '<button class="btn" data-a="rythme" data-n="' + lp.bouton + '">Passer à ' + lp.bouton + ' nouveautés par jour</button>';
+    if (p.reste === null && p.etat !== 'fini') h += '<p class="note"><a href="#reglages">Indiquer la date de l\'oral</a></p>';
+    if (p.etat === 'passe' || p.etat === 'fini' || !p.total) return h + '</div>';
+
+    var premier = SUIVI.regularite(P.days, d).premier;
+    var depuis = premier === null ? d : Math.max(Math.min(premier - 1, d - 1), d - 90);
+    var fin = p.reste !== null && p.reste > 0 ? d + p.reste : (p.jourVu !== null ? Math.max(p.jourVu + 7, d + 14) : d + 30);
+    var hist = SUIVI.historique(P.days, d, p.vus, depuis).map(function (x) { return [x.jour, x.v]; });
+    var proj = p.neufs && p.rythme > 0 ? SUIVI.projection(p.vus, p.total, p.rythme, d, fin).map(function (x) { return [x.jour, x.v]; }) : [];
+    var etendue = Math.max(1, fin - depuis), ici = (d - depuis) / etendue, j;
+    function valeurA(jour) { return jour <= d ? hist[jour - depuis][1] : (proj.length ? proj[jour - d][1] : null); }
+
+    var gy = [], pas = SUIVI.plafond(p.total) / 4;
+    for (j = pas; j <= p.total * 0.8; j += pas) gy.push({ y: j, t: String(Math.round(j)) });
+    var pts = [{ x: d, y: p.vus }], ets = [{ x: d, y: p.vus, t: pluriel(p.vus, 'vu', 'vus'), cl: (ici < 0.3 ? 'd' : 'g') + (p.vus > p.total * 0.8 ? ' bas' : '') }];
+    if (proj.length) {
+      if (p.jourVu !== null && p.jourVu <= fin) {
+        pts.push({ x: p.jourVu, y: p.total, cl: 'prevu' });
+        ets.push({ x: p.jourVu, y: p.total, t: jourTexte(p.jourVu, true), cl: ((p.jourVu - depuis) / etendue > 0.8 ? 'g' : 'd') + ' bas' });
+      } else {
+        var bout = proj[proj.length - 1][1];
+        pts.push({ x: fin, y: bout, cl: 'prevu' });
+        ets.push({ x: fin, y: bout, t: bout + (p.reste !== null && ici < 0.55 ? ' le jour de l\'oral' : ''), cl: 'g' + (bout > p.total * 0.9 ? ' bas' : '') });
+      }
+    }
+    var gx = [{ x: depuis, t: depuis === d ? 'aujourd\'hui' : jourTexte(depuis, true), cl: 'deb' }];
+    if (ici > 0.22 && ici < 0.78) gx.push({ x: d, t: 'aujourd\'hui' });
+    gx.push({ x: fin, t: jourTexte(fin, true), cl: 'fin' });
+
+    var jours = {}, lect = [], saut = Math.max(1, Math.ceil((etendue + 1) / 120));
+    for (j = depuis; j <= fin; j += saut) jours[j] = 1;
+    jours[d] = 1; jours[fin] = 1;
+    Object.keys(jours).map(Number).sort(function (a, c) { return a - c; }).forEach(function (jour) {
+      var v = valeurA(jour);
+      if (v !== null) lect.push({ x: jour, v: pluriel(v, 'repère vu', 'repères vus'), l: (jour === d ? 'Aujourd\'hui' : jourLong(jour)) + (jour > d ? ', prévision' : '') });
+    });
+    var lignes = [];
+    for (j = depuis; j < fin; j += 7) if (valeurA(j) !== null) lignes.push([j === d ? 'Aujourd\'hui' : jourTexte(j), String(valeurA(j)), j <= d ? 'Réel' : 'Prévision']);
+    if (valeurA(fin) !== null) lignes.push([jourTexte(fin), String(valeurA(fin)), fin <= d ? 'Réel' : 'Prévision']);
+
+    h += '<p class="g-titre">Repères vus</p>';
+    if (proj.length) h += '<p class="g-leg" aria-hidden="true"><span><i class="k"></i>Réel</span><span><i class="k prevu"></i>Prévision</span></p>';
+    h += G.courbe({ x0: depuis, x1: fin, y1: p.total * 1.16, h: 170, reel: hist, prevu: proj, gradY: gy, gradX: gx, points: pts, etiquettes: ets, lecture: lect,
+      cible: { y: p.total, t: pluriel(p.total, 'repère', 'repères') }, repere: p.reste !== null && p.reste > 0 ? { x: d + p.reste, t: 'Oral' } : null,
+      aria: 'Repères vus au fil des jours : ' + p.vus + ' sur ' + p.total + ' aujourd\'hui' + (proj.length && p.jourVu !== null ? ', total atteint le ' + jourTexte(p.jourVu) + ' en prévision' : '') + '.' });
+    return h + G.tableau('Voir les chiffres', ['Date', 'Repères vus', ''], lignes) + '</div>';
+  }
+  function blocRegularite() {
+    var d = auj(), reg = SUIVI.regularite(P.days, d), sems = SUIVI.semaines(P.days, d, 15);
+    var h = '<div class="bloc"><h2>Régularité</h2><div class="tuiles">';
+    h += tuile(reg.enCours + ' <small>' + (reg.enCours > 1 ? 'jours' : 'jour') + '</small>', 'Série en cours', reg.record > reg.enCours ? { t: 'Record : ' + pluriel(reg.record, 'jour', 'jours') } : null);
+    h += tuile(reg.actifs30 + ' <small>/ 30</small>', 'Jours travaillés');
+    var ecart = reg.taux7 !== null && reg.tauxAvant !== null ? Math.round(100 * reg.taux7) - Math.round(100 * reg.tauxAvant) : null;
+    h += tuile(reg.taux7 === null ? '–' : pourcent(reg.taux7), 'Réussite sur 7 jours',
+      ecart === null ? null : Math.abs(ecart) < 3 ? { t: 'Stable sur une semaine' } : { t: (ecart > 0 ? 'En hausse de ' : 'En baisse de ') + pluriel(Math.abs(ecart), 'point', 'points'), cl: ecart > 0 ? 'ok' : 'ko' });
+    h += reg.ms7 ? tuile(duree(reg.ms7), 'Travail sur 7 jours', reg.actifs7 ? { t: duree(reg.ms7 / reg.actifs7) + ' par jour travaillé' } : null) : tuile(String(reg.n7), 'Réponses sur 7 jours');
+    h += '</div>' + G.calendrier(sems, { auj: d, aria: 'Activité des quinze dernières semaines, une case par jour', legende: ['Moins', 'Plus'], jours: ['lun.', '', 'mer.', '', 'ven.', '', 'dim.'],
+      mois: function (jour) { return MOIS_C[SUIVI.dateDe(jour).m]; },
+      lib: function (x) { return x.jour === d ? 'Aujourd\'hui' : jourLong(x.jour); },
+      valeur: function (x) { return x.n ? pluriel(x.n, 'réponse', 'réponses') + ', ' + pluriel(x.ok, 'juste', 'justes') : 'Repos'; } });
+    if (reg.premier === null) return h + '<p class="note espace">Chaque jour travaillé colore une case. La première séance ouvre le carnet.</p></div>';
+    var lignes = sems.filter(function (s) { return s.lundi + 6 >= reg.premier; }).map(function (s) {
+      return ['Semaine du ' + jourTexte(s.lundi), pluriel(s.actifs, 'jour', 'jours'), String(s.n), s.n ? pourcent(s.ok / s.n) : '–'];
+    });
+    return h + G.tableau('Voir les chiffres', ['Semaine', 'Jours travaillés', 'Réponses', 'Réussite'], lignes) + '</div>';
+  }
+  function blocAVenir() {
+    var d = auj(), av = SUIVI.aVenir(P.cards, function (id) { return !!FACTS[id]; }, d, 14), somme = 0, max = 0;
+    av.forEach(function (n) { somme += n; if (n > max) max = n; });
+    if (!somme) return '';
+    var items = av.map(function (n, i) {
+      return { v: n, bulle: pluriel(n, 'révision', 'révisions'), lib: i === 0 ? 'Aujourd\'hui' : i === 1 ? 'Demain' : jourLong(d + i), x: initiale(d + i), cl: i === 0 ? 'auj' : '', et: i === 0 && n ? String(n) : '' };
+    });
+    return '<div class="bloc"><h2>Révisions à venir</h2><p class="note">Aujourd\'hui ' + av[0] + ', demain ' + av[1] + '. Ce sont les révisions déjà programmées : les nouveautés s\'y ajoutent.</p>' +
+      G.barres(items, { max: SUIVI.plafond(max), aria: 'Révisions programmées sur les quatorze prochains jours', h: 88 }) +
+      G.tableau('Voir les chiffres', ['Jour', 'Révisions'], items.map(function (it) { return [it.lib, String(it.v)]; })) + '</div>';
+  }
+  function blocMaitrise() {
+    var par = {}, h = '<div class="bloc"><h2>Maîtrise par thème</h2>';
+    SUIVI.parPack(DATA.packs, P.cards).forEach(function (e) { par[e.id] = e; });
+    parTheme().forEach(function (t, i) {
+      h += i ? '<p class="groupe">' + esc(t.nom) + '</p>' : '<div class="mr tete"><span class="groupe">' + esc(t.nom) + '</span><span class="mr-sec">Réussite</span><span class="mr-val">Acquis</span></div>';
+      t.packs.forEach(function (p) {
+        var e = par[p.id];
+        h += '<div class="mr"><button class="mr-nom" data-a="fiches" data-p="' + esc(p.id) + '">' + esc(p.titre) + '</button><span class="mr-sec">' + (e.taux === null ? '' : pourcent(e.taux)) + '</span><span class="mr-val">' + e.acquis + ' / ' + e.n + '</span>' +
+          G.segments([{ v: e.acquis, cl: 'acquis' }, { v: e.cours, cl: 'cours' }, { v: e.neuf, cl: 'reste' }], e.acquis + ' acquis, ' + e.cours + ' en cours, ' + e.neuf + ' à découvrir') + '</div>';
+      });
+    });
+    return h + '<div class="legende seg-leg"><span class="l-acquis">Acquis</span><span class="l-encours">En cours</span><span class="l-reste">À découvrir</span></div></div>';
+  }
+  function blocFragiles() {
+    if (!Object.keys(P.cards).length) return '';
+    var fr = SUIVI.fragiles(P.cards, FACTS, 8), h = '<div class="bloc"><h2>Repères qui résistent</h2>';
+    if (!fr.length) return h + '<p class="note">Aucun pour l\'instant. Un repère apparaît ici après deux erreurs et en sort une fois acquis.</p></div>';
+    h += '<ul class="rates">' + fr.map(function (x) { return '<li><span>' + esc(FACTS[x.id].t) + '</span><span class="quand">' + x.ech + ' erreurs sur ' + x.n + '</span></li>'; }).join('') + '</ul>';
+    return h + '<button class="btn espace" data-a="faibles">' + (fr.length > 1 ? 'Retravailler ces ' + fr.length + ' repères' : 'Retravailler ce repère') + '</button></div>';
+  }
+  function ligneOral(o) {
+    var d = new Date(o.t);
+    return '<li><span class="d">' + d.getDate() + ' ' + MOIS[d.getMonth()] + '</span><span>' + esc(o.titre) + '</span><span class="quand"><b>' + o.total + '</b> / 20</span></li>';
+  }
+  function blocOraux() {
+    var crit = DATA.criteres || [], o = SUIVI.oraux(P.oraux, crit.length), h = '<div class="bloc"><h2>Oraux blancs</h2>';
+    if (!o.n) return h + '<p class="note">Aucun oral blanc enregistré. <a href="#oral">Tire un premier sujet.</a></p></div>';
+    h += '<div class="tuiles trois">' + tuile(o.dernier + ' <small>/ 20</small>', 'Dernier oral') + tuile(virgule(o.moyenne) + ' <small>/ 20</small>', 'Moyenne') + tuile(o.meilleur + ' <small>/ 20</small>', 'Meilleure note') + '</div>';
+    if (o.n >= 2) {
+      var jour = function (t) { var d = new Date(t); return d.getDate() + ' ' + MOIS_C[d.getMonth()]; }, der = o.points[o.n - 1];
+      h += '<p class="g-titre">Notes sur 20, dans l\'ordre des oraux</p>' + G.courbe({ x0: 0, x1: o.n - 1, y1: 23, h: 130, sansAire: true,
+        reel: o.points.map(function (p, i) { return [i, p.total]; }), gradY: [{ y: 10, t: '10' }, { y: 20, t: '20' }],
+        points: o.n <= 24 ? o.points.map(function (p, i) { return { x: i, y: p.total }; }) : [{ x: o.n - 1, y: der.total }],
+        etiquettes: [{ x: o.n - 1, y: der.total, t: String(der.total), cl: 'g' + (der.total > 17 ? ' bas' : '') }],
+        gradX: [{ x: 0, t: jour(o.points[0].t), cl: 'deb' }, { x: o.n - 1, t: jour(der.t), cl: 'fin' }],
+        lecture: o.points.map(function (p, i) { return { x: i, v: p.total + ' / 20', l: jour(p.t) + ' : ' + p.titre }; }),
+        aria: 'Notes des oraux blancs, de la plus ancienne à la plus récente : ' + o.points.slice(-12).map(function (p) { return p.total; }).join(', ') + ' sur 20.' });
+    }
+    if (crit.length && o.criteres.some(function (m) { return m !== null; })) {
+      h += '<p class="groupe">Moyenne par critère</p>';
+      crit.forEach(function (c, i) {
+        var m = o.criteres[i];
+        if (m !== null) h += '<div class="mr crit"><span class="mr-nom">' + esc(c) + '</span><span class="mr-sec">' + (i === o.faible ? '<span class="pill fragile">À travailler</span>' : '') + '</span><span class="mr-val">' + virgule(m) + ' / 5</span>' + G.jauge(m, 5, c + ' : ' + virgule(m) + ' sur 5') + '</div>';
+      });
+    }
+    var liste = P.oraux.slice().reverse();
+    h += '<p class="groupe">Derniers oraux</p><ul class="rates">' + liste.slice(0, 5).map(ligneOral).join('') + '</ul>';
+    if (liste.length > 5) h += '<details class="releve"><summary>Oraux plus anciens</summary><ul class="rates">' + liste.slice(5).map(ligneOral).join('') + '</ul></details>';
+    return h + '</div>';
+  }
   function carnet() {
-    var n = 0, ok = 0, k, h = '<section class="pile"><h1 class="page-t">Carnet de vol</h1>';
-    for (k in P.cards) { n += P.cards[k].n || 0; ok += P.cards[k].ok || 0; }
-    h += '<div class="bloc"><div class="stats"><div><b>' + serie() + '</b><span>jours d\'affilée</span></div><div><b>' + n + '</b><span>réponses</span></div><div><b>' + (n ? Math.round(100 * ok / n) + ' %' : '0 %') + '</b><span>de réussite</span></div></div></div>';
-    h += '<div class="bloc"><h2>Quatorze derniers jours</h2>' + barresJours(14) + '</div>';
-    var b = bilan(tous());
-    h += '<div class="bloc"><h2>État de la base</h2>';
-    DATA.packs.forEach(function (p) { var x = bilan(p.faits); h += '<div class="ligne"><span>' + esc(p.titre) + '</span><span class="note">' + x.acquis + ' acquis, ' + x.cours + ' en cours, ' + x.neuf + ' à découvrir</span></div>'; });
-    h += '<div class="ligne"><b>Total</b><b>' + b.acquis + ' / ' + b.n + '</b></div></div>';
-    h += '<div class="bloc"><h2>Oraux blancs</h2>';
-    if (P.oraux.length) {
-      h += '<ul class="rates">' + P.oraux.slice().reverse().map(function (o) {
-        var d = new Date(o.t); return '<li><span class="d">' + d.getDate() + ' ' + MOIS[d.getMonth()] + '</span><span>' + esc(o.titre) + '</span><span class="quand"><b>' + o.total + '</b> / 20</span></li>';
-      }).join('') + '</ul>';
-    } else h += '<p class="note">Aucun oral blanc enregistré. <a href="#oral">Tire un premier sujet.</a></p>';
-    h += '</div><p><a href="#reglages">Réglages et synchronisation</a></p>';
-    return h + '</section>';
+    var h = '<section class="pile vaste"><h1 class="page-t">Carnet de vol</h1>';
+    if (S.msg) { h += '<p class="bravo">' + esc(S.msg) + '</p>'; S.msg = null; }
+    h += blocCap(prevoir());
+    h += '<div class="cols"><div class="pile">' + blocRegularite() + blocMaitrise() + blocFragiles() + '</div><div class="pile">' + blocAVenir() + blocOraux() + '</div></div>';
+    return h + '<p><a href="#reglages">Réglages et synchronisation</a></p></section>';
+  }
+  function themeChoisi() { try { return window.localStorage.getItem(THEME) || ''; } catch (e) { return ''; } }
+  /* Apparence : '' suit l'appareil, 'light' ou 'dark' force le thème. Le choix reste sur cet appareil. */
+  function appliquerTheme(v) {
+    var r = document.documentElement, metas = document.querySelectorAll('meta[name="theme-color"]'), i;
+    if (v === 'light' || v === 'dark') r.setAttribute('data-theme', v); else { r.removeAttribute('data-theme'); v = ''; }
+    try { if (v) window.localStorage.setItem(THEME, v); else window.localStorage.removeItem(THEME); } catch (e) { /* stockage absent */ }
+    for (i = 0; i < metas.length; i++) {
+      var sombre = v ? v === 'dark' : /dark/.test(metas[i].getAttribute('media') || '');
+      metas[i].setAttribute('content', sombre ? '#0D1726' : '#EAF0F6');
+    }
   }
   function options(vals, cur, unite) {
     return vals.map(function (v) { return '<option value="' + v + '"' + (+cur === v ? ' selected' : '') + '>' + v + (unite ? ' ' + unite : '') + '</option>'; }).join('');
@@ -1004,6 +1222,8 @@
     h += '<div class="ligne"><label for="r-quest">Questions du jury</label><select id="r-quest" data-set="quest">' + options([5, 10, 15, 20], P.set.quest, 'min') + '</select></div>';
     h += '<div class="ligne"><label for="r-blitz">Temps par question en blitz</label><select id="r-blitz" data-set="blitz">' + options([10, 15, 20, 30], P.set.blitz, 's') + '</select></div>';
     h += '<div class="ligne"><label for="r-auto">Enchaîner après une bonne réponse</label><select id="r-auto" data-set="auto"><option value="1"' + (P.set.auto !== 0 ? ' selected' : '') + '>Oui</option><option value="0"' + (P.set.auto === 0 ? ' selected' : '') + '>Non</option></select></div></div>';
+    h += '<div class="bloc"><h2>Affichage</h2><div class="ligne"><label for="r-theme">Apparence sur cet appareil</label><select id="r-theme">' +
+      [['', 'Automatique'], ['light', 'Claire'], ['dark', 'Sombre']].map(function (o) { return '<option value="' + o[0] + '"' + (themeChoisi() === o[0] ? ' selected' : '') + '>' + o[1] + '</option>'; }).join('') + '</select></div></div>';
     h += '<div class="bloc"><h2>Synchronisation</h2><p><b id="sync-detail">' + LIB[st] + '</b></p>';
     if (Sync.git()) {
       h += '<p class="note espace">Ta progression est enregistrée dans un fichier privé de ton compte GitHub. Elle suit sur chaque appareil où tu as collé le même jeton. Si GitHub refuse le jeton, arrête la synchronisation puis colle-en un nouveau.</p>' +
@@ -1047,6 +1267,8 @@
     for (var i = 0; i < liens.length; i++) {
       if (!focus && liens[i].getAttribute('href') === '#' + p) liens[i].setAttribute('aria-current', 'page'); else liens[i].removeAttribute('aria-current');
     }
+    G.cacher();
+    app.classList.toggle('arrive', !!S.haut);
     app.innerHTML = h;
     if (S.haut) { S.haut = false; window.scrollTo(0, 0); }
     if (S.oral && p === 'oral' && !S.ses && !S.frise && !S.choix) oralBattre();
@@ -1140,6 +1362,15 @@
       Sync.activer(v); rendre();
     },
     'sync-couper': function () { Sync.couper(); rendre(); },
+    rythme: function (b) {
+      var n = +b.getAttribute('data-n'); if (SUIVI.RYTHMES.indexOf(n) < 0) return;
+      P.set = clone(P.set); P.set.neu = n; P.set.t = Date.now(); commit();
+      S.msg = 'Rythme réglé sur ' + n + ' nouveautés par jour.'; S.haut = true; rendre();
+    },
+    faibles: function () {
+      var ids = SUIVI.fragiles(P.cards, FACTS, 8).map(function (x) { return x.id; });
+      fermer(); lancer('erreurs', ids.map(function (id) { return { id: id, fmt: qcm(FACTS[id]), dur: false, retry: true }; }));
+    },
     raz: function () { S.raz = true; rendre(); },
     'raz-non': function () { S.raz = false; rendre(); },
     'raz-oui': function () { var r = P.set; P = vide(); P.epoch = Date.now(); P.set = r; P.set.t = Date.now(); S.raz = false; commit(); rendre(); }
@@ -1153,10 +1384,12 @@
   });
   document.addEventListener('change', function (e) {
     var t = e.target, k = t && t.getAttribute ? t.getAttribute('data-set') : null;
+    if (t && t.id === 'r-theme') return appliquerTheme(t.value);
     if (!k) return;
     P.set = clone(P.set);
     P.set[k] = k === 'exam' ? (t.value || null) : +t.value;
     P.set.t = Date.now(); commit();
+    if (k === 'exam') majEcheance();
   });
   document.addEventListener('input', function (e) {
     if (!e.target || e.target.id !== 'rech') return;
@@ -1179,9 +1412,12 @@
   window.addEventListener('hashchange', function () { fermer(); S.raz = false; S.haut = true; rendre(); });
 
   DATA.test = { fusion: fusion, vide: vide, qQuand: qQuand, qQuoi: qQuoi, qSur: qSur, formats: formats, question: question, composer: composer, nouveaux: nouveaux,
-    tirer: tirer, parTheme: parTheme, packValide: packValide, faits: function () { return FACTS; }, seance: function () { return S.ses; } };
+    tirer: tirer, parTheme: parTheme, packValide: packValide, prevoir: prevoir, faits: function () { return FACTS; }, seance: function () { return S.ses; } };
+  appliquerTheme(themeChoisi());
   indexer();
+  S.haut = true;
   rendre();
+  G.init();
   Sync.init();
   chargerActu();
   horsConnexion();

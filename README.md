@@ -9,6 +9,7 @@ Application de révision pour préparer un grand oral de culture générale, d'h
   <img src="docs/captures/question.png" width="190" alt="Question à choix, réponses en bas de l'écran">
   <img src="docs/captures/fiche.png" width="190" alt="Fiche affichée après une erreur, avec la bonne réponse">
   <img src="docs/captures/grand-oral.png" width="190" alt="Grand oral : deux sujets au choix">
+  <img src="docs/captures/carnet.png" width="190" alt="Carnet de vol : prévision avant l'oral, courbe des repères vus, régularité">
 </p>
 
 ## Ce qu'elle fait
@@ -17,6 +18,7 @@ Application de révision pour préparer un grand oral de culture générale, d'h
 - **Une séance par jour**, calculée par répétition espacée : quelques nouveautés, puis les fiches à revoir au bon moment. Les questions passent du choix multiple à la question ouverte à mesure qu'une fiche est acquise.
 - **Deux entraînements** : le blitz chronométré et la frise chronologique.
 - **Un grand oral blanc** : deux sujets au choix, préparation, exposé et questions minutés, relances du jury, grille d'auto-évaluation, corrigé pour 20 sujets.
+- **Un carnet de vol** qui répond à la seule question utile, « serai-je prêt à temps ? » : prévision jusqu'au jour de l'oral et rythme conseillé en cas de retard, calendrier de régularité, révisions à venir, maîtrise par thème, repères qui résistent, progression des oraux blancs.
 - **Hors connexion** : une fois installée, l'application n'a plus besoin de réseau.
 - **Synchronisation facultative** entre téléphone et ordinateur, dans un fichier privé de ton propre compte GitHub. Il n'y a ni serveur ni traceur : ta progression ne va nulle part ailleurs.
 
@@ -72,6 +74,7 @@ Pour ne vérifier que les fiches, sans navigateur : `node --test tests/donnees.t
 | Chemin | Contenu |
 | --- | --- |
 | `index.html`, `styles.css`, `app.js` | L'application, sans framework ni étape de compilation |
+| `suivi.js`, `graph.js` | Les calculs du carnet de vol et ses graphiques, séparés du reste pour être testés seuls |
 | `data/` | Les fiches (un fichier par pack), les sujets de grand oral, le pack d'actualité `actu.json` |
 | `sw.js` | Le service worker : mise en cache à l'installation, fonctionnement hors connexion |
 | `fonts/`, `icons/`, `manifest.webmanifest` | Polices locales, icônes, manifeste d'installation |

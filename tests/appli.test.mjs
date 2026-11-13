@@ -1,7 +1,7 @@
 // Parcours principaux de l'application, dans un navigateur réel.
 import test, { after, before } from 'node:test';
 import assert from 'node:assert/strict';
-import { demarrer, jusquAuxChoix, ouvrir, repondre, texte } from './aide.mjs';
+import { demarrer, jusquAuxChoix, ouvrir, repondre, semer, texte } from './aide.mjs';
 
 let env;
 before(async () => { env = await demarrer(); });
@@ -132,3 +132,126 @@ test('pack d\'actualité : un fichier valide ajoute le thème Actualité', async
   assert.deepEqual(await page.locator('.bloc .groupe').allTextContents(), ['Histoire', 'Armées françaises', 'Actualité']);
   await contexte.close();
 });
+
+test('première ouverture : la date de l\'oral et le rythme se règlent depuis l\'accueil', async () => {
+  const { contexte, page, erreurs } = await ouvrir(env.navigateur, env.url);
+  assert.equal(await texte(page, 'h1.page-t'), 'Cap sur l\'oral');
+  assert.equal(await texte(page, '.seance h2'), 'Avant le décollage');
+  const champ = await page.locator('#a-exam').elementHandle();
+  await page.fill('#a-exam', new Date(Date.now() + 40 * 86400000 + 43200000).toISOString().slice(0, 10));
+  await page.waitForFunction(() => /^Oral dans (39|40|41) jours$/.test(document.querySelector('h1.page-t').textContent));
+  assert.match(await texte(page, '.piste .numero'), /^J-(39|40|41)$/);
+  assert.ok(await champ.evaluate((n) => n.isConnected), 'le champ de date ne doit pas être redessiné pendant la saisie');
+  await page.selectOption('#a-neu', '15');
+  assert.equal(await page.evaluate(() => JSON.parse(localStorage.getItem('pdv.progression.v1')).set.neu), 15);
+  await page.click('[data-a="jour"]');
+  await page.waitForSelector('.ecran-seance');
+  assert.deepEqual(erreurs, []);
+  await contexte.close();
+});
+
+test('carnet : prévision, calendrier, maîtrise par thème et chiffres en tableau', async () => {
+  const { contexte, page, erreurs } = await ouvrir(env.navigateur, env.url);
+  await semer(page);
+  assert.match(await texte(page, '.cap-ligne'), /programme vu le \d/);
+  await page.click('#nav a[href="#carnet"]');
+  await page.waitForSelector('.courbe');
+  assert.equal(await texte(page, '.cap .statut.ok'), 'Dans les temps');
+  assert.match(await texte(page, '.cap .chiffres'), /tout le programme est vu le .+ jours avant l'oral\.$/);
+  assert.match(await page.locator('.cap .g-plot').getAttribute('aria-label'), /^Repères vus au fil des jours : 170 sur \d+ aujourd'hui/);
+  const futurs = 6 - ((new Date().getDay() + 6) % 7);
+  assert.equal(await page.locator('.cal-grille i[data-v]').count(), 105 - futurs);
+  assert.equal(await page.locator('.cal-grille i.auj').count(), 1);
+  assert.equal(await page.locator('.mr .seg').count(), 7);
+  assert.equal(await page.locator('.tuile').count(), 7);
+  assert.ok(await page.locator('.rates li').count() >= 4, 'repères qui résistent et oraux');
+
+  // les mêmes chiffres en tableau
+  await page.click('.cap .releve summary');
+  assert.ok(await page.locator('.cap .releve tbody tr').count() >= 8);
+
+  // au clavier : une semaine en arrière dans le calendrier
+  await page.mouse.move(2, 2);
+  await page.locator('.cal-grille i.auj').focus();
+  await page.keyboard.press('ArrowLeft');
+  const ilYASeptJours = new Intl.DateTimeFormat('fr-FR', { weekday: 'long' }).format(new Date());
+  await page.waitForSelector('#bulle:not([hidden])');
+  assert.match(await texte(page, '#bulle'), new RegExp(ilYASeptJours));
+
+  // au pointeur : le viseur lit la courbe
+  await page.locator('.cap .g-plot').scrollIntoViewIfNeeded();
+  await page.waitForTimeout(300);   // le défilement ferme les bulles : on le laisse finir
+  const cadre = await page.locator('.cap .g-plot').boundingBox();
+  await page.mouse.move(cadre.x + cadre.width * 0.8, cadre.y + cadre.height / 2);
+  await page.waitForFunction(() => /repères? vus?/.test(document.getElementById('bulle').textContent));
+  assert.match(await texte(page, '#bulle'), /prévision$/);
+  assert.equal(await page.locator('.cap .g-fil').isVisible(), true);
+  assert.deepEqual(erreurs, []);
+  await contexte.close();
+});
+
+test('carnet : en retard sur le plan, le rythme conseillé s\'applique en un geste', async () => {
+  const { contexte, page, erreurs } = await ouvrir(env.navigateur, env.url);
+  await semer(page, { vus: 20, jours: 2, oral: 25, neu: 5, oraux: false });
+  await page.click('#nav a[href="#carnet"]');
+  assert.equal(await texte(page, '.cap .statut.attn'), 'En retard sur le plan');
+  assert.equal(await texte(page, '[data-a="rythme"]'), 'Passer à 20 nouveautés par jour');
+  await page.click('[data-a="rythme"]');
+  assert.equal(await texte(page, '.bravo'), 'Rythme réglé sur 20 nouveautés par jour.');
+  assert.equal(await page.evaluate(() => JSON.parse(localStorage.getItem('pdv.progression.v1')).set.neu), 20);
+  assert.equal(await texte(page, '.cap .statut.ok'), 'Dans les temps');
+  assert.equal(await page.locator('[data-a="rythme"]').count(), 0);
+  assert.match(await texte(page, '.bloc:has(> h2:text-is("Oraux blancs")) .note'), /Aucun oral blanc/);
+  assert.deepEqual(erreurs, []);
+  await contexte.close();
+});
+
+test('carnet : les repères qui résistent se retravaillent en une séance', async () => {
+  const { contexte, page, erreurs } = await ouvrir(env.navigateur, env.url);
+  await semer(page);
+  await page.click('#nav a[href="#carnet"]');
+  await page.waitForSelector('[data-a="faibles"]');
+  const nb = await page.locator('.bloc:has(> h2:text-is("Repères qui résistent")) .rates li').count();
+  assert.ok(nb >= 2 && nb <= 8);
+  await page.click('[data-a="faibles"]');
+  await page.waitForSelector('.ecran-seance');
+  assert.equal(await page.evaluate(() => window.PDV.test.seance().items.length), nb);
+  assert.deepEqual(erreurs, []);
+  await contexte.close();
+});
+
+test('apparence : le thème choisi est appliqué tout de suite et gardé au rechargement', async () => {
+  const { contexte, page, erreurs } = await ouvrir(env.navigateur, env.url, { colorScheme: 'light' });
+  const theme = () => page.evaluate(() => document.documentElement.getAttribute('data-theme'));
+  const fond = () => page.evaluate(() => getComputedStyle(document.body).backgroundColor);
+  await page.click('#sync');
+  const clair = await fond();
+  await page.selectOption('#r-theme', 'dark');
+  assert.equal(await theme(), 'dark');
+  assert.notEqual(await fond(), clair);
+  await page.reload();
+  await page.waitForSelector('#r-theme');
+  assert.equal(await theme(), 'dark');
+  assert.equal(await page.inputValue('#r-theme'), 'dark');
+  await page.selectOption('#r-theme', '');
+  assert.equal(await theme(), null);
+  assert.equal(await fond(), clair);
+  assert.deepEqual(erreurs, []);
+  await contexte.close();
+});
+
+test('écran large : accueil et carnet sur deux colonnes, onglets dans l\'en-tête', async () => {
+  const { contexte, page, erreurs } = await ouvrir(env.navigateur, env.url, { viewport: { width: 1280, height: 800 }, deviceScaleFactor: 1 });
+  await semer(page);
+  const colonnes = () => page.evaluate(() => getComputedStyle(document.querySelector('.cols')).gridTemplateColumns.split(' ').length);
+  assert.equal(await colonnes(), 2);
+  const marque = await page.locator('.brand').boundingBox(), onglets = await page.locator('#nav').boundingBox();
+  assert.ok(Math.abs((marque.y + marque.height / 2) - (onglets.y + onglets.height / 2)) < 8, 'la marque et les onglets partagent une ligne');
+  await page.click('#nav a[href="#carnet"]');
+  await page.waitForSelector('.courbe');
+  assert.equal(await colonnes(), 2);
+  assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true, 'aucun défilement horizontal');
+  assert.deepEqual(erreurs, []);
+  await contexte.close();
+});
+

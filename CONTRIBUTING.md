@@ -57,7 +57,7 @@ npm test                             # tout vérifier, si tu as installé Playwr
 
 ## Modifier le code
 
-- L'application est écrite en JavaScript simple, sans framework ni compilation : `index.html`, `styles.css`, `app.js`.
+- L'application est écrite en JavaScript simple, sans framework ni compilation : `index.html`, `styles.css`, `app.js`, et deux modules à part, `suivi.js` (calculs du carnet) et `graph.js` (graphiques). Une nouvelle fonction se range de préférence dans un module testable sans navigateur, comme `suivi.js`.
 - Ajoute ou adapte un test dans `tests/` pour tout changement de comportement.
 - Garde l'interface en français, les textes courts, et respecte les réglages d'accessibilité (contrastes, navigation au clavier, animations désactivables).
 - Lance `npm run sw` puis `npm test` avant d'ouvrir ta demande de fusion.

@@ -1,9 +1,11 @@
 /* Plan de vol : tout le contenu est mis en cache à l'installation, puis servi sans réseau. */
-var VERSION = "pdv-3344b975d113";
+var VERSION = "pdv-64129b3d2400";
 var FICHIERS = [
   "index.html",
   "styles.css",
   "app.js",
+  "suivi.js",
+  "graph.js",
   "manifest.webmanifest",
   "fonts/b612-latin-400-normal.woff2",
   "fonts/b612-latin-700-normal.woff2",

@@ -12,7 +12,7 @@ const racine = join(dirname(fileURLToPath(import.meta.url)), '..');
 export function fichiers() {
   const lister = (dossier, garder) => readdirSync(join(racine, dossier)).filter(garder).sort().map((f) => dossier + '/' + f);
   return [
-    'index.html', 'styles.css', 'app.js', 'manifest.webmanifest',
+    'index.html', 'styles.css', 'app.js', 'suivi.js', 'graph.js', 'manifest.webmanifest',
     ...lister('fonts', (f) => /\.(css|woff2)$/.test(f)),
     ...lister('icons', (f) => /\.png$/.test(f)),
     ...lister('data', (f) => /\.js$/.test(f)),
