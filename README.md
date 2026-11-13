@@ -2,7 +2,7 @@
 
 Application de révision pour préparer un grand oral de culture générale, d'histoire, de géopolitique et de défense. Elle s'installe sur l'écran d'accueil du téléphone et fonctionne sans connexion.
 
-**[Ouvrir l'application](https://jealouself.github.io/plan-de-vol/)**
+**[Ouvrir l'application](https://jealouself.github.io/plan-de-vol/)** · [Guide d'utilisation en PDF](docs/guide-utilisation.pdf)
 
 <p>
   <img src="docs/captures/accueil.png" width="190" alt="Accueil : compte à rebours avant l'oral, séance du jour, maîtrise par thème">
