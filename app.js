@@ -164,11 +164,18 @@
       var el = document.getElementById('sync'); if (el) { el.textContent = LIB[s]; el.setAttribute('data-s', s); }
       var d = document.getElementById('sync-detail'); if (d) d.textContent = LIB[s];
     }
-    /* Hors de Claude : la progression vit dans un gist privé du compte GitHub de l'utilisateur. */
+    /* Hors de Claude, deux façons de relier ses appareils. Par code : la progression, chiffrée ici, part dans le service indiqué
+       par config.js (git = { code, id, k, vu }). Par jeton : elle vit dans un gist privé du compte GitHub (git = { token, gist }). */
     var API = 'https://api.github.com', FICHIER = 'plan-de-vol-progression.json';
+    var CODE = DATA.synchro, BASE = CODE && CODE.disponible() && /^https:\/\//.test(DATA.carnets || '') ? DATA.carnets : '';
     var git = lireCfg(), enVol = false, encore = false, dernier = 0, ecoute = false;
     function lireCfg() {
-      try { var c = JSON.parse(window.localStorage.getItem(CFG) || 'null'); return c && typeof c.token === 'string' && c.token ? c : null; } catch (e) { return null; }
+      try {
+        var c = JSON.parse(window.localStorage.getItem(CFG) || 'null');
+        if (c && typeof c.token === 'string' && c.token) return c;
+        if (c && typeof c.code === 'string' && c.id && c.k && BASE) return c;
+      } catch (e) { /* stockage absent ou illisible */ }
+      return null;
     }
     function ecrireCfg() {
       try { if (git) window.localStorage.setItem(CFG, JSON.stringify(git)); else window.localStorage.removeItem(CFG); } catch (e) { /* stockage absent */ }
@@ -200,26 +207,42 @@
         throw e;
       });
     }
+    function lireGistTexte() { return trouver().then(lireGist).then(function (txt) { return txt ? { texte: txt } : { absent: true }; }); }
+    /* Par code : on demande d'abord la date de la dernière écriture (quelques octets) ; le carnet n'est relu que s'il a changé. */
+    function lireCarnet(moi) {
+      return CODE.version(BASE, moi).then(function (t) {
+        if (t === null) return { absent: true };
+        if (pret && t === moi.vu) return { inchange: true };
+        return CODE.lire(BASE, moi).then(function (rec) { return rec ? { texte: rec.texte, t: rec.t } : { absent: true }; });
+      });
+    }
+    function ecrireCarnet(moi) {
+      var t = Math.max(Date.now(), (moi.vu || 0) + 1);
+      return CODE.ecrire(BASE, moi, JSON.stringify(P), t).then(function () { moi.vu = t; if (git === moi) ecrireCfg(); });
+    }
     function cycle() {
       if (!git) return;
       if (enVol) { encore = true; return; }
       if (window.navigator.onLine === false) { dire('hors'); return; }
       var moi = git;
       enVol = true; encore = false; dire(pret ? 'sync' : 'wait');
-      trouver().then(lireGist).then(function (txt) {
+      (moi.code ? lireCarnet(moi) : lireGistTexte()).then(function (d) {
         if (git !== moi) return null;
-        var envoyer = !git.gist;
-        if (txt) {
+        var envoyer = true;
+        if (d.inchange) envoyer = sale;
+        else if (d.texte) {
           var dist = null;
-          try { dist = normaliser(JSON.parse(txt)); } catch (e) { dist = null; }
+          try { dist = normaliser(JSON.parse(d.texte)); } catch (e) { dist = null; }
           if (dist) {
             var r = fusion(P, dist);
             if (r.bPlus) { P = r.m; ecrireLocal(); distant(); }
-            envoyer = envoyer || r.aPlus;
-          } else envoyer = true;
-        } else if (git.gist) envoyer = true;
+            envoyer = r.aPlus;
+          }
+          if (d.t) { moi.vu = d.t; ecrireCfg(); }
+        }
         pret = true; sale = false;
         if (!envoyer) return null;
+        if (moi.code) return ecrireCarnet(moi);
         var corps = { files: {} };
         corps.files[FICHIER] = { content: JSON.stringify(P) };
         if (git.gist) return appel('PATCH', '/gists/' + git.gist, corps);
@@ -236,11 +259,13 @@
         if (git !== moi) return;
         var s = e && e.status;
         sale = true;
-        if (s === 401 || s === 403) dire('refus');
+        if (!moi.code && (s === 401 || s === 403)) dire('refus');
         else dire(window.navigator.onLine === false ? 'hors' : 'off');
       });
     }
     function planifier() { clearTimeout(t2); t2 = setTimeout(cycle, 5000); }
+    /* Envoi sans attendre, s'il reste quelque chose à envoyer : en fin de séance et quand l'application passe à l'arrière-plan. */
+    function vite() { if (git && sale && !enVol) { clearTimeout(t2); cycle(); } }
     function demarrerGit() {
       pret = false; dire('wait'); cycle();
       if (ecoute) return;
@@ -248,10 +273,23 @@
       window.addEventListener('online', function () { if (git) cycle(); });
       window.addEventListener('offline', function () { if (git) dire('hors'); });
       document.addEventListener('visibilitychange', function () {
-        if (git && document.visibilityState === 'visible' && (sale || Date.now() - dernier > 60000)) cycle();
+        if (!git) return;
+        if (document.visibilityState === 'hidden') vite();
+        else if (sale || Date.now() - dernier > 60000) cycle();
       });
     }
     function activer(jeton) { git = { token: jeton, gist: null }; ecrireCfg(); ref = null; demarrerGit(); }
+    /* Relie cet appareil par un code. creation : vrai pour un code neuf ; sinon le carnet doit déjà exister (le code vient d'un autre appareil). */
+    function relier(code, creation) {
+      return CODE.cles(code).then(function (c) {
+        var lien = { code: code, id: c.id, k: c.k };
+        if (creation) return lien;
+        return CODE.version(BASE, lien).then(function (t) {
+          if (t === null) { var e = new Error('code inconnu'); e.status = 'inconnu'; throw e; }
+          return lien;
+        });
+      }).then(function (lien) { git = lien; ecrireCfg(); ref = null; demarrerGit(); return lien; });
+    }
     function couper() { git = null; ecrireCfg(); clearTimeout(t2); pret = false; dire('local'); }
 
     function init() { if (git) demarrerGit(); else chercher(0); }
@@ -321,7 +359,10 @@
         }).catch(function () { /* pas de packs distants */ });
       } catch (e) { /* idem */ }
     }
-    return { init: init, pousser: pousser, etat: function () { return etat; }, git: function () { return !!git; }, activer: activer, couper: couper };
+    return { init: init, pousser: pousser, vite: vite, etat: function () { return etat; }, activer: activer, relier: relier, couper: couper,
+      git: function () { return !!(git && git.token); },                 // relié par jeton GitHub
+      code: function () { return git && git.code ? git.code : ''; },    // relié par code : le code, sinon ''
+      parCode: function () { return !!BASE; } };                         // la synchronisation par code est-elle proposée ici ?
   })();
 
   /* ---------- pack d'actualité servi comme fichier, et fonctionnement hors connexion ---------- */
@@ -482,7 +523,7 @@
   }
 
   /* ---------- état de l'interface ---------- */
-  var S = { ses: null, frise: null, choix: null, oral: null, tirage: null, msg: null, raz: false, haut: false, fiches: { pack: null, q: '', st: '' } };
+  var S = { ses: null, frise: null, choix: null, oral: null, tirage: null, msg: null, raz: false, couper: false, haut: false, fiches: { pack: null, q: '', st: '' } };
   var chrono = { id: 0, fin: 0, dur: 0, auto: 0 };
 
   function lancer(kind, items, opt) {
@@ -578,6 +619,7 @@
       if (s.score > (P.best[k] || 0)) { P.best[k] = s.score; s.record = true; commit(); }
     }
     if (s.kind === 'diag') { P.diag = Date.now(); commit(); }
+    Sync.vite();
     S.haut = true; rendre();
   }
   function fermer() { arreterChrono(); S.ses = null; S.frise = null; S.choix = null; }
@@ -672,6 +714,7 @@
     }
     return r;
   }
+  function direCode(texte) { var m = document.getElementById('code-msg'); if (m) m.textContent = texte; }
   function titreAccueil(jr) { return jr === null ? 'Cap sur l\'oral' : jr > 0 ? 'Oral dans ' + pluriel(jr, 'jour', 'jours') : jr === 0 ? 'Oral aujourd\'hui' : 'Oral passé'; }
   /* Après un changement de date depuis l'accueil : on corrige le titre et la piste sans redessiner la page (le champ garde la main). */
   function majEcheance() {
@@ -1225,20 +1268,37 @@
     h += '<div class="bloc"><h2>Affichage</h2><div class="ligne"><label for="r-theme">Apparence sur cet appareil</label><select id="r-theme">' +
       [['', 'Automatique'], ['light', 'Claire'], ['dark', 'Sombre']].map(function (o) { return '<option value="' + o[0] + '"' + (themeChoisi() === o[0] ? ' selected' : '') + '>' + o[1] + '</option>'; }).join('') + '</select></div></div>';
     h += '<div class="bloc"><h2>Synchronisation</h2><p><b id="sync-detail">' + LIB[st] + '</b></p>';
-    if (Sync.git()) {
+    var parJeton = '<label class="sr" for="jeton">Jeton GitHub</label><input class="champ espace" id="jeton" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Jeton GitHub">' +
+      '<p class="erreur" id="jeton-err" hidden>Colle le jeton complet, sans espace.</p>' +
+      '<div class="rangee espace"><button class="btn' + (Sync.parCode() ? '' : ' primaire') + '" data-a="sync-activer">Activer la synchronisation</button><a class="lien" href="https://github.com/settings/tokens/new?scopes=gist&amp;description=Plan%20de%20vol" target="_blank" rel="noopener">Créer un jeton sur GitHub</a></div>' +
+      '<p class="note espace">Le jeton a seulement besoin du droit « gist ». Il reste enregistré sur cet appareil.</p>';
+    if (Sync.code()) {
+      h += '<p class="note espace">Pour retrouver ta progression sur un autre appareil, ouvre l\'application là-bas, va dans Réglages et tape ce code. Garde-le pour toi : il donne accès à ta progression.</p>' +
+        '<p class="code-affiche" id="code-affiche">' + esc(DATA.synchro.presenter(Sync.code())) + '</p>';
+      if (S.couper) {
+        h += '<p class="note espace">Note ce code avant de continuer : sans lui, la copie en ligne ne pourra plus être retrouvée. Ta progression, elle, reste sur cet appareil.</p>' +
+          '<div class="rangee espace"><button class="btn danger" data-a="sync-couper">Ne plus synchroniser</button><button class="btn" data-a="couper-non">Annuler</button></div>';
+      } else {
+        h += '<div class="rangee espace"><button class="btn" data-a="code-copier">Copier le code</button><button class="btn" data-a="couper-oui">Ne plus synchroniser cet appareil</button></div>';
+      }
+      h += '<p class="note espace" id="code-msg" role="status"></p>';
+    } else if (Sync.git()) {
       h += '<p class="note espace">Ta progression est enregistrée dans un fichier privé de ton compte GitHub. Elle suit sur chaque appareil où tu as collé le même jeton. Si GitHub refuse le jeton, arrête la synchronisation puis colle-en un nouveau.</p>' +
         '<button class="btn espace" data-a="sync-couper">Arrêter la synchronisation sur cet appareil</button>';
     } else if (CHEZ_CLAUDE || st !== 'local') {
       h += '<p class="note espace">' + (st === 'local' ? 'Ouvre cette page depuis ton compte Claude pour retrouver ta progression sur tes autres appareils. En attendant, elle est gardée dans ce navigateur.' : 'Ta progression est enregistrée sur ton compte Claude : ouvre cette page sur ton téléphone ou ton ordinateur, elle suit.') + '</p>';
+    } else if (Sync.parCode()) {
+      h += '<p class="note espace">Ta progression est gardée sur cet appareil. Pour la retrouver sur un autre, crée un code ici, puis tape-le une fois là-bas. Ni compte ni mot de passe : la progression est chiffrée sur ton appareil avant d\'être envoyée.</p>' +
+        '<button class="btn primaire espace" data-a="code-creer">Créer un code de synchronisation</button>' +
+        '<p class="groupe">J\'ai déjà un code</p><label class="sr" for="code">Code de synchronisation</label>' +
+        '<div class="rangee"><input class="champ code" id="code" type="text" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false" maxlength="24" placeholder="XXXX-XXXX-XXXX-XXXX"><button class="btn" data-a="code-relier">Relier cet appareil</button></div>' +
+        '<p class="note espace" id="code-msg" role="status"></p>' +
+        '<details class="releve"><summary>Autre méthode : un jeton GitHub</summary>' + parJeton + '</details>';
     } else {
-      h += '<p class="note espace">Ta progression est gardée sur cet appareil. Pour la retrouver sur ton téléphone et ton ordinateur, colle le même jeton GitHub sur chacun.</p>' +
-        '<label class="sr" for="jeton">Jeton GitHub</label><input class="champ espace" id="jeton" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Jeton GitHub">' +
-        '<p class="erreur" id="jeton-err" hidden>Colle le jeton complet, sans espace.</p>' +
-        '<div class="rangee espace"><button class="btn primaire" data-a="sync-activer">Activer la synchronisation</button><a class="lien" href="https://github.com/settings/tokens/new?scopes=gist&amp;description=Plan%20de%20vol" target="_blank" rel="noopener">Créer un jeton sur GitHub</a></div>' +
-        '<p class="note espace">Le jeton a seulement besoin du droit « gist ». Il reste enregistré sur cet appareil.</p>';
+      h += '<p class="note espace">Ta progression est gardée sur cet appareil. Pour la retrouver sur ton téléphone et ton ordinateur, colle le même jeton GitHub sur chacun.</p>' + parJeton;
     }
     h += '</div>';
-    if (!CHEZ_CLAUDE) h += '<div class="bloc"><h2>Hors connexion</h2><p><b id="hors-detail">' + LIB_HORS[HORS.etat] + '</b></p><p class="note espace">Une fois la page ajoutée à l\'écran d\'accueil et ouverte une première fois avec du réseau, tout le contenu reste disponible sans connexion.</p></div>';
+    if (!CHEZ_CLAUDE) h += '<div class="bloc"><h2>Hors connexion</h2><p><b id="hors-detail">' + LIB_HORS[HORS.etat] + '</b></p><p class="note espace">Une fois la page ajoutée à l\'écran d\'accueil et ouverte une première fois avec du réseau, tout le contenu reste disponible sans connexion. Pour le vérifier : passe en mode avion, ferme l\'application, puis rouvre-la.</p></div>';
     var sig = Object.keys(P.flags).filter(signale).filter(function (id) { return FACTS[id]; });
     h += '<div class="bloc"><h2>Fiches signalées</h2>' + (sig.length ? '<ul class="rates">' + sig.map(function (id) {
       return '<li><span class="d">' + esc(FACTS[id].d || FACTS[id].g || '') + '</span><span>' + esc(FACTS[id].t) + '</span></li>';
@@ -1288,7 +1348,7 @@
     voir: function () { var s = S.ses; if (s && s.rep === null && !s.q.opts) { s.rep = 'vu'; rendre(); } },
     auto: function (b) { autoEval(b.getAttribute('data-r')); },
     suite: function () { arreterChrono(); avancer(); },
-    quitter: function () { fermer(); S.haut = true; rendre(); },
+    quitter: function () { fermer(); Sync.vite(); S.haut = true; rendre(); },
     accueil: function () { fermer(); S.haut = true; if (page() !== 'accueil') window.location.hash = '#accueil'; else rendre(); },
     rejouer: function () { var pid = S.ses ? S.ses.opt.pack : ''; fermer(); lancerBlitz(pid); },
     erreurs: function () { var ids = S.ses ? S.ses.rates.slice() : []; fermer(); lancer('erreurs', ids.filter(function (id) { return FACTS[id]; }).map(function (id) { return { id: id, fmt: qcm(FACTS[id]), dur: false, retry: true }; })); },
@@ -1361,7 +1421,30 @@
       if (!/^[A-Za-z0-9_]{20,}$/.test(v)) { var er = document.getElementById('jeton-err'); if (er) er.hidden = false; return; }
       Sync.activer(v); rendre();
     },
-    'sync-couper': function () { Sync.couper(); rendre(); },
+    'sync-couper': function () { S.couper = false; Sync.couper(); rendre(); },
+    'couper-oui': function () { S.couper = true; rendre(); },
+    'couper-non': function () { S.couper = false; rendre(); },
+    'code-creer': function (b) {
+      b.disabled = true; b.textContent = 'Création du code…';
+      Sync.relier(DATA.synchro.nouveauCode(), true).then(function () { if (page() === 'reglages' && !S.ses) rendre(); }, function () {
+        b.disabled = false; b.textContent = 'Créer un code de synchronisation'; direCode('La création du code a échoué. Réessaie.');
+      });
+    },
+    'code-relier': function (b) {
+      var el = document.getElementById('code'), c = DATA.synchro.normaliser(el ? el.value : '');
+      if (!DATA.synchro.valide(c)) return direCode('Code incomplet ou mal recopié : il compte seize caractères.');
+      b.disabled = true; direCode('Vérification…');
+      Sync.relier(c, false).then(function () { if (page() === 'reglages' && !S.ses) rendre(); }, function (e) {
+        b.disabled = false;
+        direCode(e && e.status === 'inconnu' ? 'Aucune progression ne correspond à ce code. Vérifie-le sur l\'autre appareil, qui doit afficher « Synchronisé ».'
+          : 'Service de synchronisation injoignable. Vérifie ta connexion, puis réessaie.');
+      });
+    },
+    'code-copier': function () {
+      var c = DATA.synchro.presenter(Sync.code()), presse = window.navigator.clipboard;
+      if (!presse || !presse.writeText) return direCode('Copie impossible ici : recopie le code à la main.');
+      presse.writeText(c).then(function () { direCode('Code copié.'); }, function () { direCode('Copie impossible ici : recopie le code à la main.'); });
+    },
     rythme: function (b) {
       var n = +b.getAttribute('data-n'); if (SUIVI.RYTHMES.indexOf(n) < 0) return;
       P.set = clone(P.set); P.set.neu = n; P.set.t = Date.now(); commit();
@@ -1381,6 +1464,10 @@
     if (!b || b.disabled) return;
     var fn = ACT[b.getAttribute('data-a')];
     if (fn) { if (!b.hasAttribute('data-lien')) e.preventDefault(); fn(b); }
+  });
+  document.addEventListener('input', function (e) {
+    var t = e.target;
+    if (t && t.id === 'code') t.value = DATA.synchro.presenter(DATA.synchro.normaliser(t.value).slice(0, DATA.synchro.LONGUEUR));
   });
   document.addEventListener('change', function (e) {
     var t = e.target, k = t && t.getAttribute ? t.getAttribute('data-set') : null;

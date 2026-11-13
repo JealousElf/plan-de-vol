@@ -366,6 +366,12 @@ button.mr-nom:hover { text-decoration: underline; }
 .onglets button { min-height: 40px; padding: 0 12px; border-radius: 999px; border: 1.5px solid var(--trait); background: var(--papier); cursor: pointer; }
 .onglets button[aria-pressed="true"] { background: var(--bleu); border-color: var(--bleu); color: var(--sur-bleu); font-weight: 700; }
 .champ { width: 100%; min-height: 46px; padding: 0 12px; border-radius: 8px; border: 1.5px solid var(--trait); background: var(--papier); }
+/* Code de synchronisation : chasse fixe, pour distinguer chaque caractère quand on le recopie. */
+.champ.code, .code-affiche { font-family: ui-monospace, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace; letter-spacing: .06em; }
+.champ.code { flex: 1 1 210px; width: auto; text-transform: uppercase; }
+.champ.code::placeholder { letter-spacing: .04em; }
+.code-affiche { margin-top: 12px; padding: 14px 10px; border: 1.5px dashed var(--trait); border-radius: 8px; text-align: center; font-size: 20px; font-weight: 700; overflow-wrap: anywhere; -webkit-user-select: all; user-select: all; }
+.releve > .champ, .releve > .rangee { margin-top: 10px; }
 .groupe { font-size: 13px; font-weight: 700; color: var(--encre-2); margin: 18px 0 4px; }
 .bloc > h2 + .groupe { margin-top: 4px; }
 .pile > .groupe { margin: 8px 0 -6px; }
