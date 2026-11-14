@@ -1,22 +1,23 @@
 // Parcours principaux de l'application, dans un navigateur réel.
 import test, { after, before } from 'node:test';
 import assert from 'node:assert/strict';
-import { demarrer, jusquAuxChoix, ouvrir, repondre, semer, texte } from './aide.mjs';
+import { SANS_SERVICE, TELEPHONE, demarrer, jusquAuxChoix, ouvrir, repondre, semer, texte } from './aide.mjs';
 
 let env;
 before(async () => { env = await demarrer(); });
 after(async () => { await env.arreter(); });
 
-test('l\'accueil présente la séance du jour et les packs par thème', async () => {
+test('l\'accueil présente la séance du jour, les actualités et les packs par thème', async () => {
   const { contexte, page, erreurs } = await ouvrir(env.navigateur, env.url);
-  assert.equal(await page.locator('.check').count(), 7);
-  assert.deepEqual(await page.locator('.bloc .groupe').allTextContents(), ['Histoire', 'Armées françaises']);
+  assert.equal(await page.locator('.check').count(), 8);
+  assert.deepEqual(await page.locator('.bloc .groupe').allTextContents(), ['Histoire', 'Armées françaises', 'Culture générale']);
   assert.ok(await page.locator('[data-a="jour"]').isVisible());
+  assert.equal(await page.locator('#news h2').textContent(), 'Actualités');
   assert.deepEqual(erreurs, []);
   await contexte.close();
 });
 
-test('séance : la fiche s\'ouvre en feuille basse, une bonne réponse enchaîne, une erreur attend', async () => {
+test('séance : rien n\'enchaîne tout seul par défaut, « En savoir plus » s\'ouvre, et la séance se reprend', async () => {
   const { contexte, page, erreurs } = await ouvrir(env.navigateur, env.url);
   await page.click('[data-a="jour"]');
   await jusquAuxChoix(page);
@@ -25,42 +26,118 @@ test('séance : la fiche s\'ouvre en feuille basse, une bonne réponse enchaîne
   await page.waitForSelector('.feuille.ko');
   assert.match(await texte(page, '.feuille .bonne'), /^Bonne réponse/);
   assert.match(await page.locator('.feuille a[data-a="flag"]').getAttribute('href'), /github\.com\/[^/]+\/[^/]+\/issues\/new\?template=erreur-fiche\.yml&title=/);
-  await page.waitForTimeout(2100);
-  assert.equal(await page.locator('.feuille.ko').count(), 1, 'une erreur ne doit pas enchaîner toute seule');
   await page.click('.feuille [data-a="suite"]');
 
   await jusquAuxChoix(page);
-  const avant = await texte(page, '.compte');
   await repondre(page, true);
-  await page.waitForSelector('.feuille.ok .btn.rebours');
-  await page.waitForFunction((a) => !document.querySelector('.feuille') && document.querySelector('.compte').textContent.trim() !== a, avant, { timeout: 4000 });
+  await page.waitForSelector('.feuille.ok');
+  assert.equal(await page.locator('.btn.rebours').count(), 0, 'par défaut, une bonne réponse attend aussi');
+  const plus = page.locator('.feuille details.plus');
+  assert.equal(await plus.count(), 1);
+  assert.equal(await plus.locator('.plus-corps').isVisible(), false);
+  await plus.locator('summary').click();
+  assert.ok(await plus.locator('.plus-corps').isVisible());
+  assert.match(await plus.locator('.plus-wiki a').getAttribute('href'), /^https:\/\/fr\.wikipedia\.org\/w\/index\.php\?search=/);
+  assert.equal(await plus.locator('.plus-wiki a').getAttribute('target'), '_blank');
+  await page.waitForTimeout(1200);
+  assert.equal(await page.locator('.feuille.ok').count(), 1);
 
-  await jusquAuxChoix(page);
-  await repondre(page, true);
-  await page.click('.feuille .fait-r');
-  await page.waitForTimeout(2100);
-  assert.equal(await page.locator('.feuille.ok').count(), 1, 'toucher la fiche doit suspendre l\'enchaînement');
-  assert.equal(await page.locator('.btn.rebours').count(), 0);
-  await page.click('.feuille [data-a="suite"]');
+  // on quitte en pleine séance : l'accueil propose de reprendre, même après un rechargement
+  const [n, total] = (await texte(page, '.compte')).split(' / ').map(Number);
   await page.click('[data-a="quitter"]');
-  assert.match(await texte(page, '.legende'), /en cours/);
+  await page.reload();
+  await page.waitForSelector('[data-a="reprendre"]');
+  assert.match(await texte(page, '.bloc.seance .chiffres'), new RegExp('question ' + (n + 1) + ' sur ' + total + '\\.$'));
+  await page.click('[data-a="reprendre"]');
+  await page.waitForSelector('.compte');
+  assert.equal(await texte(page, '.compte'), (n + 1) + ' / ' + total);
+  await page.click('[data-a="quitter"]');
+  await page.click('[data-a="seance-abandon"]');
+  assert.equal(await page.locator('[data-a="reprendre"]').count(), 0);
+  assert.ok(await page.locator('.bloc.seance').isVisible());
   assert.deepEqual(erreurs, []);
   await contexte.close();
 });
 
-test('réglage : on peut couper l\'enchaînement automatique, et le choix est gardé', async () => {
-  const { contexte, page } = await ouvrir(env.navigateur, env.url + '#reglages');
-  await page.selectOption('#r-auto', '0');
+test('réglage : passer à la suite après une bonne réponse, au délai choisi, et le choix est gardé', async () => {
+  const { contexte, page, erreurs } = await ouvrir(env.navigateur, env.url + '#reglages');
+  assert.equal(await page.locator('#r-enchaine').inputValue(), '0', 'par défaut : jamais');
+  await page.selectOption('#r-enchaine', '3');
   await page.reload();
-  assert.equal(await page.locator('#r-auto').inputValue(), '0');
+  assert.equal(await page.locator('#r-enchaine').inputValue(), '3');
   await page.goto(env.url + '#accueil');
   await page.click('[data-a="jour"]');
   await jusquAuxChoix(page);
+  const avant = await texte(page, '.compte');
   await repondre(page, true);
-  await page.waitForSelector('.feuille.ok');
+  await page.waitForSelector('.feuille.ok .btn.rebours');
+  assert.equal(await page.locator('.feuille .btn.rebours').getAttribute('style'), '--rebours:3s');
+  await page.waitForTimeout(1500);
+  assert.equal(await page.locator('.feuille.ok').count(), 1, 'pas avant trois secondes');
+  await page.waitForFunction((a) => !document.querySelector('.feuille') && document.querySelector('.compte').textContent.trim() !== a, avant, { timeout: 4000 });
+
+  await jusquAuxChoix(page);
+  await repondre(page, true);
+  await page.waitForSelector('.feuille.ok .btn.rebours');
+  await page.click('.feuille details.plus summary');
+  await page.waitForTimeout(3500);
+  assert.equal(await page.locator('.feuille.ok').count(), 1, 'ouvrir « En savoir plus » suspend l\'enchaînement');
   assert.equal(await page.locator('.btn.rebours').count(), 0);
-  await page.waitForTimeout(2100);
+  await page.click('.feuille .fait-r');
   assert.equal(await page.locator('.feuille.ok').count(), 1);
+  assert.deepEqual(erreurs, []);
+  await contexte.close();
+});
+
+test('actualités : les gros titres défilent, se filtrent par thème et ouvrent le site du média', async () => {
+  const contexte = await env.navigateur.newContext({ ...TELEPHONE, serviceWorkers: 'block' });
+  await contexte.route('**/config.js', (route) => route.fulfill(SANS_SERVICE));
+  const il = (h) => new Date(Date.now() - h * 3600000).toISOString();
+  const articles = [
+    { t: 'Un titre sur les armées', u: 'https://media-a.example/armees', s: 'Média A', th: 'def', d: il(2) },
+    { t: 'Un titre sur le monde', u: 'https://media-b.example/monde', s: 'Média B', th: 'int', d: il(5) },
+    { t: 'Un titre sur l\'espace', u: 'https://media-c.example/espace', s: 'Média C', th: 'aero', d: il(30) },
+  ];
+  let reponse = { contentType: 'application/json', body: JSON.stringify({ maj: il(1), articles }) };
+  await contexte.route('**/data/news.json', (route) => route.fulfill(reponse));
+  const page = await contexte.newPage();
+  const erreurs = [];
+  page.on('pageerror', (e) => erreurs.push(e.message));
+  await page.goto(env.url);
+  await page.waitForSelector('.news-carte');
+  assert.equal(await page.locator('.news-carte').count(), 3);
+  assert.equal(await texte(page, '.news-maj'), 'Mis à jour il y a 1 h');
+  const carte = page.locator('.news-carte').first();
+  assert.equal(await carte.getAttribute('href'), 'https://media-a.example/armees');
+  assert.equal(await carte.getAttribute('target'), '_blank');
+  assert.equal(await texte(page, '.news-carte .news-meta'), 'Média A, il y a 2 h');
+  assert.equal(await page.locator('#news-rail').evaluate((el) => getComputedStyle(el).overflowX), 'auto');
+
+  await page.click('#news [data-a="news"][data-th="def"]');
+  assert.equal(await page.locator('.news-carte').count(), 1);
+  assert.equal(await page.locator('#news [data-th="def"]').getAttribute('aria-pressed'), 'true');
+  await page.click('#news [data-a="news"][data-th="pol"]');
+  assert.equal(await page.locator('.news-carte').count(), 0);
+  assert.match(await texte(page, '#news-rail'), /Aucun titre/);
+
+  reponse = { status: 404, body: '' };
+  await page.reload();
+  await page.waitForSelector('#news .note');
+  assert.match(await texte(page, '#news .note'), /indisponibles|retour du réseau/);
+  assert.deepEqual(erreurs, []);
+  await contexte.close();
+});
+
+test('citations : 57 citations, chacune avec son paragraphe « En savoir plus »', async () => {
+  const { contexte, page, erreurs } = await ouvrir(env.navigateur, env.url + '#fiches');
+  await page.click('.onglets.themes [data-a="fpack"][data-p="cit"]');
+  assert.equal(await page.locator('details.fiche').count(), 57);
+  await page.fill('#rech', 'faire face');
+  await page.locator('details.fiche summary').first().click();
+  await page.locator('details.fiche[open] details.plus summary').first().click();
+  assert.match(await texte(page, 'details.fiche[open] .plus-corps p'), /Guynemer/);
+  assert.equal(await texte(page, 'details.fiche[open] .plus-wiki a'), 'Pour aller plus loin : Wikipédia');
+  assert.deepEqual(erreurs, []);
   await contexte.close();
 });
 
@@ -128,8 +205,8 @@ test('pack d\'actualité : un fichier valide ajoute le thème Actualité', async
   await contexte.route('**/data/actu.json', (route) => route.fulfill({ contentType: 'application/json', body: JSON.stringify({ id: 'actu', theme: 'Actualité', titre: 'Actualité de la semaine', court: 'Actualité', sous: 'Test', maj: '2026-11-16', faits: [1, 2, 3].map(fait) }) }));
   const page = await contexte.newPage();
   await page.goto(env.url);
-  await page.waitForFunction(() => document.querySelectorAll('.check').length === 8);
-  assert.deepEqual(await page.locator('.bloc .groupe').allTextContents(), ['Histoire', 'Armées françaises', 'Actualité']);
+  await page.waitForFunction(() => document.querySelectorAll('.check').length === 9);
+  assert.deepEqual(await page.locator('.bloc .groupe').allTextContents(), ['Histoire', 'Armées françaises', 'Culture générale', 'Actualité']);
   await contexte.close();
 });
 
@@ -162,7 +239,7 @@ test('carnet : prévision, calendrier, maîtrise par thème et chiffres en table
   const futurs = 6 - ((new Date().getDay() + 6) % 7);
   assert.equal(await page.locator('.cal-grille i[data-v]').count(), 105 - futurs);
   assert.equal(await page.locator('.cal-grille i.auj').count(), 1);
-  assert.equal(await page.locator('.mr .seg').count(), 7);
+  assert.equal(await page.locator('.mr .seg').count(), 8);
   assert.equal(await page.locator('.tuile').count(), 7);
   assert.ok(await page.locator('.rates li').count() >= 4, 'repères qui résistent et oraux');
 

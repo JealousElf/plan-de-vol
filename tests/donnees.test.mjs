@@ -10,6 +10,7 @@ for (const f of readdirSync(dossier).filter((n) => n.endsWith('.js')).sort()) {
   vm.runInContext(readFileSync(new URL(f, dossier), 'utf8'), contexte, { filename: f });
 }
 const { packs, sujets } = contexte.window.PDV;
+const paragraphes = contexte.window.PDV.contexte || {};
 const faits = packs.flatMap((p) => p.faits.map((f) => ({ ...f, pack: p.id })));
 const date = (f) => typeof f.y === 'number' && typeof f.d === 'string' && f.d !== '';
 const question = (f) => typeof f.q === 'string' && typeof f.a === 'string' && Array.isArray(f.x);
@@ -24,7 +25,8 @@ function verifierFait(f) {
   }
   if (f.y2 !== undefined && f.y2 !== null) assert.ok(f.y2 >= Math.floor(f.y), `${f.id} : fin antérieure au début`);
   if (f.st !== undefined) assert.match(f.st, /^(cours|fragile|fin)$/, `${f.id} : statut inconnu`);
-  for (const k of ['t', 'r', 'o', 'q', 'a']) if (typeof f[k] === 'string') assert.ok(!/\s{2,}|—/.test(f[k]), `${f.id} : espaces doubles ou tiret long dans « ${k} »`);
+  for (const k of ['t', 'r', 'o', 'q', 'a', 'c', 'w']) if (typeof f[k] === 'string') assert.ok(!/\s{2,}|—/.test(f[k]), `${f.id} : espaces doubles ou tiret long dans « ${k} »`);
+  if (f.c !== undefined) assert.ok(typeof f.c === 'string' && f.c.length >= 300 && f.c.length <= 1100, `${f.id} : le paragraphe « En savoir plus » doit faire un bon paragraphe (300 à 1 100 signes)`);
 }
 
 test('chaque pack a un identifiant, un titre, un thème et des fiches', () => {
@@ -93,3 +95,43 @@ test('la version est la même partout, et config.js désigne un service bien for
   assert.match(carnets, /^$|^https:\/\/[a-z0-9-]+(\.[a-z0-9-]+)*\.(firebasedatabase\.app|firebaseio\.com)$/, 'adresse du service : vide, ou une base Firebase sans barre finale');
 });
 
+
+test('les paragraphes « En savoir plus » visent des fiches existantes et font un bon paragraphe', () => {
+  const ids = new Set(faits.map((f) => f.id));
+  const cles = Object.keys(paragraphes);
+  assert.ok(cles.length >= 84, 'au moins les douze premières fiches de chaque pack');
+  for (const id of cles) {
+    assert.ok(ids.has(id), `contexte.js : aucune fiche « ${id} »`);
+    verifierFait({ ...faits.find((f) => f.id === id), c: paragraphes[id] });
+  }
+  for (const p of packs) {
+    if (p.id === 'cit') continue;
+    for (const f of p.faits.slice(0, 12)) assert.ok(f.c || paragraphes[f.id], `${f.id} : une des premières fiches du pack, il lui faut un paragraphe`);
+  }
+});
+
+test('le pack de citations : un auteur à trouver, un paragraphe, et jamais dans la frise', () => {
+  const cit = packs.find((p) => p.id === 'cit');
+  assert.ok(cit, 'pack cit absent');
+  assert.equal(cit.theme, 'Culture générale');
+  assert.match(cit.sous, new RegExp('^' + cit.faits.length + ' citations'));
+  for (const f of cit.faits) {
+    assert.ok(question({ ...f }), `${f.id} : il faut une question (q, a, x)`);
+    assert.ok(typeof f.c === 'string' && typeof f.w === 'string' && f.w, `${f.id} : paragraphe ou article Wikipédia manquant`);
+    assert.equal(f.y, undefined, `${f.id} : une citation n'a pas d'année, pour ne pas entrer dans la frise`);
+  }
+  const groupes = [...new Set(cit.faits.map((f) => f.g))];
+  assert.deepEqual(groupes, ['Chefs militaires français', 'Aviateurs et pionniers', 'Grandes figures françaises', 'Stratèges étrangers']);
+});
+
+test('le fichier des actualités a la forme attendue', () => {
+  const news = JSON.parse(readFileSync(new URL('news.json', dossier), 'utf8'));
+  assert.ok(news.maj === null || !isNaN(Date.parse(news.maj)), 'maj : null ou une date');
+  assert.ok(Array.isArray(news.articles) && news.articles.length <= 48);
+  for (const a of news.articles) {
+    assert.ok(typeof a.t === 'string' && a.t && typeof a.s === 'string' && a.s, 'titre et source');
+    assert.match(a.u, /^https:\/\//);
+    assert.match(a.th, /^(def|int|aero|pol)$/);
+    assert.ok(!isNaN(Date.parse(a.d)), 'date de l\'article');
+  }
+});

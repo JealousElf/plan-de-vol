@@ -1,5 +1,5 @@
 /* Plan de vol : tout le contenu est mis en cache à l'installation, puis servi sans réseau. */
-var VERSION = "pdv-4d29498078aa";
+var VERSION = "pdv-fc9203af3494";
 var FICHIERS = [
   "index.html",
   "styles.css",
@@ -20,7 +20,9 @@ var FICHIERS = [
   "icons/icon-192.png",
   "icons/icon-512.png",
   "data/aae.js",
+  "data/citations.js",
   "data/conflits.js",
+  "data/contexte.js",
   "data/france.js",
   "data/monde.js",
   "data/operations.js",
@@ -45,12 +47,14 @@ self.addEventListener('activate', function (e) {
 self.addEventListener('fetch', function (e) {
   var req = e.request, url = new URL(req.url);
   if (req.method !== 'GET' || url.origin !== self.location.origin) return;
-  if (/\/data\/actu\.json$/.test(url.pathname)) {
+  var vif = url.pathname.match(/\/data\/(actu|news)\.json$/);
+  if (vif) {
+    var cle = 'data/' + vif[1] + '.json';   // fichiers qui changent souvent : réseau d'abord, dernière copie hors connexion
     e.respondWith(fetch(req, { cache: 'no-store' }).then(function (rep) {
-      if (rep.ok) { var copie = rep.clone(); caches.open(ACTU).then(function (c) { c.put('data/actu.json', copie); }); }
+      if (rep.ok) { var copie = rep.clone(); caches.open(ACTU).then(function (c) { c.put(cle, copie); }); }
       return rep;
     }).catch(function () {
-      return caches.open(ACTU).then(function (c) { return c.match('data/actu.json'); }).then(function (rep) {
+      return caches.open(ACTU).then(function (c) { return c.match(cle); }).then(function (rep) {
         return rep || new Response('{}', { headers: { 'Content-Type': 'application/json' } });
       });
     }));

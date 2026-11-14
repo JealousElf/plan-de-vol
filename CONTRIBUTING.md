@@ -31,7 +31,7 @@ Une fiche à question écrite : tu fournis la question, la bonne réponse et au 
 
 | Champ | Rôle |
 | --- | --- |
-| `id` | Identifiant unique, préfixé par le pack (`fr-`, `cf-`, `om-`, `ae-`, `op-`, `pg-`, `og-`). Ne change jamais un identifiant existant : il porte la progression des utilisateurs. |
+| `id` | Identifiant unique, préfixé par le pack (`fr-`, `cf-`, `om-`, `ae-`, `op-`, `pg-`, `og-`, `ci-`). Ne change jamais un identifiant existant : il porte la progression des utilisateurs. |
 | `g` | Groupe affiché dans la liste des fiches. Les fiches d'un même groupe se suivent. |
 | `t` | Titre court, en forme d'événement pour une fiche datée. |
 | `y`, `y2`, `d` | Année de début (nombre), année de fin (`null` si c'est en cours), date en toutes lettres. |
@@ -39,13 +39,17 @@ Une fiche à question écrite : tu fournis la question, la bonne réponse et au 
 | `r`, `o` | Résumé, puis phrase « à placer à l'oral ». |
 | `st`, `sl` | Statut d'un conflit ou d'une opération : `cours`, `fragile` ou `fin`, et son libellé. |
 | `maj` | `1` si la fiche décrit une situation qui évolue : la date de vérification du pack s'affiche alors. |
+| `c` | Facultatif : le paragraphe « En savoir plus », 300 à 1 100 signes. Pour les packs existants, il se range plutôt dans `data/contexte.js`, sous l'identifiant de la fiche. |
+| `w` | Facultatif : le titre de l'article Wikipédia vers lequel pointe « En savoir plus » (à défaut, le titre de la fiche). |
 
 Règles de rédaction :
 
 - uniquement des informations publiques, tirées de sources que chacun peut consulter. Rien de classifié, rien d'issu de documents internes ;
 - des faits datés et vérifiables, sur un ton neutre. Pas de prise de position partisane ;
 - des phrases courtes, écrites avec tes propres mots : ne recopie pas une source ;
-- pour un fait récent, cite la source dans ta demande et mets à jour le champ `maj` du pack.
+- pour un fait récent, cite la source dans ta demande et mets à jour le champ `maj` du pack ;
+- un paragraphe « En savoir plus » donne le contexte (causes, déroulement, portée) en un seul paragraphe, sans répéter le résumé ;
+- une citation doit être exacte et sourcée ; si son attribution est douteuse, dis-le dans le résumé.
 
 Avant d'envoyer :
 

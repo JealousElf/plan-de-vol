@@ -95,7 +95,7 @@ body.focus .tabs { display: none; }
 .pile.serre { gap: 8px; }
 .pile.serre .titre2 { margin: 6px 0 0; }
 .bloc { background: var(--papier); border: 1px solid var(--trait); border-radius: var(--r); padding: 16px; }
-.bloc > h2, .titre2 { font-size: 15px; font-weight: 700; margin-bottom: 8px; }
+.bloc > h2, .titre2, .news-tete h2 { font-size: 15px; font-weight: 700; margin-bottom: 8px; }
 .page-t { font-size: 22px; font-weight: 700; margin: 4px 0 2px; }
 .note { font-size: 13px; color: var(--encre-2); }
 .lecture { font-family: var(--texte); font-size: 17px; line-height: 1.5; }
@@ -440,7 +440,7 @@ button.mr-nom:hover { text-decoration: underline; }
   .opt { transition: border-color .12s ease, background-color .12s ease, transform .08s ease; }
   .opt:active:not([disabled]) { transform: scale(.985); }
   .opt.juste, .opt.faux { animation: pouls .24s ease-out; }
-  .btn.rebours::after { animation: rebours 1.6s linear both; }
+  .btn.rebours::after { animation: rebours var(--rebours, 1.6s) linear both; }
   #app.arrive > section:not(.ecran-seance) { animation: apparait .18s ease-out both; }
   #app.arrive .piste .encours, #app.arrive .piste .acquis { transform-origin: left center; animation: roule .9s cubic-bezier(.2, .75, .2, 1) both; }
   #app.arrive .piste .acquis { animation-delay: .18s; }
@@ -476,3 +476,37 @@ button.mr-nom:hover { text-decoration: underline; }
   #app > section.vaste { max-width: none; }
   .cols { display: grid; grid-template-columns: minmax(0, 1.18fr) minmax(0, 1fr); gap: 16px 20px; align-items: start; }
 }
+
+/* Bouton « + » : paragraphe de contexte sous la fiche */
+.plus { margin-top: 12px; border-top: 1px solid var(--trait); }
+.plus > summary { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; padding: 6px 0; list-style: none; cursor: pointer; font-weight: 700; color: var(--bleu); }
+.plus > summary::-webkit-details-marker { display: none; }
+.plus-signe { position: relative; flex: none; width: 26px; height: 26px; border: 2px solid currentColor; border-radius: 50%; }
+.plus-signe::before, .plus-signe::after { content: ""; position: absolute; left: 50%; top: 50%; width: 12px; height: 2px; margin: -1px 0 0 -6px; background: currentColor; border-radius: 1px; }
+.plus-signe::after { transform: rotate(90deg); }
+.plus[open] .plus-signe::after { transform: rotate(0deg); }
+.plus-corps { padding: 2px 0 6px; }
+.plus-corps p { font-family: var(--texte); line-height: 1.55; }
+.plus-wiki { margin-top: 8px; font-size: 14px; }
+@media (prefers-reduced-motion: no-preference) {
+  .plus-signe::after { transition: transform .2s ease-out; }
+  .plus[open] .plus-corps { animation: apparait .2s ease-out; }
+}
+
+/* Actualités : un rail de titres qui défile sur le côté */
+.news { overflow: hidden; }
+.news-tete { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.news-tete h2 { margin-bottom: 0; }
+.news-maj { flex: none; font-size: 12px; color: var(--encre-2); }
+.puces { display: flex; gap: 6px; margin: 12px -16px 0; padding: 0 16px 2px; overflow-x: auto; scrollbar-width: none; }
+.puces::-webkit-scrollbar { display: none; }
+.puces button { flex: none; min-height: 34px; padding: 0 12px; border: 1.5px solid var(--trait); border-radius: 17px; background: var(--papier); color: var(--encre); font-size: 13px; cursor: pointer; }
+.puces button[aria-pressed="true"] { border-color: var(--encre); background: var(--encre); color: var(--papier); }
+.news-rail { display: flex; gap: 10px; margin: 12px -16px 0; padding: 2px 16px 10px; overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding: 0 16px; overscroll-behavior-x: contain; scrollbar-width: thin; }
+.news-carte { flex: none; display: flex; flex-direction: column; gap: 8px; width: min(78%, 280px); min-height: 156px; padding: 13px 14px 12px; border: 1.5px solid var(--trait); border-radius: var(--r); background: var(--papier); color: var(--encre); text-decoration: none; scroll-snap-align: start; }
+.news-carte:hover, .news-carte:focus-visible { border-color: var(--encre-2); }
+.news-theme { align-self: flex-start; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; background: var(--bleu-fond); color: var(--bleu); }
+.news-theme.th-def { background: var(--balise); color: var(--sur-balise); }
+.news-titre { flex: 1; font-family: var(--texte); font-size: 16px; line-height: 1.32; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+.news-meta { font-size: 12px; color: var(--encre-2); }
+

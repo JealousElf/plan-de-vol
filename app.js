@@ -6,7 +6,7 @@
   var LS = 'pdv.progression.v1';
   /* Dépôt qui reçoit les signalements d'erreur. À changer seulement si tu maintiens ta propre version des fiches. */
   var DEPOT = DATA.depot || 'JealousElf/plan-de-vol';
-  var VERSION_APP = '1.3.0', DATE_APP = '13 novembre 2026';
+  var VERSION_APP = '1.4.0', DATE_APP = '14 novembre 2026';
   var JOUR = 86400000;
   var IV = [0, 1, 2, 4, 8, 16, 32];
   var MOIS = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
@@ -53,9 +53,13 @@
   function aDate(f) { return typeof f.y === 'number' && typeof f.d === 'string' && f.d !== ''; }
   function indexer() {
     FACTS = {};
+    var ctx = DATA.contexte || {};
     DATA.packs.forEach(function (p) {
       var ans = {};
-      (p.faits || []).forEach(function (f) { f.pack = p.id; FACTS[f.id] = f; if (aDate(f)) ans[Math.floor(f.y)] = 1; });
+      (p.faits || []).forEach(function (f) {
+        f.pack = p.id; if (!f.c && typeof ctx[f.id] === 'string') f.c = ctx[f.id];
+        FACTS[f.id] = f; if (aDate(f)) ans[Math.floor(f.y)] = 1;
+      });
       p.ny = Object.keys(ans).length;
     });
   }
@@ -83,7 +87,7 @@
   /* ---------- progression ---------- */
   function vide() {
     return { v: 1, epoch: 0, cards: {}, days: {}, best: {}, oraux: [], flags: {}, diag: 0,
-      set: { exam: null, neu: 10, prep: 30, expo: 10, quest: 10, blitz: 15, auto: 1, t: 0 } };
+      set: { exam: null, neu: 10, prep: 30, expo: 10, quest: 10, blitz: 15, enchaine: 0, t: 0 } };
   }
   function normaliser(p) {
     var b = vide(), k;
@@ -378,6 +382,55 @@
   })();
 
   /* ---------- pack d'actualité servi comme fichier, et fonctionnement hors connexion ---------- */
+  /* ---------- actualités : les gros titres, mis à jour par le robot du dépôt (outils/actualites.mjs) ---------- */
+  var NEWS = null, NEWS_T = 0;
+  var THEMES_NEWS = [['tout', 'Tout'], ['def', 'Défense'], ['int', 'International'], ['aero', 'Aéro et spatial'], ['pol', 'Politique']];
+  function nomThemeNews(th) { for (var i = 1; i < THEMES_NEWS.length; i++) if (THEMES_NEWS[i][0] === th) return THEMES_NEWS[i][1]; return 'Actualité'; }
+  function articleValide(a) { return !!a && typeof a.t === 'string' && a.t !== '' && /^https:\/\//.test(a.u || '') && typeof a.s === 'string'; }
+  function chargerNews() {
+    if (!window.fetch || !/^https?:$/.test(window.location.protocol)) return;
+    NEWS_T = Date.now();
+    window.fetch('data/news.json', { cache: 'no-store' }).then(function (r) { return r.ok ? r.json() : null; }).then(function (n) {
+      NEWS = n && Array.isArray(n.articles) ? { maj: n.maj || null, articles: n.articles.filter(articleValide) } : (NEWS || { maj: null, articles: [], echec: true });
+      majNews();
+    }).catch(function () { if (!NEWS) { NEWS = { maj: null, articles: [], echec: true }; majNews(); } });
+  }
+  /** « il y a 3 h », « hier », « le 12 nov. » */
+  function depuis(iso) {
+    var t = Date.parse(iso || ''); if (isNaN(t)) return '';
+    var m = Math.round((Date.now() - t) / 60000);
+    if (m < 2) return 'à l\'instant';
+    if (m < 60) return 'il y a ' + m + ' min';
+    if (m < 1440) return 'il y a ' + Math.round(m / 60) + ' h';
+    if (m < 2880) return 'hier';
+    var d = new Date(t); return 'le ' + (d.getDate() === 1 ? '1er' : d.getDate()) + ' ' + MOIS_C[d.getMonth()];
+  }
+  function railNews() {
+    var l = NEWS.articles.filter(function (a) { return S.news === 'tout' || a.th === S.news; }).slice(0, 24);
+    if (!l.length) return '<p class="note">Aucun titre dans ce thème pour l\'instant.</p>';
+    return l.map(function (a) {
+      var quand = depuis(a.d);
+      return '<a class="news-carte" data-a="lien" data-lien href="' + esc(a.u) + '" target="_blank" rel="noopener"><span class="news-theme th-' + esc(a.th) + '">' + esc(nomThemeNews(a.th)) + '</span>' +
+        '<span class="news-titre">' + esc(a.t) + '</span><span class="news-meta">' + esc(a.s) + (quand ? ', ' + esc(quand) : '') + '</span></a>';
+    }).join('');
+  }
+  function blocNews() {
+    var h = '<div class="bloc news" id="news"><div class="news-tete"><h2>Actualités</h2>';
+    if (!NEWS) return h + '</div><p class="note">Chargement des titres…</p></div>';
+    if (!NEWS.articles.length) return h + '</div><p class="note">' + (window.navigator.onLine === false ? 'Les titres s\'afficheront au retour du réseau.' : 'Titres indisponibles pour l\'instant.') + '</p></div>';
+    h += NEWS.maj ? '<span class="news-maj">Mis à jour ' + esc(depuis(NEWS.maj)) + '</span>' : '';
+    h += '</div><div class="puces" role="group" aria-label="Thèmes des actualités">' + THEMES_NEWS.map(function (t) {
+      return '<button data-a="news" data-th="' + t[0] + '" aria-pressed="' + (S.news === t[0]) + '">' + t[1] + '</button>';
+    }).join('') + '</div><div class="news-rail" id="news-rail">' + railNews() + '</div>';
+    return h + '<p class="note espace">Chaque titre ouvre l\'article sur le site du média.</p></div>';
+  }
+  function majNews() {
+    var el = document.getElementById('news');
+    if (el && page() === 'accueil' && !S.ses && !S.frise && !S.choix) el.outerHTML = blocNews();
+  }
+  document.addEventListener('visibilitychange', function () {
+    if (document.visibilityState === 'visible' && Date.now() - NEWS_T > 30 * 60000) chargerNews();
+  });
   function chargerActu() {
     if (!window.fetch || !/^https?:$/.test(window.location.protocol)) return;
     window.fetch('data/actu.json', { cache: 'no-store' }).then(function (r) { return r.ok ? r.json() : null; }).then(function (p) {
@@ -535,9 +588,28 @@
   }
 
   /* ---------- état de l'interface ---------- */
-  var S = { ses: null, frise: null, choix: null, oral: null, tirage: null, msg: null, raz: false, couper: false, haut: false, fiches: { pack: null, q: '', st: '' } };
+  var S = { ses: null, frise: null, choix: null, oral: null, tirage: null, msg: null, raz: false, couper: false, haut: false, news: 'tout', fiches: { pack: null, q: '', st: '' } };
   var chrono = { id: 0, fin: 0, dur: 0, auto: 0 };
 
+  /* La séance du jour (et la séance d'avance) est gardée sur l'appareil jusqu'au soir : on la reprend là où on l'a quittée. */
+  var SEANCE = 'pdv.seance.v1';
+  function sauverSeance() {
+    var s = S.ses;
+    if (!s || (s.kind !== 'jour' && s.kind !== 'avance')) return;
+    try {
+      if (s.fini) { window.localStorage.removeItem(SEANCE); return; }
+      var i = s.q && s.q.fmt !== 'decouverte' && s.rep !== null && s.rep !== 'vu' ? s.i + 1 : s.i;
+      window.localStorage.setItem(SEANCE, JSON.stringify({ jour: auj(), kind: s.kind, items: s.items, i: i, ok: s.ok, n: s.n, rates: s.rates }));
+    } catch (e) { /* stockage plein ou absent : la séance n'est simplement pas gardée */ }
+  }
+  function seanceEnCours() {
+    try {
+      var r = JSON.parse(window.localStorage.getItem(SEANCE) || 'null');
+      if (!r || r.jour !== auj() || !Array.isArray(r.items) || typeof r.i !== 'number') return null;
+      return r.items.slice(r.i).some(function (it) { return it && FACTS[it.id]; }) ? r : null;
+    } catch (e) { return null; }
+  }
+  function oublierSeance() { try { window.localStorage.removeItem(SEANCE); } catch (e) { /* rien à faire */ } }
   function lancer(kind, items, opt) {
     if (!items.length) return;
     S.choix = null;
@@ -549,6 +621,7 @@
     while (s.i < s.items.length && !FACTS[s.items[s.i].id]) s.i++;
     if (s.i >= s.items.length) return debrief();
     s.q = question(FACTS[s.items[s.i].id], s.items[s.i]); s.rep = null; s.auto = false; s.frais = true;
+    sauverSeance();
     S.haut = true; rendre();
     if (s.kind === 'blitz') demarrerChrono();
   }
@@ -608,9 +681,11 @@
       if (s.kind === 'blitz' && i >= 0) s.score = Math.max(0, s.score - 30);
       rater(it);
     }
-    s.auto = bon && (s.kind === 'blitz' || P.set.auto !== 0);
+    var delai = s.kind === 'blitz' ? 0.7 : (+P.set.enchaine || 0);
+    s.auto = bon && delai > 0;
+    sauverSeance();
     rendre();
-    if (s.auto) chrono.auto = setTimeout(function () { chrono.auto = 0; avancer(); }, s.kind === 'blitz' ? 700 : 1600);
+    if (s.auto) chrono.auto = setTimeout(function () { chrono.auto = 0; avancer(); }, delai * 1000);
   }
   function autoEval(res) {
     var s = S.ses; if (!s || s.rep !== 'vu') return;
@@ -625,7 +700,7 @@
     s.i++; suivante();
   }
   function debrief() {
-    var s = S.ses; arreterChrono(); s.fini = true;
+    var s = S.ses; arreterChrono(); s.fini = true; sauverSeance();
     if (s.kind === 'blitz') {
       var k = 'blitz:' + (s.opt.pack || 'tout');
       if (s.score > (P.best[k] || 0)) { P.best[k] = s.score; s.record = true; commit(); }
@@ -651,6 +726,12 @@
   function boutonFlag(f) {
     return '<a class="lien" data-a="flag" data-lien data-id="' + esc(f.id) + '" href="' + esc(lienSignalement(f)) + '" target="_blank" rel="noopener">Signaler une erreur</a>';
   }
+  function wikipedia(f) { return 'https://fr.wikipedia.org/w/index.php?search=' + encodeURIComponent(f.w || f.t); }
+  function plusHtml(f) {
+    return '<details class="plus"><summary data-a="plus" data-lien><span class="plus-signe" aria-hidden="true"></span>En savoir plus</summary><div class="plus-corps">' +
+      (f.c ? '<p>' + esc(f.c) + '</p>' : '') + '<p class="plus-wiki"><a data-a="lien" data-lien href="' + esc(wikipedia(f)) + '" target="_blank" rel="noopener">' +
+      (f.c ? 'Pour aller plus loin : Wikipédia' : 'Lire l\'article Wikipédia') + '</a></p></div></details>';
+  }
   function ficheHtml(f, p, o) {
     o = o || {};
     var h = o.sansTitre ? '' : '<p class="fait-t">' + esc(f.t) + '</p>';
@@ -661,6 +742,7 @@
     }
     h += '<p class="fait-r">' + esc(f.r) + '</p>';
     if (f.o) h += '<div class="oral-bloc"><small>À placer à l\'oral</small>' + esc(f.o) + '</div>';
+    h += plusHtml(f);
     if (f.maj && p && p.maj) h += '<p class="note espace">Situation vérifiée le ' + dateFr(p.maj) + '.</p>';
     return h;
   }
@@ -762,7 +844,12 @@
         '<p class="note espace">Tu connais déjà une partie du programme ? <button class="lien" data-a="diag">Passe le test de positionnement</button> pour ne pas tout revoir.</p></div>';
     } else {
       h += '<div class="bloc seance"><h2>Séance du jour</h2>';
-      if (nd + nn > 0) {
+      var enCours = seanceEnCours();
+      if (enCours) {
+        h += '<p class="chiffres">Séance commencée : tu en es à la question ' + Math.min(enCours.i + 1, enCours.items.length) + ' sur ' + enCours.items.length + '.</p>' +
+          '<button class="btn primaire large" data-a="reprendre">Reprendre la séance</button>' +
+          '<p class="note espace"><button class="lien" data-a="seance-abandon">Abandonner cette séance</button> : tes réponses déjà données restent comptées.</p>';
+      } else if (nd + nn > 0) {
         h += '<p class="chiffres">' + phraseSeance(nd, nn) + ', ' + Math.max(1, Math.ceil((nd * 20 + nn * 45) / 60)) + ' min environ.</p>';
         h += '<button class="btn primaire large" data-a="jour">Lancer la séance</button>';
         if (plan.attente) h += '<p class="note espace">' + pluriel(plan.attente, 'autre révision attend', 'autres révisions attendent') + ' : relance une séance ensuite.</p>';
@@ -773,6 +860,7 @@
       }
       h += '</div>';
     }
+    h += blocNews();
 
     h += '<div class="bloc"><h2>Check-list de maîtrise</h2>';
     parTheme().forEach(function (t) {
@@ -845,7 +933,7 @@
         '<p class="verdict ' + (bon ? 'ok' : 'ko') + '">' + (bon ? 'Juste.' : s.rep < 0 ? 'Temps écoulé.' : 'Raté.') + '</p>' +
         (bon || !juste ? '' : '<p class="bonne">Bonne réponse : <b>' + esc(juste.t) + '</b></p>') +
         ficheHtml(f, p, q.fmt === 'sur' ? { sansQ: true, sansA: true } : null) +
-        '<div class="actions"><button class="btn primaire' + (s.auto ? ' rebours' : '') + '" data-a="suite">Continuer</button>' + boutonFlag(f) + '</div>');
+        '<div class="actions"><button class="btn primaire' + (s.auto ? ' rebours" style="--rebours:' + (+P.set.enchaine || 0) + 's' : '') + '" data-a="suite">Continuer</button>' + boutonFlag(f) + '</div>');
     }
     if (s.rep === null) return h + '<button class="btn primaire large" data-a="voir">Afficher le corrigé</button></div></section>';
     return h + '</div></section>' + feuille('', ficheHtml(f, p, { sansQ: true }) +
@@ -940,7 +1028,7 @@
     var q = norm(S.fiches.q), st = S.fiches.st, h = '', g = null, n = 0, dates = p.faits.some(aDate);
     p.faits.forEach(function (f) {
       if (st && f.st !== st) return;
-      if (q && norm([f.t, f.d, f.r, f.o, f.g, f.q, f.a].join(' ')).indexOf(q) < 0) return;
+      if (q && norm([f.t, f.d, f.r, f.o, f.g, f.q, f.a, f.c].join(' ')).indexOf(q) < 0) return;
       if (f.g !== g) { g = f.g; if (g) h += '<p class="groupe">' + esc(g) + '</p>'; }
       n++;
       var e = etat(f);
@@ -1278,7 +1366,8 @@
     h += '<div class="ligne"><label for="r-expo">Exposé</label><select id="r-expo" data-set="expo">' + options([5, 10, 15, 20], P.set.expo, 'min') + '</select></div>';
     h += '<div class="ligne"><label for="r-quest">Questions du jury</label><select id="r-quest" data-set="quest">' + options([5, 10, 15, 20], P.set.quest, 'min') + '</select></div>';
     h += '<div class="ligne"><label for="r-blitz">Temps par question en blitz</label><select id="r-blitz" data-set="blitz">' + options([10, 15, 20, 30], P.set.blitz, 's') + '</select></div>';
-    h += '<div class="ligne"><label for="r-auto">Enchaîner après une bonne réponse</label><select id="r-auto" data-set="auto"><option value="1"' + (P.set.auto !== 0 ? ' selected' : '') + '>Oui</option><option value="0"' + (P.set.auto === 0 ? ' selected' : '') + '>Non</option></select></div></div>';
+    h += '<div class="ligne"><label for="r-enchaine">Après une bonne réponse, passer à la suite</label><select id="r-enchaine" data-set="enchaine">' +
+      [[0, 'Jamais'], [3, 'Après 3 s'], [5, 'Après 5 s'], [8, 'Après 8 s']].map(function (o) { return '<option value="' + o[0] + '"' + ((+P.set.enchaine || 0) === o[0] ? ' selected' : '') + '>' + o[1] + '</option>'; }).join('') + '</select></div></div>';
     h += '<div class="bloc"><h2>Affichage</h2><div class="ligne"><label for="r-theme">Apparence sur cet appareil</label><select id="r-theme">' +
       [['', 'Automatique'], ['light', 'Claire'], ['dark', 'Sombre']].map(function (o) { return '<option value="' + o[0] + '"' + (themeChoisi() === o[0] ? ' selected' : '') + '>' + o[1] + '</option>'; }).join('') + '</select></div></div>';
     h += '<div class="bloc"><h2>Synchronisation</h2><p><b id="sync-detail">' + LIB[st] + '</b></p>';
@@ -1366,6 +1455,21 @@
     auto: function (b) { autoEval(b.getAttribute('data-r')); },
     suite: function () { arreterChrono(); avancer(); },
     quitter: function () { fermer(); Sync.vite(); S.haut = true; rendre(); },
+    reprendre: function () {
+      var r = seanceEnCours(); if (!r) return rendre();
+      fermer();
+      S.ses = { kind: r.kind, items: r.items, i: r.i, ok: r.ok || 0, n: r.n || 0, rates: r.rates || [], score: 0, serie: 0, q: null, rep: null, opt: {}, fini: false, reste: 1, tm: Date.now() };
+      suivante();
+    },
+    'seance-abandon': function () { oublierSeance(); rendre(); },
+    plus: function () { ACT.lire(); },   // le volet s'ouvre tout seul ; lire suspend l'enchaînement automatique
+    lien: function () { /* le lien s'ouvre tout seul */ },
+    news: function (b) {
+      S.news = b.getAttribute('data-th') || 'tout';
+      var rail = document.getElementById('news-rail'); if (rail) { rail.innerHTML = railNews(); rail.scrollLeft = 0; }
+      var bs = document.querySelectorAll('#news [data-a="news"]');
+      for (var i = 0; i < bs.length; i++) bs[i].setAttribute('aria-pressed', String(bs[i] === b));
+    },
     accueil: function () { fermer(); S.haut = true; if (page() !== 'accueil') window.location.hash = '#accueil'; else rendre(); },
     rejouer: function () { var pid = S.ses ? S.ses.opt.pack : ''; fermer(); lancerBlitz(pid); },
     erreurs: function () { var ids = S.ses ? S.ses.rates.slice() : []; fermer(); lancer('erreurs', ids.filter(function (id) { return FACTS[id]; }).map(function (id) { return { id: id, fmt: qcm(FACTS[id]), dur: false, retry: true }; })); },
@@ -1542,5 +1646,6 @@
   G.init();
   Sync.init();
   chargerActu();
+  chargerNews();
   horsConnexion();
 })();

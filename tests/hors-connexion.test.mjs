@@ -42,7 +42,7 @@ test('tout est mis en cache à l\'installation, puis l\'application marche hors 
     await document.fonts.ready;
     return { packs: window.PDV.packs.length, b612: document.fonts.check('700 16px B612'), spectral: document.fonts.check('16px Spectral'), enLigne: navigator.onLine };
   });
-  assert.deepEqual(etat, { packs: 7, b612: true, spectral: true, enLigne: false });
+  assert.deepEqual(etat, { packs: 8, b612: true, spectral: true, enLigne: false });
   await page.click('[data-a="jour"]');
   await jusquAuxChoix(page);
   await repondre(page, false);

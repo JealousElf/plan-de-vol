@@ -1,5 +1,13 @@
 # Journal des versions
 
+## 1.4.0, 14 novembre 2026
+
+- Après une bonne réponse, l'application attend désormais que tu touches « Continuer ». L'enchaînement automatique reste possible dans Réglages, après 3, 5 ou 8 secondes, et ouvrir une fiche le suspend.
+- La séance du jour est gardée jusqu'au soir : si tu la quittes, l'accueil propose de la reprendre à la question où tu t'étais arrêté, même après avoir fermé l'application.
+- Nouveau bloc « Actualités » sur l'accueil : les gros titres défense, international, aéronautique et spatial, politique française, à faire défiler et à filtrer par thème. Chaque titre ouvre l'article sur le site du média. Les titres sont mis à jour plusieurs fois par jour par un robot du dépôt (`outils/actualites.mjs`).
+- Bouton « En savoir plus » sur les fiches : un paragraphe de contexte pour mieux comprendre le sujet, et un lien vers Wikipédia. Les douze premières fiches de chaque pack ont leur paragraphe ; les autres suivront dans l'ordre où l'application les présente.
+- Nouveau pack « Citations célèbres » (thème Culture générale) : 57 citations, en priorité de chefs militaires français, mais aussi d'aviateurs, de grandes figures françaises et de stratèges étrangers. Pour chacune : l'auteur à retrouver, le contexte et l'usage à l'oral.
+
 ## 1.3.0, 13 novembre 2026
 
 - La synchronisation par code est en service sur le site : Réglages, « Créer un code de synchronisation ».
