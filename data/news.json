@@ -1,8 +1,8 @@
 {
- "maj": "2026-11-14T18:46:32.694Z",
+ "maj": "2026-11-14T23:59:30.736Z",
  "articles": [
   {
-   "t": "Suspension des vols aux Etats-Unis : plus de 16 000 vols annulés vendredi et samedi alors que des perturbations persistent",
+   "t": "Suspension des vols aux Etats-Unis : plus de 17 000 vols annulés vendredi et samedi alors que des perturbations persistent",
    "u": "https://www.lemonde.fr/international/article/2026/11/14/suspension-des-vols-aux-etats-unis-des-annulations-et-des-retards-de-vols-persistent-samedi_6810445_3210.html",
    "s": "Le Monde",
    "th": "int",
@@ -11,22 +11,13 @@
    "i": "https://img.lemde.fr/2026/11/14/375/0/4780/2390/644/322/60/0/ce343bc_ftp-1-agwrmkeqr7tt-afp-d7fq7rm.jpg"
   },
   {
-   "t": "L'Union européenne exhorte Israël à permettre l'accès \"immédiat\" et \"sans entrave\" de l'aide humanitaire à Gaza, touchée par de fortes intempéries",
-   "u": "https://www.franceinfo.fr/monde/proche-orient/israel-palestine/l-union-europeenne-exhorte-israel-a-permettre-l-acces-immediat-et-sans-entrave-de-l-aide-humanitaire-a-gaza_8282525.html#xtor=RSS-3-%5Bmonde%5D",
-   "s": "franceinfo",
+   "t": "Ukraine : Volodymyr Zelensky évoque l’hypothèse américaine d’une adhésion de son pays à l’OTAN contre la cession du Donbass",
+   "u": "https://www.lemonde.fr/international/article/2026/11/15/ukraine-volodymyr-zelensky-evoque-l-hypothese-americaine-d-une-adhesion-de-son-pays-a-l-otan-contre-la-cession-du-donbass_6810710_3210.html",
+   "s": "Le Monde",
    "th": "int",
-   "d": "2026-11-14T15:08:00.000Z",
+   "d": "2026-11-14T23:49:29.000Z",
    "n": 2,
-   "i": "https://www.franceinfo.fr/pictures/hwxOVbq6rkY0LQNtw2XegbMQqyg/0x300:5760x3540/432x243/filters:format(jpg)/2026/11/14/6af86aa3a93ca689449195.jpg"
-  },
-  {
-   "t": "Emmanuel Macron est arrivé au Cambodge pour le sommet de la Francophonie",
-   "u": "https://www.franceinfo.fr/politique/emmanuel-macron/emmanuel-macron-est-arrive-au-cambodge-pour-le-sommet-de-la-francophonie_8282396.html#xtor=RSS-3-%5Bpolitique%5D",
-   "s": "franceinfo",
-   "th": "pol",
-   "d": "2026-11-14T14:08:11.000Z",
-   "n": 2,
-   "i": "https://www.franceinfo.fr/pictures/GDEx5jJCC0uG-NUaDJ5NYvg5h-U/0x0:1024x576/432x243/filters:format(jpg)/2026/11/14/6af8450f339ae325866517.jpg"
+   "i": "https://img.lemde.fr/2026/11/12/581/0/7495/3747/644/322/60/0/112303b_ftp-1-2v4wwh1winvt-c2f03c63ea744bf99d45a9984945022e-0-f57aa245d3274493aab108d6f0eb3682.jpg"
   },
   {
    "t": "Présidentielle 2027 : les relations tortueuses entre Raphaël Glucksmann et les macronistes, entre attraction et grande méfiance",
@@ -36,6 +27,15 @@
    "d": "2026-11-14T05:18:15.000Z",
    "n": 1,
    "i": "https://img.lemde.fr/2026/11/13/161/0/5130/2565/644/322/60/0/4112368_upload-1-q2d4yyski4i9-cbi1356036.jpg"
+  },
+  {
+   "t": "Budget de la Sécu : le Sénat supprime la taxe de 2,05% sur les mutuelles",
+   "u": "https://www.publicsenat.fr/actualites/economie/budget-de-la-secu-le-senat-supprime-la-taxe-de-205-sur-les-mutuelles",
+   "s": "Public Sénat",
+   "th": "pol",
+   "d": "2026-11-13T10:54:24.000Z",
+   "n": 2,
+   "i": "https://img.youtube.com/vi/GF9bZ9MT1jo/maxresdefault.jpg"
   },
   {
    "t": "Baltique : Visée par des drones ukrainiens, la corvette russe Naro-Fominsk aurait subi d’importants dégâts",
