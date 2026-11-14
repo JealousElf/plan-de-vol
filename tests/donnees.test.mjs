@@ -99,14 +99,14 @@ test('la version est la même partout, et config.js désigne un service bien for
 test('les paragraphes « En savoir plus » visent des fiches existantes et font un bon paragraphe', () => {
   const ids = new Set(faits.map((f) => f.id));
   const cles = Object.keys(paragraphes);
-  assert.ok(cles.length >= 168, 'au moins les vingt-quatre premières fiches de chaque pack');
+  assert.ok(cles.length >= 240, 'au moins les trente-six premières fiches de chaque pack');
   for (const id of cles) {
     assert.ok(ids.has(id), `contexte.js : aucune fiche « ${id} »`);
     verifierFait({ ...faits.find((f) => f.id === id), c: paragraphes[id] });
   }
   for (const p of packs) {
     if (p.id === 'cit') continue;
-    for (const f of p.faits.slice(0, 24)) assert.ok(f.c || paragraphes[f.id], `${f.id} : une des premières fiches du pack, il lui faut un paragraphe`);
+    for (const f of p.faits.slice(0, 36)) assert.ok(f.c || paragraphes[f.id], `${f.id} : une des premières fiches du pack, il lui faut un paragraphe`);
   }
 });
 

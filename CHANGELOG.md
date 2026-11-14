@@ -1,5 +1,10 @@
 # Journal des versions
 
+## 1.5.2, 14 novembre 2026
+
+- « En savoir plus » : 72 paragraphes de plus (fiches 25 à 36 de chaque pack). Les packs Armée de l'Air et de l'Espace, Opérations et Programmes sont entièrement couverts ; 297 fiches sur 376 ont leur paragraphe.
+- Actualités : les sujets utiles pour l'oral (géopolitique, défense, institutions) passent devant les faits divers.
+
 ## 1.5.1, 14 novembre 2026
 
 - « En savoir plus » : 84 paragraphes de plus, pour les fiches 13 à 24 de chaque pack (225 fiches en ont un désormais).

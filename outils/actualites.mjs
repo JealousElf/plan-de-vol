@@ -126,6 +126,20 @@ export function mots(texte) {
   return m;
 }
 
+/* Débuts de mots qui signalent un sujet utile pour l'oral (géopolitique, défense, institutions), ou au contraire un fait divers. */
+const UTILES = ('guerr armee milit defens otan nucle missil drone frappe attaqu soldat rafale ukrain russ poutin kremlin chin taiwan '
+  + 'coree iran israel gaza hamas hezbollah liban syri sahel mali niger terror attentat sommet diplomat sanction traite accord onu '
+  + 'europ bruxelle election presiden gouvern ministr parlement assemblee senat budget crise cessez paix otage spati satellit ariane '
+  + 'trump macron zelensk netanyah pentagon souverain frontier ingeren cyber').split(' ');
+const DIVERS = 'accident collision percut football rugby tennis ligue1 meteo cinema festival concert chanteu loto'.split(' ');
+/** Bonus de pertinence d'un titre pour l'oral : jusqu'à +1,5 ; un fait divers perd 1,5. */
+export function pertinence(titre, th) {
+  const m = [...mots(titre)];
+  const utiles = m.filter((w) => UTILES.some((u) => w.startsWith(u))).length;
+  const divers = m.some((w) => DIVERS.some((d) => w.startsWith(d)));
+  return Math.min(1.5, 0.5 * utiles) + (th === 'def' ? 0.5 : 0) - (divers ? 1.5 : 0);
+}
+
 const sansParam = (u) => String(u).replace(/[?#].*$/, '').replace(/\/$/, '');
 const court = (t) => (t.length > 180 ? t.slice(0, 177).replace(/\s+\S*$/, '') + '…' : t);
 
@@ -134,7 +148,8 @@ const court = (t) => (t.length > 180 ? t.slice(0, 177).replace(/\s+\S*$/, '') + 
  * Deux articles racontent la même histoire quand leurs titres ont au moins trois mots significatifs en commun et que
  * ces mots pèsent assez lourd (les mots rares comptent plus que les mots fréquents dans l'ensemble des articles).
  * Les directs, vidéos et revues de presse sont écartés : leurs titres ne racontent pas une histoire. Une histoire vaut le nombre de
- * médias qui la racontent, plus un bonus si elle est à la une, plus un peu de fraîcheur.
+ * médias qui la racontent, plus un bonus si elle est à la une ou si son sujet compte pour l'oral, plus un peu de fraîcheur ;
+ * un fait divers recule.
  * Renvoie { maj, articles: [{ t, u, s, th, d, n, i? }], detail } ; detail sert au journal du robot.
  */
 export function choisir(resultats, maintenant = Date.now(), regles = REGLES) {
@@ -163,7 +178,7 @@ export function choisir(resultats, maintenant = Date.now(), regles = REGLES) {
   const groupe = (a) => [a, ...a.voisins.filter((b) => !pris.has(b))];
   const valeur = (a) => {
     const g = groupe(a), recent = Math.max(...g.map((b) => b.ts));
-    return new Set(g.map((b) => b.s)).size + (g.some((b) => alaune.has(b.cle)) ? regles.une : 0)
+    return new Set(g.map((b) => b.s)).size + (g.some((b) => alaune.has(b.cle)) ? regles.une : 0) + Math.max(...g.map((b) => pertinence(b.t, b.th)))
       + 0.5 * Math.max(0, 1 - (maintenant - recent) / (regles.heures * 3600000)) + 0.01 * g.length;
   };
   while (choisis.length < regles.nombre) {
@@ -176,7 +191,9 @@ export function choisir(resultats, maintenant = Date.now(), regles = REGLES) {
     const g = groupe(meilleur);
     g.forEach((b) => pris.add(b));
     parTheme[meilleur.th] = (parTheme[meilleur.th] || 0) + 1;
-    choisis.push({ a: meilleur, g, v });
+    // pour la carte : de préférence l'article mis à la une, sinon un article illustré, du même thème
+    const meme = g.filter((b) => b.th === meilleur.th);
+    choisis.push({ a: meme.find((b) => alaune.has(b.cle)) || meme.find((b) => b.i) || meilleur, g, v });
   }
   return {
     maj: new Date(maintenant).toISOString(),

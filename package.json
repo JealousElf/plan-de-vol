@@ -1,6 +1,6 @@
 {
   "name": "plan-de-vol",
-  "version": "1.5.1",
+  "version": "1.5.2",
   "private": true,
   "description": "Application de révision pour le grand oral : histoire, géopolitique, défense, armées françaises. Installable et utilisable hors connexion.",
   "license": "MIT",

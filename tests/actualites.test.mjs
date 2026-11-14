@@ -1,7 +1,7 @@
 // Robot d'actualités (outils/actualites.mjs) : lecture des flux et choix des titres. Sans réseau.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { choisir, decoder, FLUX, imageDansHtml, imageDuFlux, lireFlux, mots, propre } from '../outils/actualites.mjs';
+import { choisir, decoder, FLUX, imageDansHtml, imageDuFlux, lireFlux, mots, pertinence, propre } from '../outils/actualites.mjs';
 
 const MAINTENANT = Date.parse('2026-11-14T12:00:00Z');
 const RSS = `<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"><channel><title>Exemple</title>
@@ -53,6 +53,12 @@ test('images : flux, contenu de l\'article et page de partage, toujours en https
 
 test('mots : sans accents ni mots vides, au singulier', () => {
   assert.deepEqual([...mots('Guerre en Ukraine : des frappes russes sur Kiev, l\'armée française en alerte')], ['guerre', 'ukraine', 'frappe', 'russe', 'kiev', 'armee', 'francaise', 'alerte']);
+});
+
+test('pertinence : la géopolitique et la défense passent devant les faits divers', () => {
+  assert.ok(pertinence('Sommet de l\'OTAN : les Alliés discutent du soutien à l\'Ukraine', 'int') >= 1.5);
+  assert.ok(pertinence('Un navire-citerne percute un bateau de croisière', 'int') < 0);
+  assert.equal(pertinence('La DGA commande de nouveaux équipements', 'def'), 0.5);
 });
 
 test('choisir : les histoires reprises par plusieurs médias d\'abord, deux par thème au plus, une de défense, avec image', () => {
