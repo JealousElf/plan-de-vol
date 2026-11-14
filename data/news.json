@@ -1,4 +1,306 @@
 {
- "maj": null,
- "articles": []
+ "maj": "2026-11-14T02:35:30.050Z",
+ "articles": [
+  {
+   "t": "Suspension des vols aux Etats-Unis : l’agence de l’aviation civile annonce une reprise du trafic aérien après une vaste « panne des télécommunications »",
+   "u": "https://www.lemonde.fr/international/article/2026/11/14/suspension-des-vols-aux-etats-unis-l-agence-de-l-aviation-civile-annonce-une-reprise-du-trafic-aerien-apres-une-vaste-panne-des-telecommunications_6809389_3211.html",
+   "s": "Le Monde",
+   "th": "int",
+   "d": "2026-11-14T02:31:51.000Z"
+  },
+  {
+   "t": "La Maison Blanche annonce une rencontre trilatérale entre Donald Trump, Vladimir Poutine et Xi Jinping, jeudi en Chine",
+   "u": "https://www.lemonde.fr/international/article/2026/11/14/la-maison-blanche-annonce-une-rencontre-trilaterale-entre-donald-trump-vladimir-poutine-et-xi-jinping-jeudi-en-chine_6809488_3210.html",
+   "s": "Le Monde",
+   "th": "int",
+   "d": "2026-11-14T01:49:53.000Z"
+  },
+  {
+   "t": "Un navire-citerne percute un bateau de croisière à La Nouvelle-Orléans, aucun blessé grave",
+   "u": "https://www.lemonde.fr/international/article/2026/11/14/un-navire-citerne-percute-un-bateau-de-croisiere-a-la-nouvelle-orleans-aucun-blesse-grave_6809455_3210.html",
+   "s": "Le Monde",
+   "th": "int",
+   "d": "2026-11-14T00:35:34.000Z"
+  },
+  {
+   "t": "Après la Finlande et la Norvège, la Suède veut à son tour empêcher les athlètes russes de concourir sur son sol",
+   "u": "https://www.lemonde.fr/sport/article/2026/11/14/apres-la-finlande-et-la-norvege-la-suede-veut-a-son-tour-empecher-les-athletes-russes-de-concourir-sur-son-sol_6809422_3242.html",
+   "s": "Le Monde",
+   "th": "int",
+   "d": "2026-11-14T00:21:48.000Z"
+  },
+  {
+   "t": "Le 14 novembre 1918 dans le ciel : Une journée de chutes à Paris",
+   "u": "https://www.air-journal.fr/2026-11-14-le-14-novembre-1918-dans-le-ciel-une-journee-de-chutes-a-paris-5278851.html",
+   "s": "Air Journal",
+   "th": "aero",
+   "d": "2026-11-13T23:03:44.000Z"
+  },
+  {
+   "t": "Aux Etats-Unis, l'administration fédérale de l'aviation ordonne l'arrêt de tous les vols à cause d'un \"problème de communication\"",
+   "u": "https://www.franceinfo.fr/monde/usa/aux-etats-unis-l-administration-federale-de-l-aviation-ordonne-l-arret-de-tous-les-vols-a-cause-d-un-probleme-de-communication_8281691.html#xtor=RSS-3-%5Bmonde%5D",
+   "s": "franceinfo",
+   "th": "int",
+   "d": "2026-11-13T23:00:03.000Z"
+  },
+  {
+   "t": "L’armée américaine intervient pour une « suspicion d’activité de drone non autorisée » au-dessus d’une base militaire britannique",
+   "u": "https://www.lemonde.fr/international/article/2026/11/13/l-armee-americaine-intervient-pour-une-suspicion-d-activite-de-drone-non-autorisee-au-dessus-d-une-base-militaire-britannique_6809392_3210.html",
+   "s": "Le Monde",
+   "th": "int",
+   "d": "2026-11-13T22:51:25.000Z"
+  },
+  {
+   "t": "Un porte-conteneurs et un bateau de croisière sont entrés en collision dans le port de La Nouvelle-Orléans",
+   "u": "https://www.franceinfo.fr/monde/usa/un-porte-conteneurs-et-un-bateau-de-croisiere-sont-entres-en-collision-dans-le-port-de-la-nouvelle-orleans_8281676.html#xtor=RSS-3-%5Bmonde%5D",
+   "s": "franceinfo",
+   "th": "int",
+   "d": "2026-11-13T22:28:22.000Z"
+  },
+  {
+   "t": "Après l'effondrement mortel d'un immeuble à New York, les questions se multiplient",
+   "u": "https://www.franceinfo.fr/monde/usa/apres-l-effondrement-mortel-d-un-immeuble-a-new-york-les-questions-se-multiplient_8281634.html#xtor=RSS-3-%5Bmonde%5D",
+   "s": "franceinfo",
+   "th": "int",
+   "d": "2026-11-13T22:24:31.000Z"
+  },
+  {
+   "t": "Réforme de l’allocation de rentrée scolaire : le Sénat sanctuarise la concertation annoncée par le gouvernement",
+   "u": "https://www.publicsenat.fr/actualites/societe/reforme-de-lallocation-de-rentree-scolaire-le-senat-sanctuarise-la-concertation-annoncee-par-le-gouvernement",
+   "s": "Public Sénat",
+   "th": "pol",
+   "d": "2026-11-13T22:15:16.000Z"
+  },
+  {
+   "t": "L'armée américaine rapporte qu'elle a répondu à une activité de drone détectée au-dessus d'une base britannique",
+   "u": "https://www.franceinfo.fr/internet/drones/l-armee-americaine-rapporte-qu-elle-a-repondu-a-une-activite-de-drone-detectee-au-dessus-d-une-base-britannique_8281700.html#xtor=RSS-3-%5Bmonde%5D",
+   "s": "franceinfo",
+   "th": "int",
+   "d": "2026-11-13T22:12:52.000Z"
+  },
+  {
+   "t": "Bijouterie de luxe braquée à Paris : que vont devenir les diamants ?",
+   "u": "https://www.franceinfo.fr/faits-divers/braquage/bijouterie-de-luxe-braquee-a-paris-que-vont-devenir-les-diamants_8281619.html#xtor=RSS-3-%5Bmonde%5D",
+   "s": "franceinfo",
+   "th": "int",
+   "d": "2026-11-13T22:00:55.000Z"
+  },
+  {
+   "t": "Le Burkina Faso annonce lancer des mandats d’arrêt contre des journalistes et des activistes en exil pour des faits de « terrorisme »",
+   "u": "https://www.lemonde.fr/international/article/2026/11/13/le-burkina-faso-annonce-lancer-des-mandats-d-arret-contre-des-journalistes-et-des-activistes-en-exil-pour-des-faits-de-terrorisme_6809388_3210.html",
+   "s": "Le Monde",
+   "th": "int",
+   "d": "2026-11-13T21:51:13.000Z"
+  },
+  {
+   "t": "\"Peut-il mettre à mal l'annonce faite d'un combat entre le RN et LFI ?\" : Jean-Charles Orsucci, porte-parole de campagne de Gabriel Attal, ne ferme par la porte à Teddy Riner",
+   "u": "https://www.franceinfo.fr/replay-magazine/franceinfo/avant-le-20h/peut-il-mettre-a-mal-l-annonce-faite-d-un-combat-entre-le-rn-et-lfi-jean-charles-orsucci-porte-parole-de-campagne-de-gabriel-attal-ne-ferme-par-la-porte-a-teddy-riner_8281595.html#xtor=RSS-3-%5Bpolitique%5D",
+   "s": "franceinfo",
+   "th": "pol",
+   "d": "2026-11-13T21:31:29.000Z"
+  },
+  {
+   "t": "Budget 2027 de la Sécurité sociale : le Sénat adopte un volet recettes affaibli",
+   "u": "https://www.publicsenat.fr/actualites/politique/budget-2027-de-la-securite-sociale-le-senat-adopte-un-volet-recettes-affaibli",
+   "s": "Public Sénat",
+   "th": "pol",
+   "d": "2026-11-13T21:15:56.000Z"
+  },
+  {
+   "t": "Prime de risque : Laurent Nuñez propose une revalorisation jugée « insuffisante » voire « inadmissible » par les syndicats",
+   "u": "https://www.lemonde.fr/politique/article/2026/11/13/prime-de-risque-laurent-nunez-propose-une-revalorisation-jugee-insuffisante-voire-inadmissible-par-les-syndicats_6809385_823448.html",
+   "s": "Le Monde",
+   "th": "pol",
+   "d": "2026-11-13T20:47:11.000Z"
+  },
+  {
+   "t": "Menace nucléaire, catastrophes naturelles, intrusions... Quand les Américains se bunkerisent",
+   "u": "https://www.franceinfo.fr/monde/usa/menace-nucleaire-catastrophes-naturelles-intrusions-quand-les-americains-se-bunkerisent_8281655.html#xtor=RSS-3-%5Bmonde%5D",
+   "s": "franceinfo",
+   "th": "int",
+   "d": "2026-11-13T20:42:12.000Z"
+  },
+  {
+   "t": "Présidentielle 2027 : Teddy Riner, le seul candidat adoubé par Emmanuel Macron",
+   "u": "https://www.lemonde.fr/politique/video/2026/11/13/presidentielle-2027-teddy-riner-le-seul-candidat-adoube-par-emmanuel-macron_6809383_823448.html",
+   "s": "Le Monde",
+   "th": "pol",
+   "d": "2026-11-13T20:23:06.000Z"
+  },
+  {
+   "t": "Laurent Nuñez promet aux policiers une revalorisation de leur prime de risque, les syndicats insatisfaits",
+   "u": "https://www.franceinfo.fr/faits-divers/police/laurent-nunez-promet-aux-policiers-une-revalorisation-de-leur-prime-de-risque-les-syndicats-mecontents_8281625.html#xtor=RSS-3-%5Bpolitique%5D",
+   "s": "franceinfo",
+   "th": "pol",
+   "d": "2026-11-13T20:18:21.000Z"
+  },
+  {
+   "t": "« Une question de méthode ! » : union sacrée au Sénat pour s’opposer à la baisse du remboursement des cures thermales, dans le budget 2027 de la Sécurité sociale",
+   "u": "https://www.publicsenat.fr/actualites/sante/une-question-de-methode-union-sacree-au-senat-pour-sopposer-a-la-baisse-du-remboursement-des-cures-thermales-dans-le-budget-2027-de-la-securite-sociale",
+   "s": "Public Sénat",
+   "th": "pol",
+   "d": "2026-11-13T19:54:39.000Z"
+  },
+  {
+   "t": "Un monde, un regard — Guy Savoy, le grand roman de la cuisine",
+   "u": "https://www.publicsenat.fr/emission/un-monde-un-regard/guy-savoy-le-grand-roman-de-la-cuisine-e11",
+   "s": "Public Sénat",
+   "th": "pol",
+   "d": "2026-11-13T18:45:36.000Z"
+  },
+  {
+   "t": "Des drones Vector de l’armée allemande ont brièvement été cloués au sol par une attaque informatique",
+   "u": "https://www.opex360.com/2026/11/13/des-drones-vector-de-larmee-allemande-ont-brievement-ete-cloues-au-sol-par-une-attaque-informatique/",
+   "s": "Zone Militaire",
+   "th": "def",
+   "d": "2026-11-13T18:32:11.000Z"
+  },
+  {
+   "t": "Tout comprendre au smic, le salaire minimum que le gouvernement va revaloriser",
+   "u": "https://www.lemonde.fr/les-decodeurs/article/2026/11/13/tout-comprendre-au-smic-le-salaire-minimum-que-le-gouvernement-va-revaloriser_6809379_4355770.html",
+   "s": "Le Monde",
+   "th": "pol",
+   "d": "2026-11-13T18:30:05.000Z"
+  },
+  {
+   "t": "Mobilisation lycéenne : le gouvernement veut systématiser les sanctions disciplinaires en cas de blocage",
+   "u": "https://www.lemonde.fr/lycee/article/2026/11/13/mobilisation-lyceenne-le-gouvernement-veut-systematiser-les-sanctions-disciplinaires-en-cas-de-blocage_6809364_5019416.html",
+   "s": "Le Monde",
+   "th": "pol",
+   "d": "2026-11-13T17:25:50.000Z"
+  },
+  {
+   "t": "La France va commander 20 vedettes rapides CB90 auprès de la Suède",
+   "u": "https://www.opex360.com/2026/11/13/la-france-va-commander-20-vedettes-rapides-cb90-aupres-de-la-suede/",
+   "s": "Zone Militaire",
+   "th": "def",
+   "d": "2026-11-13T17:24:45.000Z"
+  },
+  {
+   "t": "Les effets de la hausse du smic sur le marché du travail suscitent des interrogations",
+   "u": "https://www.lemonde.fr/politique/article/2026/11/13/les-effets-de-la-hausse-du-smic-sur-le-marche-du-travail-suscitent-des-interrogations_6809363_823448.html",
+   "s": "Le Monde",
+   "th": "pol",
+   "d": "2026-11-13T17:04:31.000Z"
+  },
+  {
+   "t": "Candidats à la présidentielle : que veulent-ils faire des fonctionnaires ?",
+   "u": "https://www.franceinfo.fr/elections/candidats-a-la-presidentielle-que-veulent-ils-faire-des-fonctionnaires_8281235.html#xtor=RSS-3-%5Bpolitique%5D",
+   "s": "franceinfo",
+   "th": "pol",
+   "d": "2026-11-13T17:00:03.000Z"
+  },
+  {
+   "t": "Epic Aircraft confie l’Europe à Enrico Evers",
+   "u": "https://www.aerobuzz.fr/breves-aviation-generale/epic-aircraft-confie-leurope-a-enrico-evers/",
+   "s": "Aerobuzz",
+   "th": "aero",
+   "d": "2026-11-13T16:00:00.000Z"
+  },
+  {
+   "t": "La France officialise la création d’un centre international dédié à l’intelligence artificielle militaire à Rennes",
+   "u": "https://www.opex360.com/2026/11/13/la-france-officialise-la-creation-dun-centre-international-dedie-a-lintelligence-artificielle-militaire-a-rennes/",
+   "s": "Zone Militaire",
+   "th": "def",
+   "d": "2026-11-13T15:36:46.000Z"
+  },
+  {
+   "t": "Singapore Airlines : des passagers records au premier semestre, mais le kérosène rogne les bénéfices",
+   "u": "https://www.air-journal.fr/2026-11-13-singapore-airlines-des-passagers-records-au-premier-semestre-mais-le-kerosene-rogne-les-benefices-5278845.html",
+   "s": "Air Journal",
+   "th": "aero",
+   "d": "2026-11-13T15:00:38.000Z"
+  },
+  {
+   "t": "Annulations à Dubaï, menace boursière en Inde : SpiceJet sous pression",
+   "u": "https://www.air-journal.fr/2026-11-13-annulations-a-dubai-menace-boursiere-en-inde-spicejet-sous-pression-5278844.html",
+   "s": "Air Journal",
+   "th": "aero",
+   "d": "2026-11-13T14:00:03.000Z"
+  },
+  {
+   "t": "Le saoudien THC commande 12 biréacteurs d’affaires Bombardier",
+   "u": "https://www.aerobuzz.fr/breves-aviation-affaires/le-saoudien-thc-commande-12-bireacteurs-daffaires-bombardier/",
+   "s": "Aerobuzz",
+   "th": "aero",
+   "d": "2026-11-13T14:00:00.000Z"
+  },
+  {
+   "t": "Korean Air revient à Newark et bouscule la concurrence entre Séoul et New York",
+   "u": "https://www.air-journal.fr/2026-11-13-korean-air-revient-a-newark-et-bouscule-la-concurrence-entre-seoul-et-new-york-5278839.html",
+   "s": "Air Journal",
+   "th": "aero",
+   "d": "2026-11-13T13:00:09.000Z"
+  },
+  {
+   "t": "Le Portugal passe au MAFFS II pour ses C-130",
+   "u": "https://www.aerobuzz.fr/breves-aviation-generale/le-portugal-passe-au-maffs-ii-pour-ses-c-130/",
+   "s": "Aerobuzz",
+   "th": "aero",
+   "d": "2026-11-13T12:30:00.000Z"
+  },
+  {
+   "t": "Dette, kérosène, contrats en berne : AirExplore et AlbaStar interrompent leurs opérations",
+   "u": "https://www.air-journal.fr/2026-11-13-dette-kerosene-contrats-en-berne-airexplore-et-albastar-interrompent-leurs-operations-5278835.html",
+   "s": "Air Journal",
+   "th": "aero",
+   "d": "2026-11-13T12:00:40.000Z"
+  },
+  {
+   "t": "L’Espagne débloque 3 milliards d’euros pour acquérir des missiles de croisière JSM-SL et moderniser ses sous-marins S80",
+   "u": "https://www.opex360.com/2026/11/13/lespagne-debloque-3-milliards-deuros-pour-acquerir-des-missiles-de-croisiere-jsm-sl-et-moderniser-ses-sous-marins-s80/",
+   "s": "Zone Militaire",
+   "th": "def",
+   "d": "2026-11-13T11:54:01.000Z"
+  },
+  {
+   "t": "Qantas accélère dans l’IA, au prix de 850 suppressions de postes",
+   "u": "https://www.air-journal.fr/2026-11-13-qantas-accelere-dans-lia-au-prix-de-850-suppressions-de-postes-5278774.html",
+   "s": "Air Journal",
+   "th": "aero",
+   "d": "2026-11-13T11:00:50.000Z"
+  },
+  {
+   "t": "GE fait décoller l’hybride sur son Saab 340B",
+   "u": "https://www.aerobuzz.fr/industrie/ge-fait-decoller-lhybride-sur-son-saab-340b/",
+   "s": "Aerobuzz",
+   "th": "aero",
+   "d": "2026-11-13T09:30:00.000Z"
+  },
+  {
+   "t": "Les équipages de B-1B s’entraînent désormais sur HondaJet",
+   "u": "https://www.aerobuzz.fr/defense/les-equipages-de-b-1b-sentrainent-desormais-sur-hondajet/",
+   "s": "Aerobuzz",
+   "th": "aero",
+   "d": "2026-11-13T08:30:00.000Z"
+  },
+  {
+   "t": "Cirrus Aircraft : les données de 3.903 personnes compromises",
+   "u": "https://www.aerobuzz.fr/breves-aviation-generale/cirrus-aircraft-les-donnees-de-3-903-personnes-compromises/",
+   "s": "Aerobuzz",
+   "th": "aero",
+   "d": "2026-11-13T07:30:00.000Z"
+  },
+  {
+   "t": "La Marine nationale va créer huit escouades de réserve côtières de plus en 2027",
+   "u": "https://www.opex360.com/2026/11/12/la-marine-nationale-va-creer-huit-escouades-de-reserve-cotieres-de-plus-en-2027/",
+   "s": "Zone Militaire",
+   "th": "def",
+   "d": "2026-11-12T18:47:40.000Z"
+  },
+  {
+   "t": "La Royal Navy va tester le drone de combat YFQ-48A Talon Blue de Northrop Grumman depuis l’un ses porte-avions",
+   "u": "https://www.opex360.com/2026/11/12/la-royal-navy-va-tester-le-drone-de-combat-yfq-48a-talon-blue-de-northrop-grumman-depuis-lun-ses-porte-avions/",
+   "s": "Zone Militaire",
+   "th": "def",
+   "d": "2026-11-12T18:08:06.000Z"
+  },
+  {
+   "t": "Un dernier arbitrage gagnant en 2026 pour les armées françaises",
+   "u": "https://forcesoperations.com/un-dernier-arbitrage-gagnant-en-2026-pour-les-armees-francaises/",
+   "s": "Forces Operations Blog",
+   "th": "def",
+   "d": "2026-11-12T14:47:22.000Z"
+  }
+ ]
 }
