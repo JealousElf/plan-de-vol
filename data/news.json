@@ -1,14 +1,32 @@
 {
- "maj": "2026-11-14T04:08:26.374Z",
+ "maj": "2026-11-14T04:16:44.529Z",
  "articles": [
   {
-   "t": "Le patron de Mistral AI, Arthur Mensch, appelle l'Europe à \"agir maintenant\" pour rester dans la course en matière d'intelligence artificielle",
-   "u": "https://www.franceinfo.fr/internet/intelligence-artificielle/le-patron-de-mistral-ai-arthur-mensch-appelle-l-europe-a-agir-maintenant-pour-rester-dans-la-course-en-matiere-d-intelligence-artificielle_8281193.html#xtor=RSS-3-%5Bmonde%5D",
-   "s": "franceinfo",
+   "t": "Suspension des vols aux Etats-Unis : l’agence de l’aviation civile annonce une reprise du trafic aérien après une vaste « panne des télécommunications »",
+   "u": "https://www.lemonde.fr/international/article/2026/11/14/suspension-des-vols-aux-etats-unis-l-agence-de-l-aviation-civile-annonce-une-reprise-du-trafic-aerien-apres-une-vaste-panne-des-telecommunications_6809389_3211.html",
+   "s": "Le Monde",
    "th": "int",
-   "d": "2026-11-13T19:44:53.000Z",
-   "n": 4,
-   "i": "https://www.franceinfo.fr/pictures/R3oWctJTX0P_-alHsAzapzD3PUA/382x64:1024x425/432x243/filters:format(jpg)/2026/11/13/6af720c0ad7fd736967661.jpg"
+   "d": "2026-11-14T02:31:51.000Z",
+   "n": 2,
+   "i": "https://img.lemde.fr/2026/11/13/141/0/5500/2750/644/322/60/0/197de68_ftp-1-e76zk238lez3-2026-11-13t225544z-1478587479-rc2anoaqfvwc-rtrmadp-3-usa-faa-ground-stop.JPG"
+  },
+  {
+   "t": "Un navire-citerne percute un bateau de croisière à La Nouvelle-Orléans, aucun blessé grave",
+   "u": "https://www.lemonde.fr/international/article/2026/11/14/un-navire-citerne-percute-un-bateau-de-croisiere-a-la-nouvelle-orleans-aucun-blesse-grave_6809455_3210.html",
+   "s": "Le Monde",
+   "th": "int",
+   "d": "2026-11-14T00:35:34.000Z",
+   "n": 2,
+   "i": "https://img.lemde.fr/2026/11/13/0/0/4096/2048/644/322/60/0/391ef5e_ftp-1-odjiz3lt1vpq-07111035b3cf4c5db9d75b72e3859525-0-dbbd6e1e18784bb898b020f42cce4be3.jpg"
+  },
+  {
+   "t": "Prime de risque : Laurent Nuñez propose une revalorisation jugée « insuffisante » voire « inadmissible » par les syndicats",
+   "u": "https://www.lemonde.fr/politique/article/2026/11/13/prime-de-risque-laurent-nunez-propose-une-revalorisation-jugee-insuffisante-voire-inadmissible-par-les-syndicats_6809385_823448.html",
+   "s": "Le Monde",
+   "th": "pol",
+   "d": "2026-11-13T20:47:11.000Z",
+   "n": 2,
+   "i": "https://img.lemde.fr/2026/11/03/656/0/8000/4000/644/322/60/0/0b5fbcb_upload-1-rib2fijtryui-jmug261103036.jpg"
   },
   {
    "t": "Les fausses alertes à la bombe sont \"concertées\" et relèvent possiblement d'une \"ingérence étrangère\", affirme Laurent Nuñez",
@@ -16,35 +34,17 @@
    "s": "franceinfo",
    "th": "pol",
    "d": "2026-11-13T10:09:17.000Z",
-   "n": 4,
+   "n": 2,
    "i": "https://www.franceinfo.fr/pictures/RvfpLVHLuf0mtwNdj6UsKtvVmmI/0x53:1024x629/432x243/filters:format(jpg)/2026/11/13/6af6d8e9cfef1699077909.jpg"
   },
   {
-   "t": "Suspension des vols aux Etats-Unis : l’agence de l’aviation civile annonce une reprise du trafic aérien après une vaste « panne des télécommunications »",
-   "u": "https://www.lemonde.fr/international/article/2026/11/14/suspension-des-vols-aux-etats-unis-l-agence-de-l-aviation-civile-annonce-une-reprise-du-trafic-aerien-apres-une-vaste-panne-des-telecommunications_6809389_3211.html",
-   "s": "Le Monde",
-   "th": "int",
-   "d": "2026-11-14T02:31:51.000Z",
-   "n": 3,
-   "i": "https://img.lemde.fr/2026/11/13/141/0/5500/2750/644/322/60/0/197de68_ftp-1-e76zk238lez3-2026-11-13t225544z-1478587479-rc2anoaqfvwc-rtrmadp-3-usa-faa-ground-stop.JPG"
-  },
-  {
-   "t": "Des drones Vector de l’armée allemande ont brièvement été cloués au sol par une attaque informatique",
-   "u": "https://www.opex360.com/2026/11/13/des-drones-vector-de-larmee-allemande-ont-brievement-ete-cloues-au-sol-par-une-attaque-informatique/",
+   "t": "La Royal Navy va tester le drone de combat YFQ-48A Talon Blue de Northrop Grumman depuis l’un ses porte-avions",
+   "u": "https://www.opex360.com/2026/11/12/la-royal-navy-va-tester-le-drone-de-combat-yfq-48a-talon-blue-de-northrop-grumman-depuis-lun-ses-porte-avions/",
    "s": "Zone Militaire",
    "th": "def",
-   "d": "2026-11-13T18:32:11.000Z",
-   "n": 3,
-   "i": "https://www.opex360.com/wp-content/uploads/vector-20261113.jpg"
-  },
-  {
-   "t": "François Ruffin dénonce \"la censure\" d'Israël après l'interdiction de territoire visant Jean-Luc Mélenchon",
-   "u": "https://www.franceinfo.fr/politique/la-france-insoumise/francois-ruffin-denonce-la-censure-d-israel-apres-l-interdiction-de-territoire-visant-jean-luc-melenchon_8280653.html#xtor=RSS-3-%5Bpolitique%5D",
-   "s": "franceinfo",
-   "th": "pol",
-   "d": "2026-11-13T08:24:40.000Z",
-   "n": 3,
-   "i": "https://www.franceinfo.fr/pictures/u3xtOSb7vBfLiwk64k5VNf2jR50/0x0:1920x1080/432x243/filters:format(jpg)/2026/11/13/6af6c54438f06956199557.png"
+   "d": "2026-11-12T18:08:06.000Z",
+   "n": 2,
+   "i": "https://www.opex360.com/wp-content/uploads/talon-blue-20261112.jpg"
   }
  ]
 }
