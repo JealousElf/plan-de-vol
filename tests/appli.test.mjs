@@ -59,6 +59,75 @@ test('séance : rien n\'enchaîne tout seul par défaut, « En savoir plus » s\
   await contexte.close();
 });
 
+async function finirQuiz(page) {
+  for (let k = 0; k < 60 && !(await page.locator('.score').count()); k++) {
+    if (await page.locator('.opt:not([disabled])').count()) { await repondre(page, true); await page.click('.feuille [data-a="suite"]'); continue; }
+    if (await page.locator('[data-a="voir"]').count()) { await page.click('[data-a="voir"]'); await page.click('[data-a="auto"][data-r="ok"]'); continue; }
+    await page.waitForTimeout(80);
+  }
+  await page.waitForSelector('.score');
+}
+
+test('séance du jour : d\'abord la lecture des nouvelles fiches, puis le quiz, qu\'on peut garder pour plus tard', async () => {
+  const { contexte, page, erreurs } = await ouvrir(env.navigateur, env.url);
+  await semer(page, { vus: 3, jours: 0 });
+  assert.match(await texte(page, '.bloc.seance .chiffres'), /^10 nouvelles fiches à lire, puis un quiz de 13 questions, \d+ min environ\.$/);
+  assert.equal(await texte(page, '[data-a="jour"]'), 'Commencer la lecture');
+  await page.click('[data-a="jour"]');
+  for (let k = 1; k <= 10; k++) {
+    assert.equal(await texte(page, '.compte'), k + ' / 10');
+    assert.match(await texte(page, '.contexte'), /^Lecture du jour, /);
+    assert.equal(await page.locator('.opt').count(), 0, 'aucune question pendant la lecture');
+    assert.equal(await page.locator('details.plus').count(), 1);
+    assert.equal(await texte(page, '.bas [data-a="suite"]'), k < 10 ? 'Suivant' : 'Terminer la lecture');
+    await page.click('.bas [data-a="suite"]');
+  }
+  await page.waitForSelector('.pause-quiz');
+  assert.match(await texte(page, '.pause-quiz .chiffres'), /^10 fiches lues\. Le quiz : 13 questions, dont 3 révisions, \d+ min environ\.$/);
+  await page.click('[data-a="plus-tard"]');
+  await page.waitForSelector('[data-a="reprendre"]');
+  assert.equal(await texte(page, '.bloc.seance .chiffres'), 'Lecture faite. Ton quiz t\'attend : 13 questions.');
+  await page.reload();
+  await page.click('[data-a="reprendre"]');
+  await page.waitForSelector('.compte');
+  assert.equal(await texte(page, '.compte'), '1 / 13');
+  assert.match(await texte(page, '.contexte'), /^Quiz du jour, /);
+  await finirQuiz(page);
+  await page.click('[data-a="accueil"]');
+  await page.waitForSelector('.bloc.seance');
+  assert.equal(await texte(page, '.bloc.seance .chiffres'), 'Séance du jour terminée.');
+  assert.equal(await page.locator('[data-a="revision"]').count(), 0);
+  assert.equal(await texte(page, '[data-a="avance"]'), 'Prendre de l\'avance : 10 nouvelles fiches');
+  assert.deepEqual(erreurs, []);
+  await contexte.close();
+});
+
+test('séance du jour : le quiz tient en 20 questions, les révisions passent avant les nouvelles fiches', async () => {
+  const { contexte, page, erreurs } = await ouvrir(env.navigateur, env.url);
+  await semer(page, { neu: 20 });   // une quarantaine de révisions dues, 13 nouvelles fiches encore prévues aujourd'hui
+  assert.match(await texte(page, '.bloc.seance .chiffres'), /^5 nouvelles fiches à lire, puis un quiz de 20 questions/);
+  const notes = await page.locator('.bloc.seance .note').allTextContents();
+  assert.ok(notes.includes('Les révisions passent d\'abord : 5 nouvelles fiches aujourd\'hui au lieu de 13.'), notes.join(' | '));
+  assert.ok(notes.some((n) => /^\d+ autres révisions attendent : tu pourras les faire après le quiz, sinon elles reviendront demain\.$/.test(n)), notes.join(' | '));
+  await page.click('[data-a="jour"]');
+  for (let k = 0; k < 5; k++) await page.click('.bas [data-a="suite"]');
+  await page.waitForSelector('.pause-quiz');
+  await page.click('.bas [data-a="suite"]');
+  await page.waitForSelector('.compte');
+  assert.equal(await texte(page, '.compte'), '1 / 20');
+  await finirQuiz(page);
+  await page.click('[data-a="accueil"]');
+  await page.waitForSelector('[data-a="revision"]');
+  assert.equal(await texte(page, '.bloc.seance .chiffres'), 'Séance du jour terminée.');
+  assert.equal(await texte(page, '[data-a="revision"]'), 'Réviser encore : 20 questions');
+  await page.click('[data-a="revision"]');
+  await page.waitForSelector('.compte');
+  assert.equal(await texte(page, '.compte'), '1 / 20');
+  assert.equal(await page.locator('.pause-quiz').count(), 0);
+  assert.deepEqual(erreurs, []);
+  await contexte.close();
+});
+
 test('réglage : passer à la suite après une bonne réponse, au délai choisi, et le choix est gardé', async () => {
   const { contexte, page, erreurs } = await ouvrir(env.navigateur, env.url + '#reglages');
   assert.equal(await page.locator('#r-enchaine').inputValue(), '0', 'par défaut : jamais');

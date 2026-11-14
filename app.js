@@ -6,7 +6,7 @@
   var LS = 'pdv.progression.v1';
   /* Dépôt qui reçoit les signalements d'erreur. À changer seulement si tu maintiens ta propre version des fiches. */
   var DEPOT = DATA.depot || 'JealousElf/plan-de-vol';
-  var VERSION_APP = '1.6.0', DATE_APP = '14 novembre 2026';
+  var VERSION_APP = '1.7.0', DATE_APP = '14 novembre 2026';
   var JOUR = 86400000;
   var IV = [0, 1, 2, 4, 8, 16, 32];
   var MOIS = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
@@ -487,13 +487,28 @@
     }
     return out;
   }
-  function planJour() {
+  /* Séance du jour : on lit d'abord les nouvelles fiches, puis un quiz de QUIZ questions au plus réunit leurs questions
+     et les révisions les plus urgentes. Quand les révisions s'accumulent, on lit moins de nouvelles fiches, sans descendre
+     sous le rythme qu'il faut pour avoir tout vu trois semaines avant l'oral (et jamais sous trois). */
+  var QUIZ = 20;
+  function neufsMini(reste) {
+    var j = joursRestants();
+    return j === null || j <= 0 ? 3 : Math.max(3, Math.ceil(reste / Math.max(1, j - 21)));
+  }
+  function dusDuJour() {
     var d = auj();
     var dus = tous().filter(function (f) { var c = P.cards[f.id]; return c && c.b >= 1 && c.due <= d; });
-    dus.sort(function (a, b) { return P.cards[a.id].due - P.cards[b.id].due; });
-    var jour = P.days[d] || {};
+    dus.sort(function (a, b) { var x = P.cards[a.id], y = P.cards[b.id]; return (x.due - y.due) || (x.b - y.b); });   // le plus en retard, puis le plus fragile
+    return dus;
+  }
+  function planJour() {
+    var d = auj(), dus = dusDuJour(), jour = P.days[d] || {};
     var quota = Math.max(0, (+P.set.neu || 10) - (jour.neu || 0));
-    return { dus: dus.slice(0, 40), attente: Math.max(0, dus.length - 40), neufs: nouveaux(quota) };
+    var reste = tous().filter(function (f) { var c = P.cards[f.id]; return !c || !c.b; }).length;
+    var n = Math.min(quota, QUIZ, Math.max(neufsMini(reste), QUIZ - dus.length));
+    var neufs = nouveaux(n), place = Math.max(0, QUIZ - neufs.length);
+    return { dus: dus.slice(0, place), attente: Math.max(0, dus.length - place), total: dus.length, neufs: neufs,
+      prevu: Math.min(quota, reste), fait: !!jour.fait };
   }
   function joursRestants() { return P.set.exam ? jourIso(P.set.exam) - auj() : null; }
   function serie() {
@@ -580,15 +595,11 @@
     return it;
   }
   function composer(dus, neufs) {
-    var rev = melange(dus.slice()).map(function (f) { return item(f); }), seq = [], i;
-    for (i = 0; i < neufs.length; i++) {
-      seq.push({ id: neufs[i].id, fmt: 'decouverte' });
-      if (i > 0) seq.push(item(neufs[i - 1]));
-      if (rev.length) seq.push(rev.shift());
-    }
-    if (neufs.length) { seq = seq.concat(rev.splice(0, 2)); seq.push(item(neufs[neufs.length - 1])); }
-    return seq.concat(rev);
+    var lecture = neufs.map(function (f) { return { id: f.id, fmt: 'decouverte' }; });
+    var quiz = melange(neufs.concat(dus).map(function (f) { return item(f); }));
+    return lecture.length && quiz.length ? lecture.concat([{ fmt: 'pause' }], quiz) : lecture.concat(quiz);
   }
+  function indexPause(items) { for (var j = 0; j < items.length; j++) if (items[j] && items[j].fmt === 'pause') return j; return -1; }
 
   /* ---------- état de l'interface ---------- */
   var S = { ses: null, frise: null, choix: null, oral: null, tirage: null, msg: null, raz: false, couper: false, haut: false, fiches: { pack: null, q: '', st: '' } };
@@ -598,7 +609,7 @@
   var SEANCE = 'pdv.seance.v1';
   function sauverSeance() {
     var s = S.ses;
-    if (!s || (s.kind !== 'jour' && s.kind !== 'avance')) return;
+    if (!s || (s.kind !== 'jour' && s.kind !== 'avance' && s.kind !== 'revision')) return;
     try {
       if (s.fini) { window.localStorage.removeItem(SEANCE); return; }
       var i = s.q && s.q.fmt !== 'decouverte' && s.rep !== null && s.rep !== 'vu' ? s.i + 1 : s.i;
@@ -621,9 +632,10 @@
   }
   function suivante() {
     var s = S.ses; arreterChrono();
-    while (s.i < s.items.length && !FACTS[s.items[s.i].id]) s.i++;
+    while (s.i < s.items.length && s.items[s.i].fmt !== 'pause' && !FACTS[s.items[s.i].id]) s.i++;
     if (s.i >= s.items.length) return debrief();
-    s.q = question(FACTS[s.items[s.i].id], s.items[s.i]); s.rep = null; s.auto = false; s.frais = true;
+    var it = s.items[s.i];
+    s.q = it.fmt === 'pause' ? { fmt: 'pause' } : question(FACTS[it.id], it); s.rep = null; s.auto = false; s.frais = true;
     sauverSeance();
     S.haut = true; rendre();
     if (s.kind === 'blitz') demarrerChrono();
@@ -665,9 +677,9 @@
   function rater(it) {
     var s = S.ses;
     if (s.rates.indexOf(it.id) < 0) s.rates.push(it.id);
-    if (s.kind === 'jour' || s.kind === 'avance' || s.kind === 'erreurs') {
+    if (s.kind === 'jour' || s.kind === 'avance' || s.kind === 'revision' || s.kind === 'erreurs') {
       var deja = it.essais || 0;
-      if (deja < 2) s.items.push({ id: it.id, fmt: it.fmt === 'ouverte' ? 'ouverte' : qcm(FACTS[it.id]), dur: false, retry: true, essais: deja + 1 });
+      if (deja < (s.kind === 'erreurs' ? 2 : 1)) s.items.push({ id: it.id, fmt: it.fmt === 'ouverte' ? 'ouverte' : qcm(FACTS[it.id]), dur: false, retry: true, essais: deja + 1 });
     }
   }
   function repondre(i) {
@@ -699,7 +711,7 @@
   }
   function avancer() {
     var s = S.ses; if (!s || s.fini) return;
-    if (s.q.fmt !== 'decouverte' && (s.rep === null || s.rep === 'vu')) return;
+    if (s.q.fmt !== 'decouverte' && s.q.fmt !== 'pause' && (s.rep === null || s.rep === 'vu')) return;
     s.i++; suivante();
   }
   function debrief() {
@@ -709,6 +721,7 @@
       if (s.score > (P.best[k] || 0)) { P.best[k] = s.score; s.record = true; commit(); }
     }
     if (s.kind === 'diag') { P.diag = Date.now(); commit(); }
+    if (s.kind === 'jour') { var d = auj(), j = P.days[d] ? clone(P.days[d]) : { n: 0, ok: 0, neu: 0 }; j.fait = 1; P.days[d] = j; commit(); }
     Sync.vite();
     S.haut = true; rendre();
   }
@@ -753,12 +766,6 @@
   function meilleur(prefixe) { var m = 0, k; for (k in P.best) if (k.indexOf(prefixe + ':') === 0 && P.best[k] > m) m = P.best[k]; return m; }
 
   /* ---------- accueil ---------- */
-  function phraseSeance(nd, nn) {
-    var a = [];
-    if (nd) a.push(pluriel(nd, 'révision', 'révisions'));
-    if (nn) a.push(pluriel(nn, 'nouveauté', 'nouveautés'));
-    return a.join(' et ');
-  }
   function vusEtAcquis() {
     var r = { vus: 0, acquis: 0 };
     tous().forEach(function (f) { var c = P.cards[f.id]; if (c && c.b) { r.vus++; if (c.b >= SUIVI.PALIER) r.acquis++; } });
@@ -849,17 +856,27 @@
       h += '<div class="bloc seance"><h2>Séance du jour</h2>';
       var enCours = seanceEnCours();
       if (enCours) {
-        h += '<p class="chiffres">Séance commencée : tu en es à la question ' + Math.min(enCours.i + 1, enCours.items.length) + ' sur ' + enCours.items.length + '.</p>' +
-          '<button class="btn primaire large" data-a="reprendre">Reprendre la séance</button>' +
-          '<p class="note espace"><button class="lien" data-a="seance-abandon">Abandonner cette séance</button> : tes réponses déjà données restent comptées.</p>';
-      } else if (nd + nn > 0) {
-        h += '<p class="chiffres">' + phraseSeance(nd, nn) + ', ' + Math.max(1, Math.ceil((nd * 20 + nn * 45) / 60)) + ' min environ.</p>';
-        h += '<button class="btn primaire large" data-a="jour">Lancer la séance</button>';
-        if (plan.attente) h += '<p class="note espace">' + pluriel(plan.attente, 'autre révision attend', 'autres révisions attendent') + ' : relance une séance ensuite.</p>';
+        var pz = indexPause(enCours.items), k0 = pz + 1, tot = enCours.items.length - k0;
+        if (pz >= 0 && enCours.i < pz) {
+          h += '<p class="chiffres">Lecture commencée : fiche ' + (enCours.i + 1) + ' sur ' + pz + '.</p><button class="btn primaire large" data-a="reprendre">Reprendre la lecture</button>';
+        } else if (enCours.i <= pz) {
+          h += '<p class="chiffres">Lecture faite. Ton quiz t\'attend : ' + pluriel(tot, 'question', 'questions') + '.</p><button class="btn primaire large" data-a="reprendre">Passer le quiz</button>';
+        } else {
+          h += '<p class="chiffres">Quiz commencé : tu en es à la question ' + Math.min(enCours.i - k0 + 1, tot) + ' sur ' + tot + '.</p><button class="btn primaire large" data-a="reprendre">Reprendre le quiz</button>';
+        }
+        h += '<p class="note espace"><button class="lien" data-a="seance-abandon">Abandonner cette séance</button> : tes réponses déjà données restent comptées.</p>';
+      } else if (!plan.fait && nd + nn > 0) {
+        var nq = nd + nn;
+        h += '<p class="chiffres">' + (nn ? pluriel(nn, 'nouvelle fiche', 'nouvelles fiches') + ' à lire, puis un quiz de ' + pluriel(nq, 'question', 'questions')
+          : 'Un quiz de ' + pluriel(nq, 'question', 'questions') + ' de révision') + ', ' + Math.max(1, Math.ceil((nn * 45 + nq * 20) / 60)) + ' min environ.</p>';
+        h += '<button class="btn primaire large" data-a="jour">' + (nn ? 'Commencer la lecture' : 'Passer le quiz') + '</button>';
+        if (nn < plan.prevu) h += '<p class="note espace">Les révisions passent d\'abord : ' + pluriel(nn, 'nouvelle fiche', 'nouvelles fiches') + ' aujourd\'hui au lieu de ' + plan.prevu + '.</p>';
+        if (plan.attente) h += '<p class="note espace">' + pluriel(plan.attente, 'autre révision attend', 'autres révisions attendent') + ' : tu pourras les faire après le quiz, sinon elles reviendront demain.</p>';
       } else {
         var reste = nouveaux(1).length;
         h += '<p class="chiffres">Séance du jour terminée.' + (reste ? '' : ' Tous les repères sont découverts.') + '</p>';
-        if (reste) h += '<button class="btn large" data-a="avance">Prendre de l\'avance : ' + (+P.set.neu || 10) + ' nouveautés</button>';
+        if (plan.total) h += '<button class="btn large" data-a="revision">Réviser encore : ' + pluriel(Math.min(QUIZ, plan.total), 'question', 'questions') + '</button>';
+        if (reste) h += '<button class="btn large' + (plan.total ? ' espace' : '') + '" data-a="avance">Prendre de l\'avance : ' + (+P.set.neu || 10) + ' nouvelles fiches</button>';
       }
       h += '</div>';
     }
@@ -897,11 +914,18 @@
   }
 
   /* ---------- séance ---------- */
+  /** Où en est-on : dans la lecture, puis dans le quiz (la séance du jour a deux temps). */
+  function etape(s) {
+    var p = indexPause(s.items);
+    if (p < 0) return { k: s.i, n: s.items.length, nom: '' };
+    if (s.i <= p) return { k: s.i, n: p, nom: 'Lecture' };
+    return { k: s.i - p - 1, n: s.items.length - p - 1, nom: 'Quiz' };
+  }
   function barre() {
-    var s = S.ses, n = s.items.length;
+    var s = S.ses, e = etape(s), n = e.n;
     var h = '<div class="q-top"><button class="lien" data-a="quitter">Quitter</button>' +
-      '<div class="jauge" role="progressbar" aria-valuemin="0" aria-valuemax="' + n + '" aria-valuenow="' + s.i + '" aria-label="Avancement"><i style="width:' + Math.round(100 * s.i / n) + '%"></i></div>' +
-      '<span class="compte">' + (s.i + 1) + ' / ' + n + '</span>';
+      '<div class="jauge" role="progressbar" aria-valuemin="0" aria-valuemax="' + n + '" aria-valuenow="' + e.k + '" aria-label="' + (e.nom ? 'Avancement : ' + e.nom.toLowerCase() : 'Avancement') + '"><i style="width:' + Math.round(100 * e.k / n) + '%"></i></div>' +
+      '<span class="compte">' + (e.k + 1) + ' / ' + n + '</span>';
     if (s.kind === 'blitz') h += '<span class="chrono" id="chrono"></span>';
     h += '</div>';
     if (s.kind === 'blitz') h += '<div class="chrono-b" id="chrono-b" style="width:100%"></div>';
@@ -910,14 +934,25 @@
   function feuille(cl, corps) {
     return '<div class="feuille' + (cl ? ' ' + cl : '') + '" id="retour" data-a="lire" aria-live="polite">' + corps + '</div>';
   }
+  function vuePause() {
+    var s = S.ses, lues = indexPause(s.items), nq = s.items.length - lues - 1;
+    var nr = s.items.slice(lues + 1).filter(function (it) { var c = P.cards[it.id]; return c && c.b; }).length;
+    return '<section class="ecran-seance entre"><div class="q-top"><button class="lien" data-a="quitter">Quitter</button></div>' +
+      '<div class="pause-quiz"><p class="petit">Lecture terminée</p><h1 class="enonce">Place au quiz</h1>' +
+      '<p class="chiffres">' + pluriel(lues, 'fiche lue', 'fiches lues') + '. Le quiz : ' + pluriel(nq, 'question', 'questions') +
+      (nr ? ', dont ' + pluriel(nr, 'révision', 'révisions') : '') + ', ' + Math.max(1, Math.ceil(nq * 20 / 60)) + ' min environ.</p></div>' +
+      '<div class="bas"><button class="btn primaire large" data-a="suite">Passer le quiz</button>' +
+      '<button class="btn large" data-a="plus-tard">Plus tard</button></div></section>';
+  }
   function vueQuestion() {
-    var s = S.ses, q = s.q, f = FACTS[q.id], p = pack(f.pack);
+    if (S.ses.q.fmt === 'pause') return vuePause();
+    var s = S.ses, q = s.q, f = FACTS[q.id], p = pack(f.pack), e = etape(s);
     var h = '<section class="ecran-seance' + (s.frais ? ' entre' : '') + '">' + barre();
     s.frais = false;
-    h += '<p class="contexte">' + esc(p.titre) + (s.kind === 'blitz' ? ', ' + s.score + ' points' : '') + '</p>';
+    h += '<p class="contexte">' + (e.nom ? e.nom + ' du jour, ' : '') + esc(p.titre) + (s.kind === 'blitz' ? ', ' + s.score + ' points' : '') + '</p>';
     if (q.fmt === 'decouverte') {
       return h + '<p class="petit">Nouveau repère</p><h1 class="enonce">' + esc(f.t) + '</h1>' + ficheHtml(f, p, { sansTitre: true }) +
-        '<div class="bas"><button class="btn primaire large" data-a="suite">Compris</button></div></section>';
+        '<div class="bas"><button class="btn primaire large" data-a="suite">' + (s.items[s.i + 1] && s.items[s.i + 1].fmt === 'pause' ? 'Terminer la lecture' : e.nom ? 'Suivant' : 'Compris') + '</button></div></section>';
     }
     h += '<p class="petit">' + esc(q.petit) + '</p><h1 class="enonce">' + esc(q.grand) + '</h1><div class="bas">';
     if (q.opts) {
@@ -1445,6 +1480,8 @@
 
   var ACT = {
     jour: function () { var p = planJour(); lancer('jour', composer(p.dus, p.neufs)); },
+    revision: function () { lancer('revision', melange(dusDuJour().slice(0, QUIZ).map(function (f) { return item(f); }))); },
+    'plus-tard': function () { ACT.quitter(); },
     avance: function () { lancer('avance', composer([], nouveaux(+P.set.neu || 10))); },
     diag: function () {
       var items = [], par = Math.max(2, Math.ceil(28 / DATA.packs.length));
@@ -1462,6 +1499,7 @@
       var r = seanceEnCours(); if (!r) return rendre();
       fermer();
       S.ses = { kind: r.kind, items: r.items, i: r.i, ok: r.ok || 0, n: r.n || 0, rates: r.rates || [], score: 0, serie: 0, q: null, rep: null, opt: {}, fini: false, reste: 1, tm: Date.now() };
+      if (r.items[r.i] && r.items[r.i].fmt === 'pause') S.ses.i++;   // lecture faite : on passe directement au quiz
       suivante();
     },
     'seance-abandon': function () { oublierSeance(); rendre(); },
@@ -1620,7 +1658,7 @@
     if (/^(INPUT|SELECT|TEXTAREA)$/.test(tag) || e.metaKey || e.ctrlKey || e.altKey) return;
     var s = S.ses; if (!s || s.fini || !s.q) return;
     var valide = (e.key === 'Enter' || e.key === ' ') && !/^(BUTTON|A|SUMMARY)$/.test(tag), q = s.q;
-    if (q.fmt === 'decouverte') { if (valide) { e.preventDefault(); ACT.suite(); } return; }
+    if (q.fmt === 'decouverte' || q.fmt === 'pause') { if (valide) { e.preventDefault(); ACT.suite(); } return; }
     if (q.opts) {
       if (s.rep === null) { var n = parseInt(e.key, 10); if (n >= 1 && n <= q.opts.length) { e.preventDefault(); repondre(n - 1); } }
       else if (valide) { e.preventDefault(); ACT.suite(); }

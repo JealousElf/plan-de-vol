@@ -11,7 +11,8 @@ after(async () => { await env.arreter(); });
 test('tout est mis en cache à l\'installation, puis l\'application marche hors connexion', async () => {
   const { contexte, page, erreurs } = await ouvrir(env.navigateur, env.url, { serviceWorkers: 'allow', configReelle: true });
   const rates = [];
-  page.on('requestfailed', (r) => rates.push(r.url()));
+  // les images des actualités viennent des sites des médias : hors connexion, elles ne peuvent pas charger (un motif les remplace)
+  page.on('requestfailed', (r) => { if (r.url().startsWith(env.url)) rates.push(r.url()); });
 
   const cache = await page.evaluate(async () => {
     await navigator.serviceWorker.ready;

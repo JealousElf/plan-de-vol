@@ -1,5 +1,11 @@
 # Journal des versions
 
+## 1.7.0, 14 novembre 2026
+
+- La séance du jour se fait en deux temps. D'abord la lecture : les nouvelles fiches défilent une par écran, sans question. Ensuite le quiz, proposé tout de suite ou plus tard dans la journée : il mélange les questions sur les fiches lues et les révisions.
+- Le quiz du jour compte 20 questions au plus, les révisions les plus urgentes d'abord. Quand elles s'accumulent, l'appli donne moins de nouvelles fiches, sans descendre sous le rythme nécessaire pour avoir tout vu trois semaines avant l'oral. Après le quiz, « Réviser encore » propose les révisions restantes.
+- Une erreur n'est plus reposée qu'une fois dans la même séance.
+
 ## 1.6.0, 14 novembre 2026
 
 - « En savoir plus » : les 33 dernières fiches de l'ordre mondial ont leur paragraphe. Les 376 fiches des 8 packs ont désormais toutes un paragraphe de contexte.
