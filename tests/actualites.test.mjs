@@ -65,7 +65,7 @@ test('choisir : les histoires reprises par plusieurs médias d\'abord, deux par 
     { flux: { s: 'Le Monde', une: true }, items: [art('Ukraine : nuit de frappes massives sur Kiev', 'https://lemonde.fr/ukraine-kiev?xtor=RSS', 2), art('Mali : la junte annonce des élections', 'https://lemonde.fr/mali', 3)] },
     { flux: { s: 'Le Monde', th: 'int' }, items: [art('Ukraine : nuit de frappes massives sur Kiev', 'https://lemonde.fr/ukraine-kiev', 2, 'Des drones et missiles russes ont visé la capitale ukrainienne.', 'https://img.lemde.fr/kiev.jpg'),
       art('Mali : la junte annonce des élections pour 2027', 'https://lemonde.fr/mali', 3), art('Japon : un séisme sans victime au large', 'https://lemonde.fr/japon', 1)] },
-    { flux: { s: 'RFI', th: 'int' }, items: [art('Kiev visée par des frappes de drones et de missiles russes', 'https://rfi.fr/kiev', 3)] },
+    { flux: { s: 'RFI', th: 'int' }, items: [art('Ukraine : Kiev visée par des frappes massives de drones russes', 'https://rfi.fr/kiev', 3)] },
     { flux: { s: 'franceinfo', th: 'int' }, items: [art('Guerre en Ukraine : des frappes russes massives sur Kiev font plusieurs morts', 'https://franceinfo.fr/kiev', 1)] },
     { flux: { s: 'Zone Militaire', th: 'def' }, items: [art('La DGA commande de nouveaux Rafale pour l\'armée de l\'Air', 'https://opex360.com/rafale', 20, '', '')] },
     { flux: { s: 'Public Sénat', th: 'pol' }, items: politique },

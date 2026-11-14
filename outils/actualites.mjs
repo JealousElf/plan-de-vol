@@ -131,7 +131,7 @@ const court = (t) => (t.length > 180 ? t.slice(0, 177).replace(/\s+\S*$/, '') + 
 
 /**
  * Choisit les actualités à publier. resultats : [{ flux: { s, th, une }, items: [{ t, u, d, x, i }] }].
- * Deux articles racontent la même histoire quand leurs titres ont au moins deux mots significatifs en commun et que
+ * Deux articles racontent la même histoire quand leurs titres ont au moins trois mots significatifs en commun et que
  * ces mots pèsent assez lourd (les mots rares comptent plus que les mots fréquents dans l'ensemble des articles).
  * Les directs, vidéos et revues de presse sont écartés : leurs titres ne racontent pas une histoire. Une histoire vaut le nombre de
  * médias qui la racontent, plus un bonus si elle est à la une, plus un peu de fraîcheur.
@@ -156,7 +156,7 @@ export function choisir(resultats, maintenant = Date.now(), regles = REGLES) {
   const proches = (a, b) => {
     let s = 0, n = 0;
     for (const m of a.titre) if (b.titre.has(m)) { const p = poids(m); if (p > 0) { s += p; n++; } }
-    return n >= 2 && s >= regles.seuil;
+    return n >= 3 && s >= regles.seuil;
   };
   for (const a of articles) a.voisins = articles.filter((b) => b !== a && proches(a, b));
   const pris = new Set(), parTheme = {}, choisis = [];

@@ -1,5 +1,10 @@
 # Journal des versions
 
+## 1.5.1, 14 novembre 2026
+
+- « En savoir plus » : 84 paragraphes de plus, pour les fiches 13 à 24 de chaque pack (225 fiches en ont un désormais).
+- Actualités : une histoire n'est plus confondue avec une autre qui partage seulement un ou deux mots du titre.
+
 ## 1.5.0, 14 novembre 2026
 
 - Actualités : au lieu de 48 titres, les cinq histoires les plus importantes des trois derniers jours, chacune avec une petite image du média. Le robot retient celles que plusieurs médias racontent ou que Le Monde et franceinfo mettent à la une, deux au plus par thème, dont au moins une de défense ; la carte indique combien de médias en parlent.
