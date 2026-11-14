@@ -1,5 +1,9 @@
 # Journal des versions
 
+## 1.5.3, 14 novembre 2026
+
+- « En savoir plus » : 46 paragraphes de plus. Tous les packs ont désormais un paragraphe pour chaque fiche, sauf les dates clés de l'ordre mondial (36 sur 69) ; 343 fiches sur 376 sont couvertes.
+
 ## 1.5.2, 14 novembre 2026
 
 - « En savoir plus » : 72 paragraphes de plus (fiches 25 à 36 de chaque pack). Les packs Armée de l'Air et de l'Espace, Opérations et Programmes sont entièrement couverts ; 297 fiches sur 376 ont leur paragraphe.

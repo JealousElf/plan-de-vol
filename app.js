@@ -6,7 +6,7 @@
   var LS = 'pdv.progression.v1';
   /* Dépôt qui reçoit les signalements d'erreur. À changer seulement si tu maintiens ta propre version des fiches. */
   var DEPOT = DATA.depot || 'JealousElf/plan-de-vol';
-  var VERSION_APP = '1.5.2', DATE_APP = '14 novembre 2026';
+  var VERSION_APP = '1.5.3', DATE_APP = '14 novembre 2026';
   var JOUR = 86400000;
   var IV = [0, 1, 2, 4, 8, 16, 32];
   var MOIS = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
