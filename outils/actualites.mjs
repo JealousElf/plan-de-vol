@@ -11,7 +11,6 @@ export const FLUX = [
   { u: 'https://www.forcesoperations.com/feed/', s: 'Forces Operations Blog', th: 'def' },
   { u: 'https://www.areion24.news/feed/', s: 'Areion24', th: 'def' },
   { u: 'https://theatrum-belli.com/feed/', s: 'Theatrum Belli', th: 'def' },
-  { u: 'https://www.meretmarine.com/fr/rss', s: 'Mer et Marine', th: 'def' },
   { u: 'https://www.lemonde.fr/international/rss_full.xml', s: 'Le Monde', th: 'int' },
   { u: 'https://www.francetvinfo.fr/monde.rss', s: 'franceinfo', th: 'int' },
   { u: 'https://www.rfi.fr/fr/monde/rss', s: 'RFI', th: 'int' },
