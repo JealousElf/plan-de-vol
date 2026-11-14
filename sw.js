@@ -1,5 +1,5 @@
 /* Plan de vol : tout le contenu est mis en cache à l'installation, puis servi sans réseau. */
-var VERSION = "pdv-fc9203af3494";
+var VERSION = "pdv-dba402b9e9ce";
 var FICHIERS = [
   "index.html",
   "styles.css",

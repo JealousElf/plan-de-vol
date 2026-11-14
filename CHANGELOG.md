@@ -1,5 +1,9 @@
 # Journal des versions
 
+## 1.5.0, 14 novembre 2026
+
+- Actualités : au lieu de 48 titres, les cinq histoires les plus importantes des trois derniers jours, chacune avec une petite image du média. Le robot retient celles que plusieurs médias racontent ou que Le Monde et franceinfo mettent à la une, deux au plus par thème, dont au moins une de défense ; la carte indique combien de médias en parlent.
+
 ## 1.4.0, 14 novembre 2026
 
 - Après une bonne réponse, l'application attend désormais que tu touches « Continuer ». L'enchaînement automatique reste possible dans Réglages, après 3, 5 ou 8 secondes, et ouvrir une fiche le suspend.

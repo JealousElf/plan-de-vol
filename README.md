@@ -16,7 +16,7 @@ Application de révision pour préparer un grand oral de culture générale, d'h
 
 - **376 fiches en 8 packs** : histoire de France, conflits depuis 1976, dates clés de l'ordre mondial, armée de l'Air et de l'Espace, opérations et missions, programmes et projets, organisation et doctrine, citations célèbres. Un pack d'actualité s'y ajoute chaque semaine.
 - **« En savoir plus »** : sous une fiche, un paragraphe de contexte et un lien vers Wikipédia.
-- **Les gros titres de l'actualité** sur l'accueil (défense, international, aéronautique et spatial, politique française), mis à jour plusieurs fois par jour ; chaque titre ouvre l'article chez le média qui l'a publié.
+- **Les cinq actualités du moment** sur l'accueil, illustrées : les histoires que les médias suivent le plus (défense, international, aéronautique et spatial, politique française), mises à jour plusieurs fois par jour ; chaque carte ouvre l'article chez le média qui l'a publié.
 - **Une séance par jour**, calculée par répétition espacée : quelques nouveautés, puis les fiches à revoir au bon moment. Les questions passent du choix multiple à la question ouverte à mesure qu'une fiche est acquise. Une séance interrompue se reprend là où tu t'étais arrêté.
 - **Deux entraînements** : le blitz chronométré et la frise chronologique.
 - **Un grand oral blanc** : deux sujets au choix, préparation, exposé et questions minutés, relances du jury, grille d'auto-évaluation, corrigé pour 20 sujets.
@@ -82,10 +82,10 @@ Pour ne vérifier que les fiches, sans navigateur : `node --test tests/donnees.t
 | `suivi.js`, `graph.js` | Les calculs du carnet de vol et ses graphiques, séparés du reste pour être testés seuls |
 | `synchro.js` | La synchronisation par code : code, clés, chiffrement, échanges avec le service |
 | `config.js` | Les deux réglages propres au site : adresse du service de synchronisation, dépôt des signalements |
-| `data/` | Les fiches (un fichier par pack), les paragraphes « En savoir plus » (`contexte.js`), les sujets de grand oral, le pack d'actualité `actu.json`, les gros titres `news.json` |
+| `data/` | Les fiches (un fichier par pack), les paragraphes « En savoir plus » (`contexte.js`), les sujets de grand oral, le pack d'actualité `actu.json`, les cinq actualités du moment `news.json` |
 | `sw.js` | Le service worker : mise en cache à l'installation, fonctionnement hors connexion |
 | `fonts/`, `icons/`, `manifest.webmanifest` | Polices locales, icônes, manifeste d'installation |
-| `outils/` | Serveur local, mise à jour de `sw.js`, captures d'écran du README, robot des gros titres (`actualites.mjs`, lancé par `.github/workflows/actualites.yml`) |
+| `outils/` | Serveur local, mise à jour de `sw.js`, captures d'écran du README, robot des actualités (`actualites.mjs`, lancé par `.github/workflows/actualites.yml`) |
 | `tests/` | Tests des fiches et des parcours (Playwright) |
 
 ## Licences

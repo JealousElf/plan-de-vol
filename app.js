@@ -6,7 +6,7 @@
   var LS = 'pdv.progression.v1';
   /* Dépôt qui reçoit les signalements d'erreur. À changer seulement si tu maintiens ta propre version des fiches. */
   var DEPOT = DATA.depot || 'JealousElf/plan-de-vol';
-  var VERSION_APP = '1.4.0', DATE_APP = '14 novembre 2026';
+  var VERSION_APP = '1.5.0', DATE_APP = '14 novembre 2026';
   var JOUR = 86400000;
   var IV = [0, 1, 2, 4, 8, 16, 32];
   var MOIS = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
@@ -384,14 +384,13 @@
   /* ---------- pack d'actualité servi comme fichier, et fonctionnement hors connexion ---------- */
   /* ---------- actualités : les gros titres, mis à jour par le robot du dépôt (outils/actualites.mjs) ---------- */
   var NEWS = null, NEWS_T = 0;
-  var THEMES_NEWS = [['tout', 'Tout'], ['def', 'Défense'], ['int', 'International'], ['aero', 'Aéro et spatial'], ['pol', 'Politique']];
-  function nomThemeNews(th) { for (var i = 1; i < THEMES_NEWS.length; i++) if (THEMES_NEWS[i][0] === th) return THEMES_NEWS[i][1]; return 'Actualité'; }
+  var THEMES_NEWS = { def: 'Défense', int: 'International', aero: 'Aéro et spatial', pol: 'Politique' };
   function articleValide(a) { return !!a && typeof a.t === 'string' && a.t !== '' && /^https:\/\//.test(a.u || '') && typeof a.s === 'string'; }
   function chargerNews() {
     if (!window.fetch || !/^https?:$/.test(window.location.protocol)) return;
     NEWS_T = Date.now();
     window.fetch('data/news.json', { cache: 'no-store' }).then(function (r) { return r.ok ? r.json() : null; }).then(function (n) {
-      NEWS = n && Array.isArray(n.articles) ? { maj: n.maj || null, articles: n.articles.filter(articleValide) } : (NEWS || { maj: null, articles: [], echec: true });
+      NEWS = n && Array.isArray(n.articles) ? { maj: n.maj || null, articles: n.articles.filter(articleValide).slice(0, 5) } : (NEWS || { maj: null, articles: [], echec: true });
       majNews();
     }).catch(function () { if (!NEWS) { NEWS = { maj: null, articles: [], echec: true }; majNews(); } });
   }
@@ -405,25 +404,29 @@
     if (m < 2880) return 'hier';
     var d = new Date(t); return 'le ' + (d.getDate() === 1 ? '1er' : d.getDate()) + ' ' + MOIS_C[d.getMonth()];
   }
-  function railNews() {
-    var l = NEWS.articles.filter(function (a) { return S.news === 'tout' || a.th === S.news; }).slice(0, 24);
-    if (!l.length) return '<p class="note">Aucun titre dans ce thème pour l\'instant.</p>';
-    return l.map(function (a) {
-      var quand = depuis(a.d);
-      return '<a class="news-carte" data-a="lien" data-lien href="' + esc(a.u) + '" target="_blank" rel="noopener"><span class="news-theme th-' + esc(a.th) + '">' + esc(nomThemeNews(a.th)) + '</span>' +
-        '<span class="news-titre">' + esc(a.t) + '</span><span class="news-meta">' + esc(a.s) + (quand ? ', ' + esc(quand) : '') + '</span></a>';
-    }).join('');
+  function carteNews(a) {
+    var quand = depuis(a.d), th = THEMES_NEWS[a.th] ? a.th : 'int', n = Math.floor(+a.n || 0);
+    var img = /^https:\/\/[^\s"'<>]+$/.test(a.i || '') ? '<img src="' + esc(a.i) + '" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer">' : '';
+    return '<a class="news-carte" data-a="lien" data-lien href="' + esc(a.u) + '" target="_blank" rel="noopener">' +
+      '<span class="news-img th-' + th + (img ? '' : ' vide') + '">' + img + '</span>' +
+      '<span class="news-corps"><span class="news-theme th-' + th + '">' + THEMES_NEWS[th] + '</span>' +
+      '<span class="news-titre">' + esc(a.t) + '</span>' +
+      '<span class="news-meta">' + esc(a.s) + (quand ? ', ' + esc(quand) : '') + '</span>' +
+      (n > 1 ? '<span class="news-reprise">Racontée par ' + n + ' médias</span>' : '') + '</span></a>';
   }
   function blocNews() {
     var h = '<div class="bloc news" id="news"><div class="news-tete"><h2>Actualités</h2>';
-    if (!NEWS) return h + '</div><p class="note">Chargement des titres…</p></div>';
-    if (!NEWS.articles.length) return h + '</div><p class="note">' + (window.navigator.onLine === false ? 'Les titres s\'afficheront au retour du réseau.' : 'Titres indisponibles pour l\'instant.') + '</p></div>';
+    if (!NEWS) return h + '</div><p class="note">Chargement des actualités…</p></div>';
+    if (!NEWS.articles.length) return h + '</div><p class="note">' + (window.navigator.onLine === false ? 'Les actualités s\'afficheront au retour du réseau.' : 'Actualités indisponibles pour l\'instant.') + '</p></div>';
     h += NEWS.maj ? '<span class="news-maj">Mis à jour ' + esc(depuis(NEWS.maj)) + '</span>' : '';
-    h += '</div><div class="puces" role="group" aria-label="Thèmes des actualités">' + THEMES_NEWS.map(function (t) {
-      return '<button data-a="news" data-th="' + t[0] + '" aria-pressed="' + (S.news === t[0]) + '">' + t[1] + '</button>';
-    }).join('') + '</div><div class="news-rail" id="news-rail">' + railNews() + '</div>';
-    return h + '<p class="note espace">Chaque titre ouvre l\'article sur le site du média.</p></div>';
+    h += '</div><div class="news-rail" id="news-rail">' + NEWS.articles.map(carteNews).join('') + '</div>';
+    return h + '<p class="note espace">Les histoires que les médias ont le plus suivies ces trois derniers jours. Touche une carte pour lire l\'article.</p></div>';
   }
+  /* Image d'illustration introuvable : on garde le motif à la place. */
+  document.addEventListener('error', function (e) {
+    var t = e.target, p = t && t.parentNode;
+    if (t && t.tagName === 'IMG' && p && p.classList && p.classList.contains('news-img')) { p.classList.add('vide'); p.removeChild(t); }
+  }, true);
   function majNews() {
     var el = document.getElementById('news');
     if (el && page() === 'accueil' && !S.ses && !S.frise && !S.choix) el.outerHTML = blocNews();
@@ -588,7 +591,7 @@
   }
 
   /* ---------- état de l'interface ---------- */
-  var S = { ses: null, frise: null, choix: null, oral: null, tirage: null, msg: null, raz: false, couper: false, haut: false, news: 'tout', fiches: { pack: null, q: '', st: '' } };
+  var S = { ses: null, frise: null, choix: null, oral: null, tirage: null, msg: null, raz: false, couper: false, haut: false, fiches: { pack: null, q: '', st: '' } };
   var chrono = { id: 0, fin: 0, dur: 0, auto: 0 };
 
   /* La séance du jour (et la séance d'avance) est gardée sur l'appareil jusqu'au soir : on la reprend là où on l'a quittée. */
@@ -1464,12 +1467,6 @@
     'seance-abandon': function () { oublierSeance(); rendre(); },
     plus: function () { ACT.lire(); },   // le volet s'ouvre tout seul ; lire suspend l'enchaînement automatique
     lien: function () { /* le lien s'ouvre tout seul */ },
-    news: function (b) {
-      S.news = b.getAttribute('data-th') || 'tout';
-      var rail = document.getElementById('news-rail'); if (rail) { rail.innerHTML = railNews(); rail.scrollLeft = 0; }
-      var bs = document.querySelectorAll('#news [data-a="news"]');
-      for (var i = 0; i < bs.length; i++) bs[i].setAttribute('aria-pressed', String(bs[i] === b));
-    },
     accueil: function () { fermer(); S.haut = true; if (page() !== 'accueil') window.location.hash = '#accueil'; else rendre(); },
     rejouer: function () { var pid = S.ses ? S.ses.opt.pack : ''; fermer(); lancerBlitz(pid); },
     erreurs: function () { var ids = S.ses ? S.ses.rates.slice() : []; fermer(); lancer('erreurs', ids.filter(function (id) { return FACTS[id]; }).map(function (id) { return { id: id, fmt: qcm(FACTS[id]), dur: false, retry: true }; })); },

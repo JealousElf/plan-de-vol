@@ -89,15 +89,21 @@ test('réglage : passer à la suite après une bonne réponse, au délai choisi,
   await contexte.close();
 });
 
-test('actualités : les gros titres défilent, se filtrent par thème et ouvrent le site du média', async () => {
+test('actualités : cinq cartes illustrées à faire défiler, qui ouvrent le site du média', async () => {
   const contexte = await env.navigateur.newContext({ ...TELEPHONE, serviceWorkers: 'block' });
   await contexte.route('**/config.js', (route) => route.fulfill(SANS_SERVICE));
   const il = (h) => new Date(Date.now() - h * 3600000).toISOString();
   const articles = [
-    { t: 'Un titre sur les armées', u: 'https://media-a.example/armees', s: 'Média A', th: 'def', d: il(2) },
-    { t: 'Un titre sur le monde', u: 'https://media-b.example/monde', s: 'Média B', th: 'int', d: il(5) },
-    { t: 'Un titre sur l\'espace', u: 'https://media-c.example/espace', s: 'Média C', th: 'aero', d: il(30) },
+    { t: 'Une histoire suivie par quatre médias', u: 'https://media-a.example/1', s: 'Média A', th: 'int', d: il(2), n: 4, i: 'https://img.example/bonne.png' },
+    { t: 'Une histoire de défense', u: 'https://media-b.example/2', s: 'Média B', th: 'def', d: il(5), n: 1, i: 'https://img.example/cassee.png' },
+    { t: 'Une histoire sans image', u: 'https://media-c.example/3', s: 'Média C', th: 'pol', d: il(30) },
+    { t: 'Une histoire d\'espace', u: 'https://media-d.example/4', s: 'Média D', th: 'aero', d: il(40), n: 2 },
+    { t: 'Une cinquième histoire', u: 'https://media-e.example/5', s: 'Média E', th: 'int', d: il(50) },
+    { t: 'Une sixième, de trop', u: 'https://media-f.example/6', s: 'Média F', th: 'int', d: il(60) },
   ];
+  const PNG = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGP4z8DwHwAFAAH/q842iQAAAABJRU5ErkJggg==', 'base64');
+  await contexte.route('https://img.example/bonne.png', (route) => route.fulfill({ contentType: 'image/png', body: PNG }));
+  await contexte.route('https://img.example/cassee.png', (route) => route.abort());
   let reponse = { contentType: 'application/json', body: JSON.stringify({ maj: il(1), articles }) };
   await contexte.route('**/data/news.json', (route) => route.fulfill(reponse));
   const page = await contexte.newPage();
@@ -105,20 +111,21 @@ test('actualités : les gros titres défilent, se filtrent par thème et ouvrent
   page.on('pageerror', (e) => erreurs.push(e.message));
   await page.goto(env.url);
   await page.waitForSelector('.news-carte');
-  assert.equal(await page.locator('.news-carte').count(), 3);
+  assert.equal(await page.locator('.news-carte').count(), 5, 'cinq actualités, pas plus');
   assert.equal(await texte(page, '.news-maj'), 'Mis à jour il y a 1 h');
   const carte = page.locator('.news-carte').first();
-  assert.equal(await carte.getAttribute('href'), 'https://media-a.example/armees');
+  assert.equal(await carte.getAttribute('href'), 'https://media-a.example/1');
   assert.equal(await carte.getAttribute('target'), '_blank');
   assert.equal(await texte(page, '.news-carte .news-meta'), 'Média A, il y a 2 h');
+  assert.equal(await texte(page, '.news-carte .news-reprise'), 'Racontée par 4 médias');
+  await page.waitForFunction(() => { const i = document.querySelector('.news-carte img'); return i && i.complete && i.naturalWidth > 0; });
+  assert.equal(await page.locator('.news-carte').first().locator('img').getAttribute('referrerpolicy'), 'no-referrer');
+  await page.waitForFunction(() => document.querySelectorAll('.news-carte')[1].querySelector('.news-img.vide'));
+  assert.equal(await page.locator('.news-carte').nth(1).locator('img').count(), 0, 'image introuvable : motif à la place');
+  assert.equal(await page.locator('.news-carte').nth(2).locator('.news-img.vide').count(), 1);
+  assert.equal(await page.locator('.news-carte').nth(2).locator('.news-reprise').count(), 0);
   assert.equal(await page.locator('#news-rail').evaluate((el) => getComputedStyle(el).overflowX), 'auto');
-
-  await page.click('#news [data-a="news"][data-th="def"]');
-  assert.equal(await page.locator('.news-carte').count(), 1);
-  assert.equal(await page.locator('#news [data-th="def"]').getAttribute('aria-pressed'), 'true');
-  await page.click('#news [data-a="news"][data-th="pol"]');
-  assert.equal(await page.locator('.news-carte').count(), 0);
-  assert.match(await texte(page, '#news-rail'), /Aucun titre/);
+  assert.ok(await page.locator('#news-rail').evaluate((el) => el.scrollWidth > el.clientWidth), 'la bande défile vers le côté');
 
   reponse = { status: 404, body: '' };
   await page.reload();

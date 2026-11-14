@@ -127,11 +127,13 @@ test('le pack de citations : un auteur à trouver, un paragraphe, et jamais dans
 test('le fichier des actualités a la forme attendue', () => {
   const news = JSON.parse(readFileSync(new URL('news.json', dossier), 'utf8'));
   assert.ok(news.maj === null || !isNaN(Date.parse(news.maj)), 'maj : null ou une date');
-  assert.ok(Array.isArray(news.articles) && news.articles.length <= 48);
+  assert.ok(Array.isArray(news.articles) && news.articles.length <= 5, 'cinq actualités au plus');
   for (const a of news.articles) {
     assert.ok(typeof a.t === 'string' && a.t && typeof a.s === 'string' && a.s, 'titre et source');
     assert.match(a.u, /^https:\/\//);
     assert.match(a.th, /^(def|int|aero|pol)$/);
     assert.ok(!isNaN(Date.parse(a.d)), 'date de l\'article');
+    if (a.i !== undefined) assert.match(a.i, /^https:\/\/[^\s"'<>]+$/, 'image en https');
+    if (a.n !== undefined) assert.ok(Number.isInteger(a.n) && a.n >= 1, 'nombre de médias');
   }
 });
