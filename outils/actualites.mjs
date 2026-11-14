@@ -28,7 +28,7 @@ export const FLUX = [
   { u: 'https://www.publicsenat.fr/feed', s: 'Public Sénat', th: 'pol' },
 ];
 
-export const REGLES = { heures: 72, nombre: 5, parTheme: 2, seuil: 4.5, commun: 0.2, une: 1.5 };
+export const REGLES = { heures: 72, nombre: 5, parTheme: 2, seuil: 5, commun: 0.2, une: 1.5 };
 
 const ENTITES = {
   amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ', laquo: '«', raquo: '»', rsquo: '’', lsquo: '‘', ldquo: '“', rdquo: '”',
@@ -131,8 +131,9 @@ const court = (t) => (t.length > 180 ? t.slice(0, 177).replace(/\s+\S*$/, '') + 
 
 /**
  * Choisit les actualités à publier. resultats : [{ flux: { s, th, une }, items: [{ t, u, d, x, i }] }].
- * Deux articles racontent la même histoire quand leurs titres ont un mot en commun et que leurs mots rares
- * communs pèsent assez lourd (fréquence inverse dans l'ensemble des articles). Une histoire vaut le nombre de
+ * Deux articles racontent la même histoire quand leurs titres ont au moins deux mots significatifs en commun et que
+ * ces mots pèsent assez lourd (les mots rares comptent plus que les mots fréquents dans l'ensemble des articles).
+ * Les directs, vidéos et revues de presse sont écartés : leurs titres ne racontent pas une histoire. Une histoire vaut le nombre de
  * médias qui la racontent, plus un bonus si elle est à la une, plus un peu de fraîcheur.
  * Renvoie { maj, articles: [{ t, u, s, th, d, n, i? }], detail } ; detail sert au journal du robot.
  */
@@ -144,23 +145,18 @@ export function choisir(resultats, maintenant = Date.now(), regles = REGLES) {
       if (!t || t.length < 12 || !/^https:\/\//.test(a.u || '') || isNaN(ts) || ts < limite || ts > maintenant + 3600000) continue;
       const cle = sansParam(a.u);
       if (flux.une) { alaune.add(cle); continue; }
-      if (vus.has(cle)) continue;   // le même article dans deux rubriques du même média
-      vus.add(cle);
-      const titre = mots(t), resume = mots(a.x);
-      titre.forEach((m) => resume.delete(m));
-      articles.push({ t, u: a.u, cle, s: flux.s, th: flux.th, ts, i: propre(a.i), titre, resume });
+      if (vus.has(cle) || /^(en direct|direct|vid[ée]o|podcast|replay|infographie|à la une\s*:)/i.test(t)) continue;
+      vus.add(cle);   // le même article peut figurer dans deux rubriques du même média
+      articles.push({ t, u: a.u, cle, s: flux.s, th: flux.th, ts, i: propre(a.i), titre: mots(t) });
     }
   }
   const N = articles.length, df = new Map();
-  for (const a of articles) for (const m of [...a.titre, ...a.resume]) df.set(m, (df.get(m) || 0) + 1);
+  for (const a of articles) for (const m of a.titre) df.set(m, (df.get(m) || 0) + 1);
   const poids = (m) => { const f = df.get(m) || 0; return f < 2 || f > Math.max(5, regles.commun * N) ? 0 : Math.log(N / f); };
   const proches = (a, b) => {
-    let s = 0, titre = false;
-    for (const m of a.titre) {
-      if (b.titre.has(m)) { const p = poids(m); s += p; titre = titre || p > 0; } else if (b.resume.has(m)) s += poids(m) / 2;
-    }
-    for (const m of a.resume) if (b.titre.has(m) || b.resume.has(m)) s += poids(m) / 2;
-    return titre && s >= regles.seuil;
+    let s = 0, n = 0;
+    for (const m of a.titre) if (b.titre.has(m)) { const p = poids(m); if (p > 0) { s += p; n++; } }
+    return n >= 2 && s >= regles.seuil;
   };
   for (const a of articles) a.voisins = articles.filter((b) => b !== a && proches(a, b));
   const pris = new Set(), parTheme = {}, choisis = [];
@@ -209,10 +205,10 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const resultats = await Promise.all(FLUX.map(async (flux) => {
     try {
       const items = await recuperer(flux);
-      console.log(`ok     ${String(items.length).padStart(3)} articles  ${flux.s} [${flux.th}]  ${flux.u}`);
+      console.log(`ok     ${String(items.length).padStart(3)} articles  ${flux.s} [${flux.th || 'à la une'}]  ${flux.u}`);
       return { flux, items };
     } catch (e) {
-      console.log(`ÉCHEC               ${flux.s} [${flux.th}]  ${flux.u} : ${e.message}`);
+      console.log(`ÉCHEC               ${flux.s} [${flux.th || 'à la une'}]  ${flux.u} : ${e.message}`);
       return { flux, items: [] };
     }
   }));

@@ -59,6 +59,8 @@ test('choisir : les histoires reprises par plusieurs médias d\'abord, deux par 
   const il = (h) => new Date(MAINTENANT - h * 3600000).toISOString();
   const art = (t, u, h, x = '', i = '') => ({ t, u, d: il(h), x, i });
   const politique = Array.from({ length: 6 }, (_, k) => art(`Assemblée : débat numéro ${k} sur un texte différent ${['agricole', 'scolaire', 'fiscal', 'routier', 'culturel', 'sportif'][k]}`, `https://pol.fr/${k}`, k + 1));
+  const mots30 = 'abeille baleine castor dauphin elephant faucon girafe hibou iguane jaguar koala lezard marmotte narval otarie panthere quokka renard salamandre tapir urubu vautour wapiti xerus yack zebre alpaga bison chamois daim'.split(' ');
+  const bruit = mots30.map((m, k) => art(`Chronique animalière : portrait du ${m}`, `https://bruit.fr/${k}`, 30 + k));
   const r = choisir([
     { flux: { s: 'Le Monde', une: true }, items: [art('Ukraine : nuit de frappes massives sur Kiev', 'https://lemonde.fr/ukraine-kiev?xtor=RSS', 2), art('Mali : la junte annonce des élections', 'https://lemonde.fr/mali', 3)] },
     { flux: { s: 'Le Monde', th: 'int' }, items: [art('Ukraine : nuit de frappes massives sur Kiev', 'https://lemonde.fr/ukraine-kiev', 2, 'Des drones et missiles russes ont visé la capitale ukrainienne.', 'https://img.lemde.fr/kiev.jpg'),
@@ -67,6 +69,7 @@ test('choisir : les histoires reprises par plusieurs médias d\'abord, deux par 
     { flux: { s: 'franceinfo', th: 'int' }, items: [art('Guerre en Ukraine : des frappes russes massives sur Kiev font plusieurs morts', 'https://franceinfo.fr/kiev', 1)] },
     { flux: { s: 'Zone Militaire', th: 'def' }, items: [art('La DGA commande de nouveaux Rafale pour l\'armée de l\'Air', 'https://opex360.com/rafale', 20, '', '')] },
     { flux: { s: 'Public Sénat', th: 'pol' }, items: politique },
+    { flux: { s: 'Bruit', th: 'aero' }, items: [...bruit, art('EN DIRECT, guerre en Ukraine : frappes massives sur Kiev', 'https://bruit.fr/direct', 1)] },
     { flux: { s: 'Ancien', th: 'pol' }, items: [art('Une histoire trop ancienne mais reprise partout', 'https://vieux.fr/1', 80)] },
   ], MAINTENANT);
   assert.equal(r.articles.length, 5);
