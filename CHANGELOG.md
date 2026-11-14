@@ -1,5 +1,9 @@
 # Journal des versions
 
+## 1.6.0, 14 novembre 2026
+
+- « En savoir plus » : les 33 dernières fiches de l'ordre mondial ont leur paragraphe. Les 376 fiches des 8 packs ont désormais toutes un paragraphe de contexte.
+
 ## 1.5.3, 14 novembre 2026
 
 - « En savoir plus » : 46 paragraphes de plus. Tous les packs ont désormais un paragraphe pour chaque fiche, sauf les dates clés de l'ordre mondial (36 sur 69) ; 343 fiches sur 376 sont couvertes.
