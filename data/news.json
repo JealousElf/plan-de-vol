@@ -1,50 +1,50 @@
 {
- "maj": "2026-11-14T23:59:30.736Z",
+ "maj": "2026-11-15T12:52:00.246Z",
  "articles": [
   {
-   "t": "Suspension des vols aux Etats-Unis : plus de 17 000 vols annulés vendredi et samedi alors que des perturbations persistent",
-   "u": "https://www.lemonde.fr/international/article/2026/11/14/suspension-des-vols-aux-etats-unis-des-annulations-et-des-retards-de-vols-persistent-samedi_6810445_3210.html",
+   "t": "La hausse de 1,6 % du smic et des « bas salaires » des fonctionnaires coûteront « un peu plus de 1 milliard d’euros », selon le gouvernement",
+   "u": "https://www.lemonde.fr/politique/article/2026/11/15/les-revalorisations-du-smic-et-des-bas-salaires-des-fonctionnaires-couteront-un-peu-plus-de-1-milliard-d-euros-aux-finances-publiques-selon-le-gouvernement_6811009_823448.html",
    "s": "Le Monde",
-   "th": "int",
-   "d": "2026-11-14T15:31:00.000Z",
+   "th": "pol",
+   "d": "2026-11-15T10:09:57.000Z",
    "n": 3,
-   "i": "https://img.lemde.fr/2026/11/14/375/0/4780/2390/644/322/60/0/ce343bc_ftp-1-agwrmkeqr7tt-afp-d7fq7rm.jpg"
+   "i": "https://img.lemde.fr/2026/11/03/664/0/8000/4000/644/322/60/0/fa2aa4c_upload-1-0ngovo7atcvt-jmug261103046.jpg"
   },
   {
-   "t": "Ukraine : Volodymyr Zelensky évoque l’hypothèse américaine d’une adhésion de son pays à l’OTAN contre la cession du Donbass",
-   "u": "https://www.lemonde.fr/international/article/2026/11/15/ukraine-volodymyr-zelensky-evoque-l-hypothese-americaine-d-une-adhesion-de-son-pays-a-l-otan-contre-la-cession-du-donbass_6810710_3210.html",
+   "t": "Pour le président, la position de Marine Le Pen sur l'Ukraine \"est antipatriotique et irréaliste\", déclare l'entourage d'Emmanuel Macron",
+   "u": "https://www.franceinfo.fr/politique/emmanuel-macron/le-president-veut-maintenir-l-ukraine-en-situation-de-donner-des-coups-alors-que-les-americains-s-occupent-de-l-enfoncer-affirme-l-entourage-d-emmanuel-macron_8283194.html#xtor=RSS-3-%5Bmonde%5D",
+   "s": "franceinfo",
+   "th": "int",
+   "d": "2026-11-15T07:48:43.000Z",
+   "n": 2,
+   "i": "https://www.franceinfo.fr/pictures/vF9yHXcI9dFSryemKfVFM8SzGcQ/0x456:5351x3466/432x243/filters:format(jpg)/2026/11/15/6af95094b19c7363664118.jpg"
+  },
+  {
+   "t": "Sommet de la francophonie : Emmanuel Macron appelle à l’« unité » et au « consensus » face aux tensions entre la RDC et le Rwanda",
+   "u": "https://www.lemonde.fr/international/article/2026/11/15/somment-de-la-francophonie-emmanuel-macron-appelle-a-l-unite-et-au-consensus-face-aux-tensions-entre-la-rdc-et-le-rwanda_6810995_3210.html",
    "s": "Le Monde",
    "th": "int",
-   "d": "2026-11-14T23:49:29.000Z",
+   "d": "2026-11-15T07:45:48.000Z",
    "n": 2,
-   "i": "https://img.lemde.fr/2026/11/12/581/0/7495/3747/644/322/60/0/112303b_ftp-1-2v4wwh1winvt-c2f03c63ea744bf99d45a9984945022e-0-f57aa245d3274493aab108d6f0eb3682.jpg"
+   "i": "https://img.lemde.fr/2026/11/15/554/0/6652/3326/644/322/60/0/3289c2a_ftp-1-hqs21wpxr2q6-afp-d7hg6ul.jpg"
   },
   {
-   "t": "Présidentielle 2027 : les relations tortueuses entre Raphaël Glucksmann et les macronistes, entre attraction et grande méfiance",
-   "u": "https://www.lemonde.fr/politique/article/2026/11/14/presidentielle-2027-entre-attraction-et-grande-mefiance-les-relations-tortueuses-entre-raphael-glucksmann-et-les-macronistes_6809719_823448.html",
-   "s": "Le Monde",
-   "th": "pol",
-   "d": "2026-11-14T05:18:15.000Z",
-   "n": 1,
-   "i": "https://img.lemde.fr/2026/11/13/161/0/5130/2565/644/322/60/0/4112368_upload-1-q2d4yyski4i9-cbi1356036.jpg"
-  },
-  {
-   "t": "Budget de la Sécu : le Sénat supprime la taxe de 2,05% sur les mutuelles",
-   "u": "https://www.publicsenat.fr/actualites/economie/budget-de-la-secu-le-senat-supprime-la-taxe-de-205-sur-les-mutuelles",
-   "s": "Public Sénat",
-   "th": "pol",
-   "d": "2026-11-13T10:54:24.000Z",
+   "t": "Panne du contrôle aérien aux États-Unis : 15 000 vols annulés en deux jours, la reprise attendue dimanche soir",
+   "u": "https://www.air-journal.fr/2026-11-15-panne-du-controle-aerien-aux-etats-unis-15-000-vols-annules-en-deux-jours-la-reprise-attendue-dimanche-soir-5278858.html",
+   "s": "Air Journal",
+   "th": "aero",
+   "d": "2026-11-15T06:00:31.000Z",
    "n": 2,
-   "i": "https://img.youtube.com/vi/GF9bZ9MT1jo/maxresdefault.jpg"
+   "i": "https://www.air-journal.fr/wp-content/uploads/air-journal-tour-controle-aerienne-aeroport-etats-unis-source-Hartsfield-Jackson-Atlanta-International-Airport.jpg"
   },
   {
-   "t": "Baltique : Visée par des drones ukrainiens, la corvette russe Naro-Fominsk aurait subi d’importants dégâts",
-   "u": "https://www.opex360.com/2026/11/14/baltique-visee-par-des-drones-ukrainiens-la-corvette-russe-naro-forminsk-aurait-subi-dimportants-degats/",
+   "t": "Le ministère des Armées est «mobilisé» sur les menaces liées à la présence de voitures chinoises dans les enceintes militaires",
+   "u": "https://www.opex360.com/2026/11/15/le-ministere-des-armees-est-mobilise-sur-les-menaces-liees-a-la-presence-de-voitures-chinoises-dans-les-enceintes-militaires/",
    "s": "Zone Militaire",
    "th": "def",
-   "d": "2026-11-14T11:55:54.000Z",
+   "d": "2026-11-15T11:25:23.000Z",
    "n": 1,
-   "i": "https://www.opex360.com/wp-content/uploads/bouian-20261114.jpg"
+   "i": "https://www.opex360.com/wp-content/uploads/caserne-20190221.jpg"
   }
  ]
 }
