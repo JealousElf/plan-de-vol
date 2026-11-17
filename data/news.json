@@ -1,41 +1,41 @@
 {
- "maj": "2026-11-16T13:50:01.427Z",
+ "maj": "2026-11-17T00:54:00.172Z",
  "articles": [
   {
-   "t": "\"Le rassemblement commence par la primaire\" de la droite et du centre pour la présidentielle, plaident un millier d'élus locaux dans une tribune",
-   "u": "https://www.franceinfo.fr/elections/le-rassemblement-commence-par-la-primaire-de-la-droite-et-du-centre-plaident-un-millier-d-elus-locaux-dans-une-tribune_8284796.html#xtor=RSS-3-%5Bpolitique%5D",
+   "t": "Débat de la présidentielle 2027 : revivez le débat entre Marine Le Pen, Raphaël Glucksmann, Jean-Luc Mélenchon, Gabriel Attal et Bruno Retailleau",
+   "u": "https://www.lemonde.fr/election-presidentielle-2027/live/2026/11/16/en-direct-debat-de-la-presidentielle-2027-les-cinq-candidats-s-affrontent-sur-les-retraites-marine-le-pen-cible-la-ligue-des-droits-de-l-homme-un-ramassis-de-gauchistes_6811633_6205049.html",
+   "s": "Le Monde",
+   "th": "pol",
+   "d": "2026-11-16T22:21:54.000Z",
+   "n": 3,
+   "i": "https://img.lemde.fr/2026/11/16/479/0/5748/2874/644/322/60/0/40b1c23_ftp-1-lvyqkyk0mtmd-2026-11-16t194753z-1720879303-rc27poaq40ka-rtrmadp-3-france-politics.JPG"
+  },
+  {
+   "t": "L'Assemblée adopte un texte soutenu par le gouvernement pour faciliter le déblocage de l'épargne salariale",
+   "u": "https://www.franceinfo.fr/economie/pouvoir-achat/l-assemblee-adopte-un-texte-soutenu-par-le-gouvernement-pour-faciliter-le-deblocage-de-l-epargne-salariale_8285510.html#xtor=RSS-3-%5Bpolitique%5D",
    "s": "franceinfo",
    "th": "pol",
-   "d": "2026-11-16T12:41:02.000Z",
-   "n": 3,
-   "i": "https://www.franceinfo.fr/pictures/B1vAnrAdjS1Fg3Uujic2qVIXAJU/0x18:1024x594/432x243/filters:format(jpg)/2026/11/16/6afaf9b765410747907330.jpg"
+   "d": "2026-11-16T21:46:35.000Z",
+   "n": 2,
+   "i": "https://www.franceinfo.fr/pictures/nHvee55K3tEEMGcylUOj_FVKXJs/0x0:1024x576/432x243/filters:format(jpg)/2026/11/16/6afb774978f11762985316.jpg"
   },
   {
-   "t": "Suspension des vols aux Etats-Unis : au moins 276 vols annulés, et plus de 850 retardés, lundi",
-   "u": "https://www.lemonde.fr/international/article/2026/11/16/suspension-des-vols-aux-etats-unis-environ-240-vols-annules-et-quelque-530-retardes-lundi_6811688_3210.html",
+   "t": "Marine Le Pen réitère auprès de l'ambassadeur ukrainien que la France ne pourrait \"plus aider financièrement\" Kiev si elle est élue",
+   "u": "https://www.franceinfo.fr/monde/europe/manifestations-en-ukraine/marine-le-pen-reitere-aupres-de-l-ambassadeur-ukrainien-que-la-france-ne-pourrait-plus-aider-financierement-kiev-si-elle-est-elue_8285462.html#xtor=RSS-3-%5Bmonde%5D",
+   "s": "franceinfo",
+   "th": "int",
+   "d": "2026-11-16T21:09:09.000Z",
+   "n": 2,
+   "i": "https://www.franceinfo.fr/pictures/p9CChblbe0-UJT0Cpz3VKGjqhTA/0x0:1024x576/432x243/filters:format(jpg)/2026/11/16/6afb6d7c88474908424505.jpg"
+  },
+  {
+   "t": "Le projet de cinq pays de l’UE d’ouvrir un centre de retour au Rwanda traduit la bascule de la politique européenne en matière d’immigration",
+   "u": "https://www.lemonde.fr/international/article/2026/11/16/le-projet-de-cinq-pays-europeens-d-ouvrir-un-centre-de-retour-au-rwanda-traduit-la-bascule-de-la-politique-europeenne-en-matiere-d-immigration_6812426_3210.html",
    "s": "Le Monde",
    "th": "int",
-   "d": "2026-11-16T10:49:03.000Z",
+   "d": "2026-11-16T20:52:34.000Z",
    "n": 2,
-   "i": "https://img.lemde.fr/2026/11/15/240/0/4491/2245/644/322/60/0/75b8b16_ftp-1-eod65jqkxigl-afp-d7jh8ga.jpg"
-  },
-  {
-   "t": "Législatives en Israël : Benyamin Nétanyahou accusé d’avoir tenté un « coup d’Etat » par des opposants",
-   "u": "https://www.lemonde.fr/international/article/2026/11/16/legislatives-en-israel-benyamin-netanyahou-accuse-d-avoir-tente-un-coup-d-etat-par-des-opposants_6811767_3210.html",
-   "s": "Le Monde",
-   "th": "int",
-   "d": "2026-11-16T12:19:23.000Z",
-   "n": 2,
-   "i": "https://img.lemde.fr/2026/11/10/148/0/8192/4096/644/322/60/0/d42cfdf_ftp-1-zafy0kb9e8hx-afp-d7393nr.jpg"
-  },
-  {
-   "t": "Sommet de la francophonie : Emmanuel Macron appelle à l’« unité » et au « consensus » face aux tensions entre la RDC et le Rwanda",
-   "u": "https://www.lemonde.fr/international/article/2026/11/15/somment-de-la-francophonie-emmanuel-macron-appelle-a-l-unite-et-au-consensus-face-aux-tensions-entre-la-rdc-et-le-rwanda_6810995_3210.html",
-   "s": "Le Monde",
-   "th": "pol",
-   "d": "2026-11-15T07:45:48.000Z",
-   "n": 2,
-   "i": "https://img.lemde.fr/2026/11/15/554/0/6652/3326/644/322/60/0/3289c2a_ftp-1-hqs21wpxr2q6-afp-d7hg6ul.jpg"
+   "i": "https://img.lemde.fr/2026/11/16/693/0/5297/2648/644/322/60/0/0a55900_ftp-1-5vczqw1iruzb-2026-11-16t163414z-235323189-rc24poat54y9-rtrmadp-3-europe-migration-rwanda.JPG"
   },
   {
    "t": "Le ministère des Armées est «mobilisé» sur les menaces liées à la présence de voitures chinoises dans les enceintes militaires",
