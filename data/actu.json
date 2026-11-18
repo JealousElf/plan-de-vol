@@ -1,10 +1,214 @@
 {
- "id": "actu",
- "theme": "Actualité",
- "titre": "Actualité de la semaine",
- "court": "Actualité",
- "sous": "Les faits de la semaine à connaître pour l'oral",
- "maj": "",
- "sources": [],
- "faits": []
+  "id": "actu",
+  "theme": "Actualité",
+  "titre": "Actualité de la semaine",
+  "court": "Actualité",
+  "sous": "Les faits de la semaine à connaître pour l'oral",
+  "maj": "2026-11-18",
+  "sources": [
+    {
+      "t": "AFP (DH), fin des pourparlers d'Abou Dhabi, 11 novembre 2026",
+      "u": "https://www.dhnet.be/dernieres-depeches/2026/11/11/poursuite-des-pourparlers-ukraine-russie-apres-des-changements-salues-par-zelensky-EYH4NR3SNVHRRDQCXIVJSD7HTY/"
+    },
+    {
+      "t": "Al Jazeera, rencontre Trump-Xi-Poutine à l'APEC, 14 novembre 2026",
+      "u": "https://www.aljazeera.com/news/2026/11/14/trump-xi-putin-trilateral-meeting-at-apec-what-to-expect"
+    },
+    {
+      "t": "Kyiv Independent, l'OTAN contre le Donbass selon Zelensky, 13 novembre 2026",
+      "u": "https://kyivindependent.com/us-floats-nato-membership-for-ukraine-in-exchange-for-donbas-withdrawal-zelensky-says/"
+    },
+    {
+      "t": "Al Jazeera, sommet de la Communauté politique européenne à Dublin, 12 novembre 2026",
+      "u": "https://www.aljazeera.com/news/2026/11/12/regional-security-dominates-european-talks-in-dublin-amid-hybrid-attacks"
+    },
+    {
+      "t": "Élysée, 108e anniversaire de l'armistice, 11 novembre 2026",
+      "u": "https://www.elysee.fr/emmanuel-macron/2026/11/11/ceremonie-de-commemoration-du-108e-anniversaire-de-larmistice-du-11-novembre-1918"
+    },
+    {
+      "t": "Zone Militaire, centre international d'IA de défense à Rennes, 13 novembre 2026",
+      "u": "https://www.opex360.com/2026/11/13/la-france-officialise-la-creation-dun-centre-international-dedie-a-lintelligence-artificielle-militaire-a-rennes/"
+    },
+    {
+      "t": "Reuters (Star-Advertiser), manœuvres chinoises non annoncées, 13 novembre 2026",
+      "u": "https://www.staradvertiser.com/2026/11/13/breaking-news/china-stages-unannounced-pacific-drills-in-intimidation-of-taiwan/"
+    },
+    {
+      "t": "Al Jazeera, accord de défense entre la Turquie et le Qatar, 13 novembre 2026",
+      "u": "https://aljazeera.com/news/2026/11/13/turkiye-and-qatar-sign-mutual-defence-agreement"
+    }
+  ],
+  "faits": [
+    {
+      "id": "ac-20261111-1",
+      "g": "Semaine du 9 novembre 2026",
+      "y": 2026,
+      "d": "11 novembre 2026",
+      "t": "Ukraine-Russie : reprise des négociations directes à Abou Dhabi",
+      "q": "Quel résultat concret les négociations russo-ukrainiennes d'Abou Dhabi ont-elles produit ?",
+      "a": "Un vaste échange de prisonniers",
+      "x": [
+        "Un cessez-le-feu général",
+        "Une zone démilitarisée",
+        "Un gel de la ligne de front"
+      ],
+      "r": "Les 10 et 11 novembre, Russes et Ukrainiens ont négocié directement à Abou Dhabi, pour la première fois depuis neuf mois, avec les émissaires américains Steve Witkoff et Jared Kushner comme médiateurs. Ils se sont accordés sur un vaste échange de prisonniers, sans avancée sur le fond : Moscou exige le retrait ukrainien de toute la région de Donetsk, ce que Kiev refuse. Le 12 novembre, les deux émissaires ont été reçus plus de quatre heures par Vladimir Poutine au Kremlin.",
+      "o": "Les échanges de prisonniers sont des mesures de confiance : ils entretiennent le dialogue quand la question territoriale reste bloquée.",
+      "maj": 1
+    },
+    {
+      "id": "ac-20261113-1",
+      "g": "Semaine du 9 novembre 2026",
+      "y": 2026,
+      "d": "13 novembre 2026",
+      "t": "Washington annonce une rencontre inédite Trump-Poutine-Xi en Chine",
+      "q": "Sur quel sujet la Maison Blanche veut-elle centrer la rencontre entre Donald Trump, Vladimir Poutine et Xi Jinping ?",
+      "a": "La maîtrise des armes nucléaires",
+      "x": [
+        "Le statut futur de Taïwan",
+        "La fin de la guerre en Ukraine",
+        "Les droits de douane américains"
+      ],
+      "r": "Le 13 novembre, la Maison Blanche a annoncé une première rencontre à trois entre Donald Trump, Vladimir Poutine et Xi Jinping, en marge du sommet de l'APEC à Shenzhen, les 18 et 19 novembre. Washington veut y parler de prolifération et de maîtrise des armes nucléaires, alors que le traité russo-américain New START a expiré en février 2026. La guerre contre l'Iran et le commerce sont aussi au programme ; à Moscou, un député a parlé d'un possible « nouveau Yalta ».",
+      "o": "Une négociation entre les trois grandes puissances nucléaires, sans les Européens, ravive la crainte d'un partage du monde en zones d'influence.",
+      "maj": 1
+    },
+    {
+      "id": "ac-20261113-2",
+      "g": "Semaine du 9 novembre 2026",
+      "y": 2026,
+      "d": "13 novembre 2026",
+      "t": "Zelensky : Washington évoque l'OTAN en échange du Donbass",
+      "q": "Selon Volodymyr Zelensky, qu'ont évoqué les États-Unis en échange d'un retrait ukrainien du Donbass ?",
+      "a": "Une adhésion de l'Ukraine à l'OTAN",
+      "x": [
+        "Une adhésion rapide à l'Union européenne",
+        "Le retour de la Crimée à l'Ukraine",
+        "Le déploiement de soldats américains"
+      ],
+      "r": "Le 13 novembre, Volodymyr Zelensky a déclaré que les États-Unis avaient, pour la première fois, évoqué une adhésion de l'Ukraine à l'OTAN si elle se retirait des parties du Donbass qu'elle contrôle encore. Il répond que les Ukrainiens auraient le dernier mot, sans reconnaître les territoires occupés comme russes, et réclame des garanties comparables à l'article 5. Washington exclut d'envoyer des soldats américains en Ukraine.",
+      "o": "Toute paix durable en Ukraine dépendra de garanties de sécurité crédibles : c'est tout l'enjeu de l'article 5 du traité de l'Atlantique Nord.",
+      "maj": 1
+    },
+    {
+      "id": "ac-20261112-1",
+      "g": "Semaine du 9 novembre 2026",
+      "y": 2026,
+      "d": "12 novembre 2026",
+      "t": "Sommet de la Communauté politique européenne à Dublin",
+      "q": "Quelle enceinte, créée en 2022 après l'invasion de l'Ukraine, a réuni plus de 40 dirigeants européens à Dublin ?",
+      "a": "La Communauté politique européenne",
+      "x": [
+        "Le Conseil de l'Europe",
+        "Le Conseil européen",
+        "L'Union de l'Europe occidentale"
+      ],
+      "r": "Le 12 novembre, plus de 40 dirigeants européens se sont retrouvés à Dublin pour le neuvième sommet de la Communauté politique européenne, créée en 2022 sur une idée d'Emmanuel Macron. Les débats ont porté sur la sécurité du continent, les attaques hybrides et la place des Européens dans les négociations sur l'Ukraine. L'émissaire américain Steve Witkoff a affirmé que Vladimir Poutine acceptait que des représentants européens rejoignent la prochaine série de pourparlers.",
+      "o": "Les Européens refusent d'être spectateurs d'un règlement négocié entre Washington et Moscou : c'est l'enjeu de l'autonomie stratégique européenne.",
+      "maj": 1
+    },
+    {
+      "id": "ac-20261111-2",
+      "g": "Semaine du 9 novembre 2026",
+      "y": 2026,
+      "d": "11 novembre 2026",
+      "t": "Dernier 11-Novembre d'Emmanuel Macron, 108 ans après l'armistice",
+      "q": "Quelle fondation Emmanuel Macron a-t-il annoncée pour le monde combattant lors du 11-Novembre ?",
+      "a": "La Fondation du Bleuet de France",
+      "x": [
+        "La Fondation de la France libre",
+        "La Fondation des Invalides",
+        "La Fondation du Souvenir français"
+      ],
+      "r": "Le 11 novembre, Emmanuel Macron a présidé à l'Arc de Triomphe la commémoration du 108e anniversaire de l'armistice de 1918, la dernière de son mandat. Il a annoncé plusieurs mesures pour le monde combattant : un Conseil du monde combattant dès janvier, la création d'une Fondation du Bleuet de France et une place pour la mémoire du 11-Novembre dans toutes les écoles, grâce aux classes de défense et de cohésion nationale.",
+      "o": "La mémoire combattante entretient le lien entre l'armée et la nation, l'un des piliers de la résilience face aux menaces actuelles.",
+      "maj": 1
+    },
+    {
+      "id": "ac-20261112-2",
+      "g": "Semaine du 9 novembre 2026",
+      "y": 2026,
+      "d": "12 novembre 2026",
+      "t": "La France crée à Rennes un centre international d'IA de défense",
+      "q": "Dans quelle ville la France installe-t-elle un centre international consacré à l'intelligence artificielle de défense ?",
+      "a": "Rennes",
+      "x": [
+        "Toulouse",
+        "Bordeaux",
+        "Brest"
+      ],
+      "r": "Le 12 novembre, le ministère des Armées a présenté l'International Center for Artificial Intelligence in Defence (ICAID), installé à Rennes et lancé avec plusieurs pays partenaires. À la différence de l'Agence ministérielle de l'intelligence artificielle de défense (AMIAD), il ne produira pas d'outils, mais des référentiels communs, notamment sur la fiabilité des algorithmes. Il démarre avec 34 personnes, dont 17 Français, et pourrait plus tard être reconnu par l'OTAN.",
+      "o": "Maîtriser l'intelligence artificielle de défense est un enjeu de souveraineté et d'interopérabilité entre alliés, comme le cyber, dont Rennes est déjà un pôle.",
+      "maj": 1
+    },
+    {
+      "id": "ac-20261113-3",
+      "g": "Semaine du 9 novembre 2026",
+      "y": 2026,
+      "d": "13 novembre 2026",
+      "t": "Taïwan révèle une vaste mobilisation navale chinoise non annoncée",
+      "q": "Selon Taïwan, combien de navires chinois ont été massés à un moment, début novembre, dans le Pacifique occidental ?",
+      "a": "Plus de 100",
+      "x": [
+        "Une vingtaine",
+        "Une cinquantaine",
+        "Plus de 300"
+      ],
+      "r": "Le 13 novembre, des responsables taïwanais ont révélé que la marine et les garde-côtes chinois avaient massé à un moment plus de 100 navires début novembre, autour de Taïwan et dans le Pacifique occidental, sans aucune annonce. Le dispositif, avec le groupe aéronaval du porte-avions Liaoning, dépasse celui des manœuvres « Justice Mission 2025 ». Taipei y voit une « intimidation silencieuse » avant le sommet de l'APEC à Shenzhen, où Xi Jinping doit recevoir Donald Trump.",
+      "o": "Ces démonstrations de force non annoncées relèvent de la zone grise : faire pression sans franchir le seuil de la guerre.",
+      "maj": 1
+    },
+    {
+      "id": "ac-20261113-4",
+      "g": "Semaine du 9 novembre 2026",
+      "y": 2026,
+      "d": "13 novembre 2026",
+      "t": "Le Qatar et la Turquie signent un accord de défense mutuelle",
+      "q": "Avec quel pays le Qatar a-t-il signé un accord de défense mutuelle, sur fond de guerre contre l'Iran ?",
+      "a": "La Turquie",
+      "x": [
+        "L'Arabie saoudite",
+        "Le Pakistan",
+        "L'Égypte"
+      ],
+      "r": "Le 13 novembre à Istanbul, après une rencontre entre Recep Tayyip Erdogan et l'émir Tamim ben Hamad Al Thani, la Turquie et le Qatar ont signé un accord de défense mutuelle. Depuis la guerre lancée le 28 février 2026 par les États-Unis et Israël contre l'Iran, les monarchies du Golfe cherchent à multiplier leurs garanties de sécurité. La Turquie, qui a déjà des soldats au Qatar, vient aussi de ratifier un pacte de défense avec l'Arabie saoudite et le Pakistan.",
+      "o": "La recomposition des alliances dans le Golfe illustre la montée de puissances moyennes comme la Turquie dans un monde multipolaire.",
+      "maj": 1
+    },
+    {
+      "id": "ac-20261112-3",
+      "g": "Semaine du 9 novembre 2026",
+      "y": 2026,
+      "d": "12 novembre 2026",
+      "t": "Vague de fausses alertes à la bombe en Italie et en France",
+      "q": "Dans quel pays plus de 6 000 écoles ont-elles reçu de fausses alertes à la bombe le 11 novembre ?",
+      "a": "L'Italie",
+      "x": [
+        "L'Allemagne",
+        "La Pologne",
+        "La Belgique"
+      ],
+      "r": "Le 11 novembre, environ 6 300 écoles italiennes ont reçu des courriels d'alerte à la bombe signés d'un pseudonyme à consonance russe, et une nouvelle vague a suivi le lendemain. Le 12 novembre, des lycées ont aussi été évacués en France, notamment à Marseille et dans le Jura. Emmanuel Macron juge trop tôt pour attribuer ces menaces, mais le ministre de l'Intérieur Laurent Nuñez les a jugées « concertées » et relevant possiblement d'une ingérence étrangère.",
+      "o": "Ces opérations peu coûteuses visent la confiance de la population : c'est la logique de la guerre hybride, à laquelle répond l'effort de résilience nationale.",
+      "maj": 1
+    },
+    {
+      "id": "ac-20261112-4",
+      "g": "Semaine du 9 novembre 2026",
+      "y": 2026,
+      "d": "12 novembre 2026",
+      "t": "La Marine nationale va recevoir 20 vedettes rapides CB90 suédoises",
+      "q": "Quel pays doit fournir à la France 20 vedettes de combat CB90 pour la Marine nationale ?",
+      "a": "La Suède",
+      "x": [
+        "La Norvège",
+        "La Finlande",
+        "Les Pays-Bas"
+      ],
+      "r": "Le 12 novembre, le gouvernement suédois a présenté un projet de budget qui prévoit la cession à la France de 20 vedettes de combat CB90, d'État à État. Commandés par l'agence suédoise de l'armement puis remis à la DGA, ces bateaux iront à la Marine nationale, après l'abandon du programme de vedettes de fusiliers marins lancé en 2018. Rapide et armé de mitrailleuses téléopérées, le CB90 peut transporter un demi-peloton d'infanterie.",
+      "o": "Acheter du matériel éprouvé à un partenaire européen permet de combler vite une lacune : un exemple concret de coopération européenne d'armement.",
+      "maj": 1
+    }
+  ]
 }
