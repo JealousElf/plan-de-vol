@@ -1,32 +1,23 @@
 {
- "maj": "2026-11-17T23:53:50.388Z",
+ "maj": "2026-11-18T14:20:45.158Z",
  "articles": [
   {
-   "t": "Comment les Ukrainiens ont réussi à détruire une partie du « pont de Poutine » reliant la Russie à la Crimée",
-   "u": "https://www.lemonde.fr/international/article/2026/11/17/comment-les-ukrainiens-ont-reussi-a-detruire-une-partie-du-pont-de-poutine-reliant-la-russie-a-la-crimee_6813025_3210.html",
+   "t": "Donald Trump est arrivé en Chine, avant un sommet tripartite inédit avec Xi Jinping et Vladimir Poutine",
+   "u": "https://www.lemonde.fr/international/article/2026/11/18/donald-trump-est-arrive-en-chine-avant-un-sommet-tripartite-inedit-avec-xi-jinping-et-vladimir-poutine_6813120_3210.html",
    "s": "Le Monde",
    "th": "int",
-   "d": "2026-11-17T18:00:02.000Z",
+   "d": "2026-11-18T11:30:36.000Z",
    "n": 3,
-   "i": "https://img.lemde.fr/2026/11/17/437/0/808/404/644/322/60/0/129f689_ftp-1-9digz80o8sug-2026-11-17t140326z-799192966-rc2ppoaqipsl-rtrmadp-3-ukraine-crisis-attack-crimea-zelenskiy.JPG"
+   "i": "https://img.lemde.fr/2026/11/18/1197/0/7658/3829/644/322/60/0/b807fc0_ftp-1-nxnziiqedxl2-afp-d7up9kp.jpg"
   },
   {
-   "t": "Matan Kahana, un fidèle de Gadi Eisenkot élu président du Parlement en Israël, coup dur pour Benyamin Nétanyahou",
-   "u": "https://www.franceinfo.fr/monde/israel/elections-legislatives-en-israel/matan-kahana-un-fidele-de-gadi-eisenkot-elu-president-du-parlement-en-israel-coup-dur-pour-benyamin-netanyahou_8287226.html#xtor=RSS-3-%5Bmonde%5D",
-   "s": "franceinfo",
-   "th": "int",
-   "d": "2026-11-17T22:13:29.000Z",
-   "n": 2,
-   "i": "https://www.franceinfo.fr/pictures/DFCK2zcQRTqtozOC4HSfCfATpGo/0x0:1024x576/432x243/filters:format(jpg)/2026/11/17/6afcd137db49a413004413.jpg"
-  },
-  {
-   "t": "De Jean-Luc Mélenchon à Bruno Retailleau, les adversaires politiques de Marine Le Pen attaquent son projet de réforme des retraites",
-   "u": "https://www.lemonde.fr/politique/article/2026/11/17/la-droite-et-le-centre-attaquent-le-projet-de-reforme-des-retraites-de-marine-le-pen_6813010_823448.html",
+   "t": "Aux Etats-Unis, des pannes en cascade rappellent la vulnérabilité des infrastructures américaines, accrue par l’IA",
+   "u": "https://www.lemonde.fr/economie/article/2026/11/18/aux-etats-unis-des-pannes-en-cascade-soulignent-la-vulnerabilite-des-infrastructures-americaines-accrue-par-l-ia_6813123_3234.html",
    "s": "Le Monde",
-   "th": "pol",
-   "d": "2026-11-17T16:58:45.000Z",
+   "th": "int",
+   "d": "2026-11-18T12:00:06.000Z",
    "n": 3,
-   "i": "https://img.lemde.fr/2026/11/17/1378/0/4670/2335/644/322/60/0/665ea33_upload-1-tapez243dubn-z-m1043.jpeg"
+   "i": "https://img.lemde.fr/2026/11/14/103/0/5248/2624/644/322/60/0/b0f1138_ftp-1-kpp2nxxxj18e-b127c6f7e7444ec78e76a533664d2aeb-2-e562df7ead9d47748d53b884fc0fe5fa.jpg"
   },
   {
    "t": "Refus d'\"alliance avec les extrêmes\", participation à deux euros... les premières modalités de la primaire de la droite et du centre dévoilées",
@@ -34,8 +25,17 @@
    "s": "franceinfo",
    "th": "pol",
    "d": "2026-11-17T18:25:46.000Z",
-   "n": 2,
+   "n": 3,
    "i": "https://www.franceinfo.fr/pictures/XWx6X6Ls7F3NqW5smc_KLbF_QN4/0x255:4903x3013/432x243/filters:format(jpg)/2026/11/17/6afc9a465aaf0440509830.jpg"
+  },
+  {
+   "t": "Réforme des retraites : de LFI à LR en passant par le Medef, le projet de Marine Le Pen critiqué de tous bords",
+   "u": "https://www.lemonde.fr/politique/article/2026/11/18/de-lfi-a-lr-en-passant-par-le-medef-le-projet-de-reforme-des-retraites-de-marine-le-pen-critique-de-tous-bords_6813010_823449.html",
+   "s": "Le Monde",
+   "th": "pol",
+   "d": "2026-11-18T10:12:34.000Z",
+   "n": 3,
+   "i": "https://img.lemde.fr/2026/11/17/1378/0/4670/2335/644/322/60/0/665ea33_upload-1-tapez243dubn-z-m1043.jpeg"
   },
   {
    "t": "La France réaffirme son soutien au projet européen HYDIS², dédié à la défense contre les missiles hypersoniques",
