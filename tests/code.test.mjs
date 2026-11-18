@@ -1,7 +1,7 @@
 // Synchronisation par code, dans un navigateur réel. Le service en ligne est simulé : aucun appel réel.
 import test, { after, before } from 'node:test';
 import assert from 'node:assert/strict';
-import { attendreSync, demarrer, jusquAuxChoix, ouvrir, repondre, texte } from './aide.mjs';
+import { attendreSync, demarrer, jusquAuxChoix, ouvrir, preparer, repondre, texte } from './aide.mjs';
 
 const BASE = 'https://carnets.test';
 let env;
@@ -35,6 +35,7 @@ function fauxService() {
 /** Ouvre l'application sur un appareil neuf, réglée pour utiliser le faux service. */
 async function appareil(service, options) {
   const contexte = await env.navigateur.newContext({ viewport: { width: 390, height: 844 }, serviceWorkers: 'block', permissions: ['clipboard-read', 'clipboard-write'], ...options });
+  await preparer(contexte);
   await contexte.route('**/config.js', (route) => route.fulfill({ contentType: 'text/javascript', body: `window.PDV = window.PDV || { packs: [], sujets: [] }; window.PDV.carnets = '${BASE}';` }));
   await contexte.route(BASE + '/**', service.route);
   const page = await contexte.newPage(), erreurs = [];
@@ -169,6 +170,7 @@ test('service en panne : l\'état le dit, la progression reste sur l\'appareil e
 
 test('avec la configuration du dépôt, le code est proposé et rien ne part en ligne avant un geste de l\'utilisateur', async () => {
   const contexte = await env.navigateur.newContext({ viewport: { width: 390, height: 844 }, serviceWorkers: 'block' });
+  await preparer(contexte);
   const appels = [];
   await contexte.route(/firebasedatabase\.app|firebaseio\.com/, (route) => { appels.push(route.request().url()); return route.abort(); });
   const page = await contexte.newPage();

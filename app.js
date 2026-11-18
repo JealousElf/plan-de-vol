@@ -6,12 +6,12 @@
   var LS = 'pdv.progression.v1';
   /* Dépôt qui reçoit les signalements d'erreur. À changer seulement si tu maintiens ta propre version des fiches. */
   var DEPOT = DATA.depot || 'JealousElf/plan-de-vol';
-  var VERSION_APP = '1.7.0', DATE_APP = '14 novembre 2026';
+  var VERSION_APP = '1.8.0', DATE_APP = '18 novembre 2026';
   var JOUR = 86400000;
   var IV = [0, 1, 2, 4, 8, 16, 32];
   var MOIS = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
   var FACTS = {};
-  var SUIVI = DATA.suivi, G = DATA.graph;
+  var SUIVI = DATA.suivi, G = DATA.graph, FMT = DATA.formats;
   var JOURS_SEM = ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche'];
   var MOIS_C = ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'];
   var THEME = 'pdv.theme';
@@ -573,6 +573,7 @@
   }
   function question(f, it) {
     if (it.fmt === 'decouverte') return { id: f.id, fmt: 'decouverte' };
+    if (A_ECRIRE[it.fmt] && libres(f).indexOf(it.fmt) >= 0) return A_ECRIRE[it.fmt](f);
     var l = formats(f);
     if (it.fmt === 'ouverte' || !l.length) {
       return aQcm(f) ? { id: f.id, fmt: 'ouverte', petit: 'Réponds à voix haute, puis vérifie.', grand: f.q }
@@ -585,11 +586,56 @@
     return qQuoi(f, it.dur);
   }
   function qcm(f) { var l = f ? formats(f) : []; return l.length ? l[Math.floor(Math.random() * l.length)] : 'ouverte'; }
+
+  /* ---------- questions à écrire et remise en ordre (formats.js corrige) ---------- */
+  /** Part des questions posées autrement qu'en choix multiple : une sur deux. window.PDV_LIBRES la fixe pour les tests. */
+  function partLibre() { var v = window.PDV_LIBRES; return typeof v === 'number' ? v : 0.5; }
+  function anneeEnReponse(f) { return aQcm(f) && /^\d{3,4}$/.test(f.a); }
+  /** Les formats à écrire ou à ordonner possibles pour une fiche. */
+  function libres(f) {
+    var r = [], p = pack(f.pack), dates = aDate(f) && p && p.ny >= 4;
+    if (f.trou && FMT.lireTrou(f.trou)) r.push('trou');
+    if (FMT.estNom(f)) r.push('nom');
+    if (anneeEnReponse(f) || dates) r.push('annee');
+    if (dates && FMT.voisinsOrdre(f, p.faits)) r.push('ordre');
+    return r;
+  }
+  /** Une fois sur deux en moyenne, un format à écrire ou à ordonner quand la fiche s'y prête ; sinon un choix multiple. */
+  function choisirFormat(f) {
+    var l = libres(f);
+    if (l.length && Math.random() < partLibre()) return l[Math.floor(Math.random() * l.length)];
+    return qcm(f);
+  }
+  function qTrou(f) {
+    var t = FMT.lireTrou(f.trou);
+    return { id: f.id, fmt: 'trou', petit: 'Complète la citation', grand: t.avant + '…' + t.apres, trou: t, auteur: f.a,
+      saisie: { genre: 'mot', choix: t.choix, attendu: t.mot }, indice: 'Le mot manquant' };
+  }
+  function qNom(f) { return { id: f.id, fmt: 'nom', petit: f.g || 'Question', grand: f.q, saisie: { genre: 'nom', attendu: f.a }, indice: 'Écris le nom' }; }
+  function qAnnee(f) {
+    if (anneeEnReponse(f)) return { id: f.id, fmt: 'annee', petit: f.g || 'Question', grand: f.q, saisie: { genre: 'annee', attendu: +f.a }, indice: 'Année' };
+    var debut = f.y2 !== undefined && f.y2 !== f.y;
+    return { id: f.id, fmt: 'annee', petit: debut ? 'En quelle année cela commence-t-il ?' : 'En quelle année ?', grand: f.t,
+      saisie: { genre: 'annee', attendu: Math.floor(f.y) }, indice: f.y < 0 ? 'Année (52 av. J.-C. par exemple)' : 'Année' };
+  }
+  function qOrdre(f) {
+    var v = FMT.voisinsOrdre(f, pack(f.pack).faits) || [];
+    return { id: f.id, fmt: 'ordre', petit: 'Du plus ancien au plus récent', grand: 'Remets ces événements dans l\'ordre',
+      ordre: melange([f.id].concat(v.map(function (x) { return x.id; }))), choix: [] };
+  }
+  var A_ECRIRE = { trou: qTrou, nom: qNom, annee: qAnnee, ordre: qOrdre };
+  function corriger(q, txt) {
+    if (q.saisie.genre === 'annee') return FMT.corrigerAnnee(q.saisie.attendu, txt);
+    if (q.saisie.genre === 'mot') return FMT.corrigerMot(q.saisie.choix, txt);
+    return FMT.corrigerNom(FACTS[q.id], txt);
+  }
+  function attenduTexte(q) { return q.saisie.genre === 'annee' ? annee(q.saisie.attendu) : String(q.saisie.attendu); }
+
   function item(f, plus) {
     var c = P.cards[f.id], b = c ? c.b : 0, fmt;
     if (b >= 4) fmt = 'ouverte';
     else if (b >= 1 && Math.random() < 0.3 && peutEnCours(f)) fmt = 'encours';
-    else fmt = qcm(f);
+    else fmt = choisirFormat(f);
     var it = { id: f.id, fmt: fmt, dur: b >= 2 };
     if (plus) for (var k in plus) it[k] = plus[k];
     return it;
@@ -627,8 +673,14 @@
   function lancer(kind, items, opt) {
     if (!items.length) return;
     S.choix = null;
-    S.ses = { kind: kind, items: items, i: 0, ok: 0, n: 0, rates: [], score: 0, serie: 0, q: null, rep: null, opt: opt || {}, fini: false, reste: 1, tm: Date.now() };
+    S.ses = nouvelleSeance({ kind: kind, items: items, i: 0, ok: 0, n: 0, rates: [], opt: opt || {} });
     suivante();
+  }
+  /** hist : questions déjà corrigées, que la flèche retour permet de revoir ; revue : celle qu'on revoit (null sinon). */
+  function nouvelleSeance(o) {
+    o.score = 0; o.serie = 0; o.q = null; o.rep = null; o.res = null; o.note = null; o.avant = null;
+    o.fini = false; o.reste = 1; o.tm = Date.now(); o.hist = []; o.revue = null;
+    return o;
   }
   function suivante() {
     var s = S.ses; arreterChrono();
@@ -636,6 +688,7 @@
     if (s.i >= s.items.length) return debrief();
     var it = s.items[s.i];
     s.q = it.fmt === 'pause' ? { fmt: 'pause' } : question(FACTS[it.id], it); s.rep = null; s.auto = false; s.frais = true;
+    s.res = null; s.note = null; s.avant = null; s.revue = null;
     sauverSeance();
     S.haut = true; rendre();
     if (s.kind === 'blitz') demarrerChrono();
@@ -679,7 +732,7 @@
     if (s.rates.indexOf(it.id) < 0) s.rates.push(it.id);
     if (s.kind === 'jour' || s.kind === 'avance' || s.kind === 'revision' || s.kind === 'erreurs') {
       var deja = it.essais || 0;
-      if (deja < (s.kind === 'erreurs' ? 2 : 1)) s.items.push({ id: it.id, fmt: it.fmt === 'ouverte' ? 'ouverte' : qcm(FACTS[it.id]), dur: false, retry: true, essais: deja + 1 });
+      if (deja < (s.kind === 'erreurs' ? 2 : 1)) s.items.push({ id: it.id, fmt: it.fmt === 'ouverte' ? 'ouverte' : choisirFormat(FACTS[it.id]), dur: false, retry: true, essais: deja + 1 });
     }
   }
   function repondre(i) {
@@ -703,16 +756,88 @@
     if (s.auto) chrono.auto = setTimeout(function () { chrono.auto = 0; avancer(); }, delai * 1000);
   }
   function autoEval(res) {
-    var s = S.ses; if (!s || s.rep !== 'vu') return;
+    var s = S.ses; if (!s || s.rep !== 'vu' || s.revue !== null) return;
     var it = s.items[s.i];
     s.n++; noter(it, res);
     if (res === 'ok') s.ok++; else if (res === 'ko') rater(it);
+    s.note = res; archiver();
     s.i++; suivante();
   }
   function avancer() {
-    var s = S.ses; if (!s || s.fini) return;
+    var s = S.ses; if (!s || s.fini || s.revue !== null) return;
     if (s.q.fmt !== 'decouverte' && s.q.fmt !== 'pause' && (s.rep === null || s.rep === 'vu')) return;
-    s.i++; suivante();
+    archiver(); s.i++; suivante();
+  }
+
+  /* Réponses écrites et remise en ordre : la note est donnée tout de suite, mais « J'avais bon » peut la corriger. */
+  function conclure(res, rep, donne) {
+    var s = S.ses, it = s.items[s.i], d = auj();
+    arreterChrono();
+    s.avant = { c: P.cards[it.id] ? clone(P.cards[it.id]) : null, j: P.days[d] ? clone(P.days[d]) : null, d: d,
+      ok: s.ok, serie: s.serie, rates: s.rates.slice(), n: s.items.length };
+    s.rep = rep; s.res = { r: res, donne: donne }; s.n++;
+    noter(it, res);
+    if (res === 'ok') { s.ok++; s.serie++; } else { s.serie = 0; if (res === 'ko') rater(it); }
+    var delai = +P.set.enchaine || 0;
+    s.auto = res === 'ok' && delai > 0;
+    sauverSeance();
+    rendre();
+    if (s.auto) chrono.auto = setTimeout(function () { chrono.auto = 0; avancer(); }, delai * 1000);
+  }
+  function ecrire(txt) {
+    var s = S.ses; if (!s || s.fini || s.rep !== null || s.revue !== null || !s.q || !s.q.saisie) return;
+    txt = String(txt == null ? '' : txt).replace(/\s+/g, ' ').trim().slice(0, 80);
+    conclure(txt ? corriger(s.q, txt) : 'ko', 'ecrit', txt);
+  }
+  function basculerOrdre(id) {
+    var s = S.ses, q = s && s.q; if (!q || q.fmt !== 'ordre' || s.rep !== null || s.revue !== null || q.ordre.indexOf(id) < 0) return;
+    var i = q.choix.indexOf(id);
+    if (i >= 0) q.choix.splice(i, 1); else q.choix.push(id);
+    rendre();
+  }
+  function validerOrdre() {
+    var s = S.ses, q = s && s.q; if (!q || s.fini || q.fmt !== 'ordre' || s.rep !== null || s.revue !== null || q.choix.length < q.ordre.length) return;
+    var bon = FMT.ordreJuste(q.ordre.map(function (id) { return FACTS[id]; }));
+    conclure(bon.every(function (id, k) { return q.choix[k] === id; }) ? 'ok' : 'ko', 'ordre', q.choix.slice());
+  }
+  /** « J'avais bon » : la correction automatique s'est trompée. On rend à la fiche et au jour leur état d'avant, puis on note juste. */
+  function avaisBon() {
+    var s = S.ses, a = s && s.avant; if (!a || s.fini || s.rep !== 'ecrit' || !s.res || s.res.r === 'ok' || s.revue !== null) return;
+    var it = s.items[s.i];
+    if (a.c) P.cards[it.id] = a.c; else delete P.cards[it.id];
+    if (a.j) P.days[a.d] = a.j; else delete P.days[a.d];
+    s.ok = a.ok; s.serie = a.serie; s.rates = a.rates; s.items.length = a.n;   // retire aussi la question reposée plus loin
+    noter(it, 'ok'); s.ok++; s.serie++;
+    s.res = { r: 'ok', donne: s.res.donne, corrige: true }; s.avant = null;
+    sauverSeance(); rendre();
+  }
+
+  /* ---------- flèche retour ---------- */
+  /** Garde la question qu'on quitte, avec sa correction, pour la revoir ensuite (sans pouvoir changer la réponse). */
+  function archiver() {
+    var s = S.ses; if (!s || !s.q || s.q.fmt === 'decouverte' || s.q.fmt === 'pause' || s.rep === null) return;
+    s.hist.push({ q: s.q, rep: s.rep, res: s.res, note: s.note });
+    if (s.hist.length > 60) s.hist.shift();
+  }
+  /** Pendant la lecture (et sur l'écran « Place au quiz ») : la fiche lue juste avant, -1 s'il n'y en a pas. */
+  function lecturePrecedente(s) {
+    if (!s.q || (s.q.fmt !== 'decouverte' && s.q.fmt !== 'pause')) return -1;
+    for (var j = s.i - 1; j >= 0; j--) {
+      var it = s.items[j];
+      if (!it || it.fmt !== 'decouverte') return -1;
+      if (FACTS[it.id]) return j;
+    }
+    return -1;
+  }
+  function peutReculer(s) {
+    if (!s || s.fini || s.kind === 'blitz') return false;
+    if (s.revue !== null) return s.revue > 0;
+    if (s.q && (s.q.fmt === 'decouverte' || s.q.fmt === 'pause')) return lecturePrecedente(s) >= 0;
+    return s.hist.length > 0;
+  }
+  var FLECHE = '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false"><path d="M19 12H5M11 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  function boutonRecul() {
+    return peutReculer(S.ses) ? '<button class="btn fleche" type="button" data-a="precedent" aria-label="Revenir à l\'écran précédent" title="Écran précédent">' + FLECHE + '</button>' : '';
   }
   function debrief() {
     var s = S.ses; arreterChrono(); s.fini = true; sauverSeance();
@@ -941,42 +1066,108 @@
       '<div class="pause-quiz"><p class="petit">Lecture terminée</p><h1 class="enonce">Place au quiz</h1>' +
       '<p class="chiffres">' + pluriel(lues, 'fiche lue', 'fiches lues') + '. Le quiz : ' + pluriel(nq, 'question', 'questions') +
       (nr ? ', dont ' + pluriel(nr, 'révision', 'révisions') : '') + ', ' + Math.max(1, Math.ceil(nq * 20 / 60)) + ' min environ.</p></div>' +
-      '<div class="bas"><button class="btn primaire large" data-a="suite">Passer le quiz</button>' +
+      '<div class="bas"><div class="pas">' + boutonRecul() + '<button class="btn primaire large" data-a="suite">Passer le quiz</button></div>' +
       '<button class="btn large" data-a="plus-tard">Plus tard</button></div></section>';
   }
+  /** La consigne et l'énoncé. Pour une citation à trous, le mot manquant apparaît une fois la réponse donnée. */
+  function enonceHtml(q, repondu) {
+    var h = '<p class="petit">' + esc(q.petit) + '</p>';
+    if (q.fmt !== 'trou') return h + '<h1 class="enonce">' + esc(q.grand) + '</h1>';
+    var mot = repondu ? '<span class="trou rempli">' + esc(q.trou.mot) + '</span>' : '<span class="trou" role="img" aria-label="mot manquant">…</span>';
+    return h + '<h1 class="enonce citation">' + esc(q.trou.avant) + mot + esc(q.trou.apres) + '</h1><p class="auteur">' + esc(q.auteur) + '</p>';
+  }
+  function optsHtml(q, rep) {
+    var h = '<div class="opts' + (q.deux ? ' deux' : '') + '">';
+    q.opts.forEach(function (o, i) {
+      var cl = 'opt';
+      if (rep !== null) { if (o.ok) cl += ' juste'; else if (i === rep) cl += ' faux'; }
+      h += '<button class="' + cl + '" data-a="rep" data-i="' + i + '"' + (rep !== null ? ' disabled' : '') + '><span class="k">' + (i + 1) + '</span><span>' + esc(o.t) + '</span></button>';
+    });
+    return h + '</div>';
+  }
+  /** Une question pas encore répondue : choix, champ à remplir, événements à ordonner ou question ouverte. */
+  function aRepondre(q) {
+    var s = S.ses, h = enonceHtml(q, false) + '<div class="bas">';
+    if (q.opts) return h + optsHtml(q, null) + (peutReculer(s) ? '<div class="pas seul">' + boutonRecul() + '</div>' : '') + '</div></section>';
+    if (q.saisie) {
+      var chiffres = q.saisie.genre === 'annee' && q.saisie.attendu > 0;
+      return h + '<form class="saisie" id="saisie" autocomplete="off" novalidate><label class="pour-lecteur" for="reponse">Ta réponse</label>' +
+        '<input id="reponse" name="reponse" type="text" maxlength="80" autocomplete="off" autocorrect="off" spellcheck="false" enterkeyhint="done" data-q="' + s.i + ':' + esc(q.id) + '"' +
+        ' autocapitalize="' + (q.saisie.genre === 'nom' ? 'words' : 'off') + '" inputmode="' + (chiffres ? 'numeric' : 'text') + '" placeholder="' + esc(q.indice) + '">' +
+        '<div class="pas">' + boutonRecul() + '<button class="btn primaire" type="submit">Valider</button></div></form>' +
+        '<button class="lien passe" type="button" data-a="passe">Je ne sais pas</button></div></section>';
+    }
+    if (q.fmt === 'ordre') {
+      h += '<div class="frise">';
+      q.ordre.forEach(function (id) {
+        var r = q.choix.indexOf(id), x = FACTS[id];
+        h += '<button class="frise-item' + (r >= 0 ? ' pose' : '') + '" data-a="ordre-tap" data-id="' + esc(id) + '"><span class="rang">' + (r >= 0 ? r + 1 : '') + '</span><span>' + esc(x ? x.t : id) + '</span></button>';
+      });
+      return h + '</div><div class="pas espace">' + boutonRecul() + '<button class="btn primaire" data-a="ordre-ok"' + (q.choix.length < q.ordre.length ? ' disabled' : '') + '>Valider l\'ordre</button></div></div></section>';
+    }
+    return h + '<div class="pas">' + boutonRecul() + '<button class="btn primaire large" data-a="voir">Afficher le corrigé</button></div></div></section>';
+  }
+  /** Une question corrigée (à choix, écrite ou à ordonner), en direct ou revue avec la flèche. e : { rep, res } ; actions : les boutons du bas. */
+  function corrigee(q, e, f, p, actions) {
+    var h = enonceHtml(q, true);
+    if (q.opts) {
+      var bon = e.rep >= 0 && !!q.opts[e.rep] && q.opts[e.rep].ok, juste = q.opts.filter(function (o) { return o.ok; })[0];
+      return h + '<div class="bas">' + optsHtml(q, e.rep) + '</div></section>' + feuille(bon ? 'ok' : 'ko',
+        '<p class="verdict ' + (bon ? 'ok' : 'ko') + '">' + (bon ? 'Juste.' : e.rep < 0 ? 'Temps écoulé.' : 'Raté.') + '</p>' +
+        (bon || !juste ? '' : '<p class="bonne">Bonne réponse : <b>' + esc(juste.t) + '</b></p>') +
+        ficheHtml(f, p, q.fmt === 'sur' ? { sansQ: true, sansA: true } : null) + '<div class="actions">' + actions + '</div>');
+    }
+    var r = e.res ? e.res.r : 'ko', cl = r === 'ok' ? 'ok' : r === 'mid' ? 'mid' : 'ko';
+    var corps = '<p class="verdict ' + cl + '">' + (r === 'ok' ? (e.res.corrige ? 'Juste (corrigé par toi).' : 'Juste.') : r === 'mid' ? 'Presque.' : 'Raté.') + '</p>';
+    if (q.fmt === 'ordre') {
+      var donne = e.res ? e.res.donne : [];
+      corps += '<p class="bonne">L\'ordre exact :</p><div class="frise espace">';
+      FMT.ordreJuste(q.ordre.map(function (id) { return FACTS[id]; }).filter(Boolean)).forEach(function (id, k) {
+        var x = FACTS[id];
+        corps += '<div class="frise-item ' + (donne[k] === id ? 'juste' : 'faux') + '"><span class="rang">' + (k + 1) + '</span><span>' + esc(x.t) + '</span><span class="quand">' + esc(x.d) + '</span></div>';
+      });
+      corps += '</div>' + ficheHtml(f, p);
+    } else {
+      corps += '<p class="donne">Ta réponse : ' + (e.res && e.res.donne ? '<b>' + esc(e.res.donne) + '</b>' : 'aucune') + '</p>' +
+        '<p class="bonne">' + (r === 'ok' ? 'Réponse attendue : ' : 'Bonne réponse : ') + '<b>' + esc(attenduTexte(q)) + '</b></p>' +
+        ficheHtml(f, p, q.fmt === 'nom' || (q.fmt === 'annee' && anneeEnReponse(f)) ? { sansQ: true, sansA: true } : null);
+    }
+    return h + '</section>' + feuille(cl, corps + '<div class="actions">' + actions + '</div>');
+  }
   function vueQuestion() {
-    if (S.ses.q.fmt === 'pause') return vuePause();
-    var s = S.ses, q = s.q, f = FACTS[q.id], p = pack(f.pack), e = etape(s);
+    var s = S.ses;
+    if (s.revue !== null && s.hist[s.revue]) return vueRevue();
+    if (s.q.fmt === 'pause') return vuePause();
+    var q = s.q, f = FACTS[q.id], p = pack(f.pack), e = etape(s);
     var h = '<section class="ecran-seance' + (s.frais ? ' entre' : '') + '">' + barre();
     s.frais = false;
     h += '<p class="contexte">' + (e.nom ? e.nom + ' du jour, ' : '') + esc(p.titre) + (s.kind === 'blitz' ? ', ' + s.score + ' points' : '') + '</p>';
     if (q.fmt === 'decouverte') {
       return h + '<p class="petit">Nouveau repère</p><h1 class="enonce">' + esc(f.t) + '</h1>' + ficheHtml(f, p, { sansTitre: true }) +
-        '<div class="bas"><button class="btn primaire large" data-a="suite">' + (s.items[s.i + 1] && s.items[s.i + 1].fmt === 'pause' ? 'Terminer la lecture' : e.nom ? 'Suivant' : 'Compris') + '</button></div></section>';
+        '<div class="bas"><div class="pas">' + boutonRecul() + '<button class="btn primaire large" data-a="suite">' + (s.items[s.i + 1] && s.items[s.i + 1].fmt === 'pause' ? 'Terminer la lecture' : e.nom ? 'Suivant' : 'Compris') + '</button></div></div></section>';
     }
-    h += '<p class="petit">' + esc(q.petit) + '</p><h1 class="enonce">' + esc(q.grand) + '</h1><div class="bas">';
-    if (q.opts) {
-      h += '<div class="opts' + (q.deux ? ' deux' : '') + '">';
-      q.opts.forEach(function (o, i) {
-        var cl = 'opt';
-        if (s.rep !== null) { if (o.ok) cl += ' juste'; else if (i === s.rep) cl += ' faux'; }
-        h += '<button class="' + cl + '" data-a="rep" data-i="' + i + '"' + (s.rep !== null ? ' disabled' : '') + '><span class="k">' + (i + 1) + '</span><span>' + esc(o.t) + '</span></button>';
-      });
-      h += '</div></div></section>';
-      if (s.rep === null) return h;
-      var bon = s.rep >= 0 && q.opts[s.rep].ok;
-      if (bon && s.kind === 'blitz') return h;
-      var juste = q.opts.filter(function (o) { return o.ok; })[0];
-      return h + feuille(bon ? 'ok' : 'ko',
-        '<p class="verdict ' + (bon ? 'ok' : 'ko') + '">' + (bon ? 'Juste.' : s.rep < 0 ? 'Temps écoulé.' : 'Raté.') + '</p>' +
-        (bon || !juste ? '' : '<p class="bonne">Bonne réponse : <b>' + esc(juste.t) + '</b></p>') +
-        ficheHtml(f, p, q.fmt === 'sur' ? { sansQ: true, sansA: true } : null) +
-        '<div class="actions"><button class="btn primaire' + (s.auto ? ' rebours" style="--rebours:' + (+P.set.enchaine || 0) + 's' : '') + '" data-a="suite">Continuer</button>' + boutonFlag(f) + '</div>');
+    if (s.rep === null) return h + aRepondre(q);
+    if (q.opts && s.kind === 'blitz' && s.rep >= 0 && q.opts[s.rep].ok) return h + enonceHtml(q, true) + '<div class="bas">' + optsHtml(q, s.rep) + '</div></section>';
+    if (s.rep === 'vu') {
+      return h + enonceHtml(q, true) + '<div class="bas"></div></section>' + feuille('', ficheHtml(f, p, { sansQ: true }) +
+        '<p class="note espace">Note-toi sans indulgence : « Su » veut dire ' + (aQcm(f) ? 'la bonne réponse, expliquée, sans hésiter' : 'date, faits et portée, sans hésiter') + '.</p>' +
+        '<div class="actions"><div class="auto' + (peutReculer(s) ? ' avec-fleche' : '') + '">' + boutonRecul() + '<button class="btn ko" data-a="auto" data-r="ko">À revoir</button><button class="btn mid" data-a="auto" data-r="mid">Presque</button><button class="btn ok" data-a="auto" data-r="ok">Su</button></div></div>' + boutonFlag(f));
     }
-    if (s.rep === null) return h + '<button class="btn primaire large" data-a="voir">Afficher le corrigé</button></div></section>';
-    return h + '</div></section>' + feuille('', ficheHtml(f, p, { sansQ: true }) +
-      '<p class="note espace">Note-toi sans indulgence : « Su » veut dire ' + (aQcm(f) ? 'la bonne réponse, expliquée, sans hésiter' : 'date, faits et portée, sans hésiter') + '.</p>' +
-      '<div class="actions"><div class="auto"><button class="btn ko" data-a="auto" data-r="ko">À revoir</button><button class="btn mid" data-a="auto" data-r="mid">Presque</button><button class="btn ok" data-a="auto" data-r="ok">Su</button></div></div>' + boutonFlag(f));
+    var actions = boutonRecul() + '<button class="btn primaire' + (s.auto ? ' rebours" style="--rebours:' + (+P.set.enchaine || 0) + 's' : '') + '" data-a="suite">Continuer</button>';
+    if (q.saisie && s.res && s.res.r !== 'ok') actions += '<button class="btn" data-a="avais-bon">J\'avais bon</button>';
+    return h + corrigee(q, { rep: s.rep, res: s.res }, f, p, actions + boutonFlag(f));
+  }
+  /** Une question déjà corrigée, revue avec la flèche retour : on relit la correction, la réponse ne change plus. */
+  function vueRevue() {
+    var s = S.ses, e = s.hist[s.revue], q = e.q, f = FACTS[q.id];
+    if (!f) { s.revue = null; return vueQuestion(); }
+    var p = pack(f.pack), h = '<section class="ecran-seance entre">' + barre() + '<p class="contexte">Question précédente, déjà notée</p>';
+    var actions = boutonRecul() + '<button class="btn primaire" data-a="revue-suite">' + (s.revue < s.hist.length - 1 ? 'Suivant' : 'Retour à la question') + '</button>';
+    if (e.rep === 'vu') {
+      return h + enonceHtml(q, true) + '<div class="bas"></div></section>' + feuille('', ficheHtml(f, p, { sansQ: true }) +
+        (e.note ? '<p class="note espace">Ta note : <b>' + ({ ok: 'Su', mid: 'Presque', ko: 'À revoir' })[e.note] + '</b></p>' : '') + '<div class="actions">' + actions + '</div>');
+    }
+    return h + corrigee(q, e, f, p, actions);
   }
   function vueDebrief() {
     var s = S.ses, h = '<section class="pile"><h1 class="page-t">Débriefing</h1><div class="bloc">';
@@ -1472,9 +1663,13 @@
     var br = document.getElementById('vers-reglages');
     if (br) { if (!focus && p === 'reglages') br.setAttribute('aria-current', 'page'); else br.removeAttribute('aria-current'); }
     G.cacher();
+    var ancien = document.getElementById('reponse'), garde = ancien ? { q: ancien.getAttribute('data-q'), v: ancien.value } : null;
     app.classList.toggle('arrive', !!S.haut);
     app.innerHTML = h;
     if (S.haut) { S.haut = false; window.scrollTo(0, 0); }
+    var champ = document.getElementById('reponse');   // une réponse en cours de frappe survit à un nouvel affichage
+    if (champ && garde && garde.q === champ.getAttribute('data-q')) champ.value = garde.v;
+    if (champ && window.matchMedia && window.matchMedia('(hover: hover) and (pointer: fine)').matches) champ.focus({ preventScroll: true });
     if (S.oral && p === 'oral' && !S.ses && !S.frise && !S.choix) oralBattre();
   }
 
@@ -1498,7 +1693,7 @@
     reprendre: function () {
       var r = seanceEnCours(); if (!r) return rendre();
       fermer();
-      S.ses = { kind: r.kind, items: r.items, i: r.i, ok: r.ok || 0, n: r.n || 0, rates: r.rates || [], score: 0, serie: 0, q: null, rep: null, opt: {}, fini: false, reste: 1, tm: Date.now() };
+      S.ses = nouvelleSeance({ kind: r.kind, items: r.items, i: r.i, ok: r.ok || 0, n: r.n || 0, rates: r.rates || [], opt: {} });
       if (r.items[r.i] && r.items[r.i].fmt === 'pause') S.ses.i++;   // lecture faite : on passe directement au quiz
       suivante();
     },
@@ -1507,7 +1702,24 @@
     lien: function () { /* le lien s'ouvre tout seul */ },
     accueil: function () { fermer(); S.haut = true; if (page() !== 'accueil') window.location.hash = '#accueil'; else rendre(); },
     rejouer: function () { var pid = S.ses ? S.ses.opt.pack : ''; fermer(); lancerBlitz(pid); },
-    erreurs: function () { var ids = S.ses ? S.ses.rates.slice() : []; fermer(); lancer('erreurs', ids.filter(function (id) { return FACTS[id]; }).map(function (id) { return { id: id, fmt: qcm(FACTS[id]), dur: false, retry: true }; })); },
+    erreurs: function () { var ids = S.ses ? S.ses.rates.slice() : []; fermer(); lancer('erreurs', ids.filter(function (id) { return FACTS[id]; }).map(function (id) { return { id: id, fmt: choisirFormat(FACTS[id]), dur: false, retry: true }; })); },
+    precedent: function () {
+      var s = S.ses; if (!peutReculer(s)) return;
+      s.auto = false; if (chrono.auto) { clearTimeout(chrono.auto); chrono.auto = 0; }
+      if (s.revue !== null) s.revue--;
+      else if (s.q.fmt === 'decouverte' || s.q.fmt === 'pause') { s.i = lecturePrecedente(s); suivante(); return; }
+      else s.revue = s.hist.length - 1;
+      S.haut = true; rendre();
+    },
+    'revue-suite': function () {
+      var s = S.ses; if (!s || s.revue === null) return;
+      s.revue = s.revue < s.hist.length - 1 ? s.revue + 1 : null;
+      S.haut = true; rendre();
+    },
+    passe: function () { ecrire(''); },
+    'avais-bon': function () { avaisBon(); },
+    'ordre-tap': function (b) { basculerOrdre(b.getAttribute('data-id')); },
+    'ordre-ok': function () { validerOrdre(); },
     refrise: function () { var pid = S.frise ? S.frise.pack : ''; fermer(); friseNouvelle(pid); },
     flag: function (b) { var id = b.getAttribute('data-id'); P.flags[id] = { on: true, t: Date.now() }; commit(); },
     'flags-vider': function () { Object.keys(P.flags).forEach(function (id) { if (signale(id)) P.flags[id] = { on: false, t: Date.now() }; }); commit(); rendre(); },
@@ -1621,7 +1833,7 @@
     },
     faibles: function () {
       var ids = SUIVI.fragiles(P.cards, FACTS, 8).map(function (x) { return x.id; });
-      fermer(); lancer('erreurs', ids.map(function (id) { return { id: id, fmt: qcm(FACTS[id]), dur: false, retry: true }; }));
+      fermer(); lancer('erreurs', ids.map(function (id) { return { id: id, fmt: choisirFormat(FACTS[id]), dur: false, retry: true }; }));
     },
     raz: function () { S.raz = true; rendre(); },
     'raz-non': function () { S.raz = false; rendre(); },
@@ -1658,17 +1870,33 @@
     if (/^(INPUT|SELECT|TEXTAREA)$/.test(tag) || e.metaKey || e.ctrlKey || e.altKey) return;
     var s = S.ses; if (!s || s.fini || !s.q) return;
     var valide = (e.key === 'Enter' || e.key === ' ') && !/^(BUTTON|A|SUMMARY)$/.test(tag), q = s.q;
-    if (q.fmt === 'decouverte' || q.fmt === 'pause') { if (valide) { e.preventDefault(); ACT.suite(); } return; }
+    if (e.key === 'ArrowLeft') { if (peutReculer(s)) { e.preventDefault(); ACT.precedent(); } return; }
+    if (s.revue !== null) { if (valide || e.key === 'ArrowRight') { e.preventDefault(); ACT['revue-suite'](); } return; }
+    if (q.fmt === 'decouverte' || q.fmt === 'pause') { if (valide || e.key === 'ArrowRight') { e.preventDefault(); ACT.suite(); } return; }
+    if (q.saisie || q.fmt === 'ordre') {
+      if (s.rep !== null) { if (valide) { e.preventDefault(); ACT.suite(); } return; }
+      var k = parseInt(e.key, 10);
+      if (q.fmt === 'ordre' && k >= 1 && k <= q.ordre.length) { e.preventDefault(); basculerOrdre(q.ordre[k - 1]); }
+      else if (q.fmt === 'ordre' && valide) { e.preventDefault(); validerOrdre(); }
+      return;
+    }
     if (q.opts) {
       if (s.rep === null) { var n = parseInt(e.key, 10); if (n >= 1 && n <= q.opts.length) { e.preventDefault(); repondre(n - 1); } }
       else if (valide) { e.preventDefault(); ACT.suite(); }
     } else if (s.rep === null) { if (valide) { e.preventDefault(); ACT.voir(); } }
     else { var m = { '1': 'ko', '2': 'mid', '3': 'ok' }[e.key]; if (m) { e.preventDefault(); autoEval(m); } }
   });
+  document.addEventListener('submit', function (e) {
+    var t = e.target; if (!t || t.id !== 'saisie') return;
+    e.preventDefault();
+    var c = t.elements.reponse, v = c ? c.value : '';
+    if (v.trim()) ecrire(v); else if (c) c.focus();
+  });
   window.addEventListener('hashchange', function () { fermer(); S.raz = false; S.haut = true; rendre(); });
 
-  DATA.test = { fusion: fusion, vide: vide, qQuand: qQuand, qQuoi: qQuoi, qSur: qSur, formats: formats, question: question, composer: composer, nouveaux: nouveaux,
-    tirer: tirer, parTheme: parTheme, packValide: packValide, prevoir: prevoir, faits: function () { return FACTS; }, seance: function () { return S.ses; } };
+  DATA.test = { fusion: fusion, vide: vide, qQuand: qQuand, qQuoi: qQuoi, qSur: qSur, formats: formats, libres: libres, question: question, composer: composer, nouveaux: nouveaux,
+    tirer: tirer, parTheme: parTheme, packValide: packValide, prevoir: prevoir, faits: function () { return FACTS; }, seance: function () { return S.ses; },
+    lancer: function (kind, items) { fermer(); lancer(kind, items); } };
   appliquerTheme(themeChoisi());
   indexer();
   (function () {   // après une mise à jour, l'accueil annonce la version installée

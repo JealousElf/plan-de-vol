@@ -17,10 +17,23 @@ export async function demarrer() {
 /** config.js sans service de synchronisation : les tests ne doivent jamais dépendre du service réel, ni l'appeler. */
 export const SANS_SERVICE = { contentType: 'text/javascript', body: 'window.PDV = window.PDV || { packs: [], sujets: [] }; window.PDV.carnets = "";' };
 
+/** Le pack d'actualité change chaque semaine : les tests partent d'un pack vide, comme avant la première mise à jour. */
+export const ACTU_VIDE = { contentType: 'application/json', body: JSON.stringify({ id: 'actu', theme: 'Actualité', titre: 'Actualité de la semaine', court: 'Actualité', sous: '', maj: '', sources: [], faits: [] }) };
+
+/**
+ * Rend un contexte prévisible : pack d'actualité vide, et une part fixe de questions à écrire ou à ordonner
+ * (0 par défaut : toujours un choix, pour que les parcours des tests ne dépendent pas du hasard).
+ */
+export async function preparer(contexte, { libres = 0 } = {}) {
+  await contexte.route('**/data/actu.json', (route) => route.fulfill(ACTU_VIDE));
+  await contexte.addInitScript((part) => { window.PDV_LIBRES = part; }, libres);
+}
+
 /** Ouvre l'application dans un contexte neuf (stockage vide). Sans service worker ni service de synchronisation, sauf demande contraire. */
-export async function ouvrir(navigateur, url, { configReelle = false, ...options } = {}) {
+export async function ouvrir(navigateur, url, { configReelle = false, libres = 0, ...options } = {}) {
   const contexte = await navigateur.newContext({ ...TELEPHONE, serviceWorkers: 'block', ...options });
   if (!configReelle) await contexte.route('**/config.js', (route) => route.fulfill(SANS_SERVICE));
+  await preparer(contexte, { libres });
   const page = await contexte.newPage();
   const erreurs = [];
   page.on('pageerror', (e) => erreurs.push(e.message));

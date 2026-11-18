@@ -125,6 +125,23 @@ test('le pack de citations : un auteur à trouver, un paragraphe, et jamais dans
   assert.deepEqual(groupes, ['Chefs militaires français', 'Aviateurs et pionniers', 'Grandes figures françaises', 'Stratèges étrangers']);
 });
 
+test('citations à trous : chaque champ « trou » se lit, et le mot caché vient bien de la citation', () => {
+  vm.runInContext(readFileSync(new URL('../formats.js', import.meta.url), 'utf8'), contexte, { filename: 'formats.js' });
+  const F = contexte.window.PDV.formats;
+  const cit = packs.find((p) => p.id === 'cit');
+  assert.ok(cit.faits.filter((f) => f.trou).length >= 50, 'presque toutes les citations ont leur trou');
+  for (const f of faits.filter((x) => x.trou !== undefined)) {
+    const t = F.lireTrou(f.trou);
+    assert.ok(t, `${f.id} : il faut un seul mot entre crochets dans « trou »`);
+    assert.ok(!/\s{2,}|—/.test(f.trou), `${f.id} : espaces doubles ou tiret long dans « trou »`);
+    const entier = t.avant + t.mot + t.apres, cite = entier.match(/«\s*([^»]+?)\s*»/);
+    assert.ok(F.plat(f.t + ' ' + f.q).includes(F.plat(cite ? cite[1] : entier)), `${f.id} : le texte du trou ne reprend pas la citation`);
+  }
+  for (const f of faits.filter((x) => x.v !== undefined)) {
+    assert.ok(Array.isArray(f.v) && f.v.length && f.v.every((s) => typeof s === 'string' && s.trim()), `${f.id} : « v » liste d'autres réponses acceptées`);
+  }
+});
+
 test('le fichier des actualités a la forme attendue', () => {
   const news = JSON.parse(readFileSync(new URL('news.json', dossier), 'utf8'));
   assert.ok(news.maj === null || !isNaN(Date.parse(news.maj)), 'maj : null ou une date');

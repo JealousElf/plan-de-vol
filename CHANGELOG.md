@@ -1,5 +1,13 @@
 # Journal des versions
 
+## 1.8.0, 18 novembre 2026
+
+- Flèche retour dans les séances. Pendant la lecture, elle ramène à la fiche précédente, à côté de « Suivant », et aussi depuis l'écran « Place au quiz ». Pendant le quiz, elle réaffiche les questions déjà corrigées avec leur fiche, sans pouvoir changer la réponse ; « Retour à la question » reprend là où tu en étais.
+- Les questions ne sont plus seulement à choix multiple. Une fois sur deux en moyenne, quand la fiche s'y prête, l'appli propose une citation à trous (retrouver le mot manquant), un nom à écrire (l'auteur d'une citation, un aviateur, un chef, un lieu, un programme), une année à écrire ou quatre événements à remettre dans l'ordre.
+- Les réponses écrites sont corrigées avec indulgence : accents, majuscules, grade et petites fautes de frappe ne comptent pas, le nom de famille suffit, et une année à un an près vaut « Presque ». Si la correction se trompe, « J'avais bon » rétablit la note.
+- Le blitz chronométré et le diagnostic restent en choix multiple.
+- Tests : les parcours ne dépendent plus du pack d'actualité de la semaine.
+
 ## 1.7.0, 14 novembre 2026
 
 - La séance du jour se fait en deux temps. D'abord la lecture : les nouvelles fiches défilent une par écran, sans question. Ensuite le quiz, proposé tout de suite ou plus tard dans la journée : il mélange les questions sur les fiches lues et les révisions.

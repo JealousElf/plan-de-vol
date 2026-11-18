@@ -54,6 +54,7 @@ window.PDV.packs.push({
     { id: "ae-fas64", g: "Histoire et traditions", y: 1964, d: "8 octobre 1964", t: "Première alerte des Forces aériennes stratégiques",
       q: "Quel avion assure la première alerte nucléaire française, le 8 octobre 1964 ?",
       a: "Le Mirage IV", x: ["Le Mirage 2000N", "Le Jaguar", "Le Vautour"],
+      v: ["Mirage 4"],
       r: "Un Mirage IV armé de la bombe AN-11 et un ravitailleur C-135F prennent l'alerte à Mont-de-Marsan : la dissuasion française devient opérationnelle. La permanence de la composante aéroportée n'a pas été interrompue depuis.",
       o: "Les aviateurs portent la dissuasion depuis le premier jour : huit ans avant les sous-marins." },
     { id: "ae-2020", g: "Histoire et traditions", y: 2020, d: "11 septembre 2020", t: "L'armée de l'Air devient l'armée de l'Air et de l'Espace",

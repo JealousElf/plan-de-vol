@@ -1,7 +1,7 @@
 // Parcours principaux de l'application, dans un navigateur réel.
 import test, { after, before } from 'node:test';
 import assert from 'node:assert/strict';
-import { SANS_SERVICE, TELEPHONE, demarrer, jusquAuxChoix, ouvrir, repondre, semer, texte } from './aide.mjs';
+import { SANS_SERVICE, TELEPHONE, demarrer, jusquAuxChoix, ouvrir, preparer, repondre, semer, texte } from './aide.mjs';
 
 let env;
 before(async () => { env = await demarrer(); });
@@ -128,6 +128,102 @@ test('séance du jour : le quiz tient en 20 questions, les révisions passent av
   await contexte.close();
 });
 
+test('flèche retour : la fiche précédente pendant la lecture, la question précédente corrigée pendant le quiz', async () => {
+  const { contexte, page, erreurs } = await ouvrir(env.navigateur, env.url);
+  await semer(page, { vus: 3, jours: 0 });
+  await page.click('[data-a="jour"]');
+  assert.equal(await page.locator('[data-a="precedent"]').count(), 0, 'pas de flèche sur la première fiche');
+  const premiere = await texte(page, 'h1.enonce');
+  await page.click('.bas [data-a="suite"]');
+  assert.equal(await texte(page, '.compte'), '2 / 10');
+  await page.click('.bas .pas [data-a="precedent"]');   // à côté de « Suivant »
+  assert.equal(await texte(page, '.compte'), '1 / 10');
+  assert.equal(await texte(page, 'h1.enonce'), premiere);
+  for (let k = 0; k < 10; k++) await page.click('.bas [data-a="suite"]');
+  await page.waitForSelector('.pause-quiz');
+  await page.click('.bas [data-a="precedent"]');
+  assert.equal(await texte(page, '.compte'), '10 / 10', 'depuis « Place au quiz », retour à la dernière fiche lue');
+  await page.click('.bas [data-a="suite"]');
+  await page.click('.pause-quiz ~ .bas [data-a="suite"]');
+  await page.waitForSelector('.compte');
+  assert.equal(await texte(page, '.compte'), '1 / 13');
+  assert.equal(await page.locator('[data-a="precedent"]').count(), 0, 'rien à revoir avant la première réponse');
+
+  await jusquAuxChoix(page);
+  await repondre(page, false);
+  await page.waitForSelector('.feuille.ko');
+  const corrigee = await texte(page, 'h1.enonce');
+  await page.click('.feuille [data-a="suite"]');
+  await page.waitForSelector('[data-a="precedent"]');
+  const enCours = await texte(page, 'h1.enonce'), bas = await page.locator('.bas').innerHTML();
+  await page.click('[data-a="precedent"]');
+  assert.match(await texte(page, '.contexte'), /^Question précédente/);
+  assert.equal(await texte(page, 'h1.enonce'), corrigee);
+  assert.equal(await page.locator('.opt:not([disabled])').count(), 0, 'la réponse ne peut plus changer');
+  assert.equal(await page.locator('.feuille.ko .bonne').count(), 1);
+  assert.equal(await texte(page, '.feuille [data-a="revue-suite"]'), 'Retour à la question');
+  await page.click('.feuille [data-a="revue-suite"]');
+  assert.equal(await texte(page, 'h1.enonce'), enCours);
+  assert.equal(await page.locator('.bas').innerHTML(), bas, 'la question en cours n\'a pas changé');
+  assert.deepEqual(erreurs, []);
+  await contexte.close();
+});
+
+test('questions à écrire : citation à trous, nom, année et remise en ordre, corrigées avec indulgence', async () => {
+  const { contexte, page, erreurs } = await ouvrir(env.navigateur, env.url, { libres: 1 });
+  assert.deepEqual(await page.evaluate(() => window.PDV.test.libres(window.PDV.test.faits()['ci-turenne'])), ['trou', 'nom']);
+  await page.evaluate(() => window.PDV.test.lancer('revision', [{ id: 'ci-napoleon-impossible', fmt: 'trou' }, { id: 'ae-guynemer', fmt: 'nom' },
+    { id: 'fr-charlemagne', fmt: 'annee' }, { id: 'fr-poitiers', fmt: 'ordre' }]));
+
+  await page.waitForSelector('#reponse');   // citation à trous
+  assert.equal(await texte(page, '.auteur'), 'Napoléon Ier');
+  assert.equal(await page.locator('h1.enonce .trou').count(), 1);
+  await page.fill('#reponse', 'Francais');
+  await page.click('.saisie [type="submit"]');
+  await page.waitForSelector('.feuille.ok');
+  assert.equal(await texte(page, 'h1.enonce .trou.rempli'), 'français');
+  await page.click('.feuille [data-a="suite"]');
+
+  await page.waitForSelector('#reponse');   // nom à écrire : une erreur, puis « J'avais bon »
+  await page.fill('#reponse', 'Nungesser');
+  await page.keyboard.press('Enter');
+  await page.waitForSelector('.feuille.ko');
+  assert.equal(await texte(page, '.feuille .donne'), 'Ta réponse : Nungesser');
+  assert.equal(await texte(page, '.feuille .bonne'), 'Bonne réponse : Georges Guynemer');
+  assert.deepEqual(await page.evaluate(() => window.PDV.test.seance().rates), ['ae-guynemer']);
+  await page.click('[data-a="avais-bon"]');
+  await page.waitForSelector('.feuille.ok');
+  const apres = await page.evaluate(() => {
+    const s = window.PDV.test.seance();
+    return { rates: s.rates, items: s.items.length, ok: s.ok, carte: JSON.parse(localStorage.getItem('pdv.progression.v1')).cards['ae-guynemer'] };
+  });
+  assert.deepEqual({ rates: apres.rates, items: apres.items, ok: apres.ok, n: apres.carte.n, juste: apres.carte.ok, b: apres.carte.b }, { rates: [], items: 4, ok: 2, n: 1, juste: 1, b: 1 });
+  assert.equal(await page.locator('[data-a="avais-bon"]').count(), 0);
+  await page.click('.feuille [data-a="suite"]');
+
+  await page.waitForSelector('#reponse');   // année à écrire : à un an près, « Presque »
+  assert.equal(await texte(page, '.petit'), 'En quelle année ?');
+  await page.fill('#reponse', '801');
+  await page.click('.saisie [type="submit"]');
+  await page.waitForSelector('.feuille.mid');
+  assert.equal(await texte(page, '.feuille .verdict'), 'Presque.');
+  assert.equal(await texte(page, '.feuille .bonne'), 'Bonne réponse : 800');
+  await page.click('.feuille [data-a="suite"]');
+
+  await page.waitForSelector('button.frise-item');   // remise en ordre
+  assert.equal(await page.locator('button.frise-item').count(), 4);
+  assert.ok(await page.locator('[data-a="ordre-ok"]').isDisabled());
+  const ordre = await page.evaluate(() => { const q = window.PDV.test.seance().q, F = window.PDV.test.faits(); return q.ordre.slice().sort((a, b) => F[a].y - F[b].y); });
+  for (const id of ordre) await page.click(`[data-a="ordre-tap"][data-id="${id}"]`);
+  await page.click('[data-a="ordre-ok"]');
+  await page.waitForSelector('.feuille.ok');
+  assert.equal(await page.locator('.feuille .frise-item.juste').count(), 4);
+  await page.click('.feuille [data-a="suite"]');
+  await page.waitForSelector('.score');
+  assert.deepEqual(erreurs, []);
+  await contexte.close();
+});
+
 test('réglage : passer à la suite après une bonne réponse, au délai choisi, et le choix est gardé', async () => {
   const { contexte, page, erreurs } = await ouvrir(env.navigateur, env.url + '#reglages');
   assert.equal(await page.locator('#r-enchaine').inputValue(), '0', 'par défaut : jamais');
@@ -161,6 +257,7 @@ test('réglage : passer à la suite après une bonne réponse, au délai choisi,
 test('actualités : cinq cartes illustrées à faire défiler, qui ouvrent le site du média', async () => {
   const contexte = await env.navigateur.newContext({ ...TELEPHONE, serviceWorkers: 'block' });
   await contexte.route('**/config.js', (route) => route.fulfill(SANS_SERVICE));
+  await preparer(contexte);
   const il = (h) => new Date(Date.now() - h * 3600000).toISOString();
   const articles = [
     { t: 'Une histoire suivie par quatre médias', u: 'https://media-a.example/1', s: 'Média A', th: 'int', d: il(2), n: 4, i: 'https://img.example/bonne.png' },
