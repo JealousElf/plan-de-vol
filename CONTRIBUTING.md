@@ -39,7 +39,7 @@ Une fiche à question écrite : tu fournis la question, la bonne réponse et au 
 | `r`, `o` | Résumé, puis phrase « à placer à l'oral ». |
 | `st`, `sl` | Statut d'un conflit ou d'une opération : `cours`, `fragile` ou `fin`, et son libellé. |
 | `maj` | `1` si la fiche décrit une situation qui évolue : la date de vérification du pack s'affiche alors. |
-| `c` | Facultatif : le paragraphe « En savoir plus », 300 à 1 100 signes. Pour les packs existants, il se range plutôt dans `data/contexte.js`, sous l'identifiant de la fiche. |
+| `c` | Le paragraphe « En savoir plus », 300 à 1 100 signes : le contexte (causes, déroulement, portée) qui complète le résumé. Obligatoire dans les packs ; facultatif dans le pack d'actualité. |
 | `w` | Facultatif : le titre de l'article Wikipédia vers lequel pointe « En savoir plus » (à défaut, le titre de la fiche). |
 | `trou` | Facultatif, pour une citation : le texte de la citation avec le mot à retrouver entre crochets, par exemple `« Impossible n'est pas [français] »`. Plusieurs réponses acceptées : `[vingt\|20]`. |
 | `v` | Facultatif : d'autres formes acceptées quand la réponse s'écrit au lieu de se choisir, par exemple `["Bonaparte"]` pour Napoléon Ier. Le nom de famille, le grade et les petites fautes de frappe sont déjà acceptés. |
@@ -63,7 +63,7 @@ npm test                             # tout vérifier, si tu as installé Playwr
 
 ## Modifier le code
 
-- L'application est écrite en JavaScript simple, sans framework ni compilation : `index.html`, `styles.css`, `app.js`, et deux modules à part, `suivi.js` (calculs du carnet) et `graph.js` (graphiques). Une nouvelle fonction se range de préférence dans un module testable sans navigateur, comme `suivi.js`.
+- L'application est écrite en JavaScript simple, sans framework ni compilation : `index.html`, `styles.css`, `app.js` (écrans, navigation, questions), et des modules à part : `seance.js` (calcul des séances), `formats.js` (questions à écrire), `suivi.js` (calculs du carnet), `graph.js` (graphiques), `synchro.js` et `synchronisation.js` (synchronisation par code, puis vue de l'application), `actualites.js` (cartes d'actualités). Une nouvelle fonction se range de préférence dans un module testable sans navigateur, comme `seance.js` ou `suivi.js`.
 - Ajoute ou adapte un test dans `tests/` pour tout changement de comportement.
 - Garde l'interface en français, les textes courts, et respecte les réglages d'accessibilité (contrastes, navigation au clavier, animations désactivables).
 - Lance `npm run sw` puis `npm test` avant d'ouvrir ta demande de fusion.

@@ -1,6 +1,9 @@
-// Robot d'actualités (outils/actualites.mjs) : lecture des flux et choix des titres. Sans réseau.
+// Actualités, sans réseau ni navigateur : le robot (outils/actualites.mjs) qui lit les flux et choisit les titres,
+// puis les cartes de l'accueil (actualites.js).
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import vm from 'node:vm';
 import { choisir, decoder, FLUX, imageDansHtml, imageDuFlux, lireFlux, mots, pertinence, propre } from '../outils/actualites.mjs';
 
 const MAINTENANT = Date.parse('2026-11-14T12:00:00Z');
@@ -94,4 +97,41 @@ test('les flux sont en https, chaque thème a plusieurs sources, et deux pages �
   assert.ok(themes.every((f) => ['def', 'int', 'aero', 'pol'].includes(f.th)));
   for (const th of ['def', 'int', 'aero', 'pol']) assert.ok(themes.filter((f) => f.th === th).length >= 3, th);
   assert.equal(FLUX.filter((f) => f.une).length, 2);
+});
+
+/* ---------- cartes de l'accueil (actualites.js) ---------- */
+vm.runInThisContext(readFileSync(new URL('../actualites.js', import.meta.url), 'utf8'));
+const A = globalThis.PDV.actualites;
+
+test('cartes : textes échappés, image seulement en https, thème inconnu rangé dans International', () => {
+  const a = { t: 'Paix & <b>guerre</b>', u: 'https://exemple.fr/a?x="1"', s: 'Le Monde', d: '2026-11-14T09:00:00Z', th: 'zzz', i: 'javascript:alert(1)', n: 3 };
+  const h = A.carte(a, MAINTENANT);
+  assert.match(h, /Paix &amp; &lt;b&gt;guerre&lt;\/b&gt;/);
+  assert.match(h, /href="https:\/\/exemple\.fr\/a\?x=&quot;1&quot;"/);
+  assert.doesNotMatch(h, /<img/);
+  assert.match(h, /news-img th-int vide/);
+  assert.match(h, /Le Monde, il y a 3 h/);
+  assert.match(h, /Racontée par 3 médias/);
+  assert.match(A.carte({ ...a, i: 'https://img.exemple.fr/1.jpg', n: 1 }, MAINTENANT), /<img src="https:\/\/img\.exemple\.fr\/1\.jpg"/);
+});
+
+test('depuis : minutes, heures, hier, puis la date', () => {
+  const avant = (min) => new Date(MAINTENANT - min * 60000).toISOString();
+  assert.equal(A.depuis(avant(1), MAINTENANT), 'à l\'instant');
+  assert.equal(A.depuis(avant(45), MAINTENANT), 'il y a 45 min');
+  assert.equal(A.depuis(avant(1500), MAINTENANT), 'hier');
+  assert.equal(A.depuis('2026-11-01T12:00:00Z', MAINTENANT), 'le 1er nov.');
+  assert.equal(A.depuis('pas une date', MAINTENANT), '');
+});
+
+test('news.json : seuls les articles complets sont gardés, cinq au plus ; un fichier illisible ne remplace rien', () => {
+  const bon = (i) => ({ t: 'Titre ' + i, u: 'https://exemple.fr/' + i, s: 'Source' });
+  const r = A.lire({ maj: '2026-11-14T11:00:00Z', articles: [{ t: '', u: 'https://x.fr', s: 'S' }, { t: 'T', u: 'http://x.fr', s: 'S' }, ...[1, 2, 3, 4, 5, 6].map(bon)] });
+  assert.deepEqual(r.articles.map((a) => a.t), ['Titre 1', 'Titre 2', 'Titre 3', 'Titre 4', 'Titre 5']);
+  assert.equal(A.lire({ articles: 'non' }), null);
+  assert.equal(A.lire(null), null);
+  assert.match(A.bloc(null), /Chargement des actualités/);
+  assert.match(A.bloc({ maj: null, articles: [] }, { horsLigne: true }), /au retour du réseau/);
+  assert.match(A.bloc(r, { maintenant: MAINTENANT }), /Mis à jour il y a 1 h/);
+  assert.equal((A.bloc(r).match(/class="news-carte"/g) || []).length, 5);
 });

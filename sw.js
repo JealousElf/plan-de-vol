@@ -1,5 +1,5 @@
 /* Plan de vol : tout le contenu est mis en cache à l'installation, puis servi sans réseau. */
-var VERSION = "pdv-9730a0449b01";
+var VERSION = "pdv-7d0ac664e43a";
 var FICHIERS = [
   "index.html",
   "styles.css",
@@ -7,8 +7,11 @@ var FICHIERS = [
   "app.js",
   "suivi.js",
   "formats.js",
+  "seance.js",
   "graph.js",
   "synchro.js",
+  "synchronisation.js",
+  "actualites.js",
   "manifest.webmanifest",
   "fonts/b612-latin-400-normal.woff2",
   "fonts/b612-latin-700-normal.woff2",
@@ -23,7 +26,6 @@ var FICHIERS = [
   "data/aae.js",
   "data/citations.js",
   "data/conflits.js",
-  "data/contexte.js",
   "data/france.js",
   "data/monde.js",
   "data/operations.js",

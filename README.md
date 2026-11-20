@@ -42,7 +42,7 @@ C'est tout : il n'y a ni compte ni mot de passe. La progression est chiffrée su
 
 Sur iPhone, fais ces étapes dans l'application ouverte depuis son icône, pas dans Safari : les deux ne partagent pas leurs données.
 
-Cette synchronisation n'apparaît que si le site est relié à un service de stockage (voir [docs/synchronisation.md](docs/synchronisation.md), dix minutes de mise en place, gratuit). Sans lui, ou si tu préfères garder tes données dans ton propre compte, l'application propose l'autre méthode : un jeton GitHub limité au droit `gist`, à coller sur chaque appareil ; la progression vit alors dans un gist secret de ton compte, nommé `plan-de-vol-progression.json`.
+Cette synchronisation n'apparaît que si le site est relié à un service de stockage (voir [docs/synchronisation.md](docs/synchronisation.md), dix minutes de mise en place, gratuit). Sans lui, la progression reste dans le navigateur de chaque appareil.
 
 ## Signaler une erreur, proposer une fiche
 
@@ -78,15 +78,19 @@ Pour ne vérifier que les fiches, sans navigateur : `node --test tests/donnees.t
 
 | Chemin | Contenu |
 | --- | --- |
-| `index.html`, `styles.css`, `app.js` | L'application, sans framework ni étape de compilation |
-| `suivi.js`, `graph.js` | Les calculs du carnet de vol et ses graphiques, séparés du reste pour être testés seuls |
-| `synchro.js` | La synchronisation par code : code, clés, chiffrement, échanges avec le service |
+| `index.html`, `styles.css`, `app.js` | L'application : écrans, navigation, fabrication des questions. Sans framework ni étape de compilation |
+| `seance.js` | Le calcul des séances : fiches du jour, révisions, quiz, étapes de la répétition espacée (testé sans navigateur) |
+| `formats.js` | Les questions à écrire (citation à trous, nom, année) et la remise en ordre, avec leur correction (testé sans navigateur) |
+| `suivi.js`, `graph.js` | Les calculs du carnet de vol et ses graphiques (testés sans navigateur) |
+| `synchro.js` | La synchronisation par code, côté technique : code, clés, chiffrement, échanges avec le service (testé sans navigateur) |
+| `synchronisation.js` | La synchronisation côté application : quand envoyer et relire, fusion des copies, état affiché ; par code ou par le compte Claude |
+| `actualites.js` | Les cartes d'actualités de l'accueil, faites à partir de `data/news.json` |
 | `config.js` | Les deux réglages propres au site : adresse du service de synchronisation, dépôt des signalements |
-| `data/` | Les fiches (un fichier par pack), les paragraphes « En savoir plus » (`contexte.js`), les sujets de grand oral, le pack d'actualité `actu.json`, les cinq actualités du moment `news.json` |
+| `data/` | Les fiches (un fichier par pack, avec leur paragraphe « En savoir plus »), les sujets de grand oral, le pack d'actualité `actu.json`, les cinq actualités du moment `news.json` |
 | `sw.js` | Le service worker : mise en cache à l'installation, fonctionnement hors connexion |
 | `fonts/`, `icons/`, `manifest.webmanifest` | Polices locales, icônes, manifeste d'installation |
 | `outils/` | Serveur local, mise à jour de `sw.js`, captures d'écran du README, robot des actualités (`actualites.mjs`, lancé par `.github/workflows/actualites.yml`) |
-| `tests/` | Tests des fiches et des parcours (Playwright) |
+| `tests/` | Tests des fiches, des modules (sans navigateur) et des parcours dans un vrai navigateur (Playwright) |
 
 ## Licences
 

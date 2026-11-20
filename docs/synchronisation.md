@@ -56,7 +56,7 @@ DATA.carnets = 'https://plan-de-vol-xxxxx-default-rtdb.europe-west1.firebasedata
 
 Lance ensuite `npm run sw` puis `npm test`, et publie. Dans Réglages, l'application propose alors « Créer un code de synchronisation ». Cette adresse n'est pas un secret : elle peut figurer dans un dépôt public.
 
-Si tu héberges ta propre copie de l'application, crée ta propre base, ou vide ce réglage : l'application propose alors seulement la méthode par jeton GitHub.
+Si tu héberges ta propre copie de l'application, crée ta propre base, ou vide ce réglage : la synchronisation n'est alors pas proposée, et la progression reste dans le navigateur de chaque appareil.
 
 ## Limites à connaître
 

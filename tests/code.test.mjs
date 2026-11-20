@@ -176,7 +176,7 @@ test('avec la configuration du dépôt, le code est proposé et rien ne part en 
   const page = await contexte.newPage();
   await page.goto(env.url + '#reglages');
   await page.waitForSelector('[data-a="code-creer"]');
-  assert.equal(await page.locator('details.releve #jeton').count(), 1, 'le jeton reste proposé, replié');
+  assert.equal(await page.locator('#jeton').count(), 0, 'plus de synchronisation par jeton GitHub');
   await page.goto(env.url + '#accueil');
   await page.click('[data-a="jour"]');
   await jusquAuxChoix(page);
@@ -186,9 +186,40 @@ test('avec la configuration du dépôt, le code est proposé et rien ne part en 
   await contexte.close();
 });
 
-test('sans service configuré, le code n\'est pas proposé et le jeton reste disponible', async () => {
+test('sans service configuré, rien n\'est proposé : la progression reste dans ce navigateur', async () => {
   const { contexte, page } = await ouvrir(env.navigateur, env.url + '#reglages');
   assert.equal(await page.locator('[data-a="code-creer"]').count(), 0);
-  assert.equal(await page.locator('#jeton').count(), 1);
+  assert.match(await texte(page, '.bloc:has(#sync-detail) .note'), /pas disponible ici/);
+  await contexte.close();
+});
+
+test('hors connexion, l\'état le dit ; la synchronisation repart au retour du réseau', async () => {
+  const service = fauxService();
+  const a = await appareil(service);
+  await a.page.click('[data-a="code-creer"]');
+  await attendreSync(a.page, 'Synchronisé');
+  const avant = service.ecritures;
+  await a.contexte.setOffline(true);
+  await a.page.selectOption('#r-neu', '20');
+  await attendreSync(a.page, 'Hors connexion');
+  await a.contexte.setOffline(false);
+  await attendreSync(a.page, 'Synchronisé', 12000);
+  assert.ok(service.ecritures > avant, 'le réglage changé hors connexion part au retour du réseau');
+  assert.deepEqual(a.erreurs, []);
+  await a.contexte.close();
+});
+
+test('un ancien réglage par jeton GitHub est effacé, sans appel à GitHub', async () => {
+  const contexte = await env.navigateur.newContext({ viewport: { width: 390, height: 844 }, serviceWorkers: 'block' });
+  await preparer(contexte);
+  await contexte.addInitScript(() => localStorage.setItem('pdv.sync.v1', JSON.stringify({ token: 'ancien_jeton_de_test_0123456789', gist: 'g1' })));
+  const appels = [];
+  await contexte.route('https://api.github.com/**', (route) => { appels.push(route.request().url()); return route.abort(); });
+  const page = await contexte.newPage();
+  await page.goto(env.url + '#reglages');
+  await page.waitForSelector('h1.page-t');
+  assert.match(await texte(page, '#sync'), /cet appareil/);
+  assert.equal(await page.evaluate(() => localStorage.getItem('pdv.sync.v1')), null);
+  assert.deepEqual(appels, []);
   await contexte.close();
 });

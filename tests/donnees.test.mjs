@@ -10,7 +10,6 @@ for (const f of readdirSync(dossier).filter((n) => n.endsWith('.js')).sort()) {
   vm.runInContext(readFileSync(new URL(f, dossier), 'utf8'), contexte, { filename: f });
 }
 const { packs, sujets } = contexte.window.PDV;
-const paragraphes = contexte.window.PDV.contexte || {};
 const faits = packs.flatMap((p) => p.faits.map((f) => ({ ...f, pack: p.id })));
 const date = (f) => typeof f.y === 'number' && typeof f.d === 'string' && f.d !== '';
 const question = (f) => typeof f.q === 'string' && typeof f.a === 'string' && Array.isArray(f.x);
@@ -96,19 +95,8 @@ test('la version est la même partout, et config.js désigne un service bien for
 });
 
 
-test('les paragraphes « En savoir plus » visent des fiches existantes et font un bon paragraphe', () => {
-  const ids = new Set(faits.map((f) => f.id));
-  const cles = Object.keys(paragraphes);
-  assert.ok(cles.length >= 319, 'chaque fiche des packs a son paragraphe');
-  for (const id of cles) {
-    assert.ok(ids.has(id), `contexte.js : aucune fiche « ${id} »`);
-    verifierFait({ ...faits.find((f) => f.id === id), c: paragraphes[id] });
-  }
-  for (const p of packs) {
-    if (p.id === 'cit') continue;
-    for (const f of p.faits) assert.ok(f.c || paragraphes[f.id], `${f.id} : il manque le paragraphe « En savoir plus »`);
-    for (const f of p.faits.slice(0, 36)) assert.ok(f.c || paragraphes[f.id], `${f.id} : une des premières fiches du pack, il lui faut un paragraphe`);
-  }
+test('chaque fiche des packs a son paragraphe « En savoir plus », rangé dans la fiche', () => {
+  for (const p of packs) for (const f of p.faits) assert.ok(typeof f.c === 'string', `${f.id} : il manque le paragraphe « En savoir plus » (champ c)`);
 });
 
 test('le pack de citations : un auteur à trouver, un paragraphe, et jamais dans la frise', () => {

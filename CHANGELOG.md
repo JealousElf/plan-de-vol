@@ -1,5 +1,14 @@
 # Journal des versions
 
+## 1.9.0, 20 novembre 2026
+
+Rangement du code, sans changement visible dans les séances.
+
+- Chaque fiche porte désormais son paragraphe « En savoir plus » : le fichier à part `data/contexte.js` disparaît, la page a un fichier de moins à charger.
+- La synchronisation par jeton GitHub est supprimée : le code de synchronisation reste la seule méthode, et l'écran Réglages s'en trouve simplifié. Sur un appareil encore réglé avec un jeton, celui-ci est effacé et la progression reste sur l'appareil ; un code la relie de nouveau. Le fichier privé créé sur GitHub par l'ancienne méthode peut être supprimé.
+- Trois blocs sortent de `app.js` : le calcul des séances (`seance.js`, désormais testé sans navigateur), la synchronisation (`synchronisation.js`) et les actualités de l'accueil (`actualites.js`).
+- Tests : calcul des séances et étapes de la répétition espacée, cartes d'actualités, reprise de la synchronisation après une coupure de réseau.
+
 ## 1.8.0, 18 novembre 2026
 
 - Flèche retour dans les séances. Pendant la lecture, elle ramène à la fiche précédente, à côté de « Suivant », et aussi depuis l'écran « Place au quiz ». Pendant le quiz, elle réaffiche les questions déjà corrigées avec leur fiche, sans pouvoir changer la réponse ; « Retour à la question » reprend là où tu en étais.

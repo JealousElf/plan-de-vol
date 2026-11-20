@@ -6,12 +6,11 @@
   var LS = 'pdv.progression.v1';
   /* Dépôt qui reçoit les signalements d'erreur. À changer seulement si tu maintiens ta propre version des fiches. */
   var DEPOT = DATA.depot || 'JealousElf/plan-de-vol';
-  var VERSION_APP = '1.8.0', DATE_APP = '18 novembre 2026';
+  var VERSION_APP = '1.9.0', DATE_APP = '20 novembre 2026';
   var JOUR = 86400000;
-  var IV = [0, 1, 2, 4, 8, 16, 32];
   var MOIS = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
   var FACTS = {};
-  var SUIVI = DATA.suivi, G = DATA.graph, FMT = DATA.formats;
+  var SUIVI = DATA.suivi, G = DATA.graph, FMT = DATA.formats, SEA = DATA.seance, QUIZ = SEA.QUIZ;
   var JOURS_SEM = ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche'];
   var MOIS_C = ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'];
   var THEME = 'pdv.theme';
@@ -23,10 +22,7 @@
     });
   }
   function auj() { var d = new Date(); return Math.floor((d.getTime() - d.getTimezoneOffset() * 60000) / JOUR); }
-  function melange(a) {
-    for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; }
-    return a;
-  }
+  function melange(a) { return SEA.melange(a); }
   function clone(o) { return JSON.parse(JSON.stringify(o)); }
   function annee(y) { y = Math.floor(y); return y < 0 ? (-y) + ' av. J.-C.' : String(y); }
   function dateFr(iso) {
@@ -53,12 +49,10 @@
   function aDate(f) { return typeof f.y === 'number' && typeof f.d === 'string' && f.d !== ''; }
   function indexer() {
     FACTS = {};
-    var ctx = DATA.contexte || {};
     DATA.packs.forEach(function (p) {
       var ans = {};
       (p.faits || []).forEach(function (f) {
-        f.pack = p.id; if (!f.c && typeof ctx[f.id] === 'string') f.c = ctx[f.id];
-        FACTS[f.id] = f; if (aDate(f)) ans[Math.floor(f.y)] = 1;
+        f.pack = p.id; FACTS[f.id] = f; if (aDate(f)) ans[Math.floor(f.y)] = 1;
       });
       p.ny = Object.keys(ans).length;
     });
@@ -82,6 +76,12 @@
     p = clone(p); if (!p.court) p.court = p.titre; if (!p.sous) p.sous = pluriel(p.faits.length, 'repère', 'repères'); if (!p.maj) p.maj = '';
     for (var i = 0; i < DATA.packs.length; i++) if (DATA.packs[i].id === p.id) { DATA.packs[i] = p; return; }
     DATA.packs.push(p);
+  }
+  /** Packs reçus d'ailleurs (pack d'actualité, compte Claude) : les valides remplacent ou complètent ceux du site. */
+  function recevoirPacks(liste) {
+    var n = 0;
+    liste.forEach(function (p) { if (packValide(p)) { ajouterPack(p); n++; } });
+    if (n) { indexer(); distant(); }
   }
 
   /* ---------- progression ---------- */
@@ -148,296 +148,22 @@
     return { m: m, aPlus: A, bPlus: B };
   }
 
-  /* ---------- synchronisation entre appareils ---------- */
-  var LIB = {
-    local: 'Progression sur cet appareil',
-    wait: 'Connexion…',
-    late: 'Synchronisation lente',
-    sync: 'Synchronisation…',
-    ok: 'Synchronisé',
-    off: 'Synchronisation interrompue',
-    full: 'Espace de synchronisation plein',
-    hors: 'Hors connexion, synchronisation au retour du réseau',
-    refus: 'Jeton refusé par GitHub'
-  };
-  var CFG = 'pdv.sync.v1', CHEZ_CLAUDE = /claude|anthropic/i.test(window.location.hostname || '');
-  var Sync = (function () {
-    var ref = null, etat = 'local', sale = false, ecrit = false, pret = false, t1 = 0, t2 = 0, essais = 0;
-    function dire(s) {
-      etat = s;
-      var el = document.getElementById('sync'); if (el) { el.textContent = LIB[s]; el.setAttribute('data-s', s); }
-      var d = document.getElementById('sync-detail'); if (d) d.textContent = LIB[s];
-      var m = document.getElementById('sync-motif'); if (m) m.textContent = raison();
-    }
-    /* En clair, pourquoi la synchronisation par code est interrompue (vide si tout va bien). */
-    function raison() {
-      if (etat !== 'off' || !motif) return '';
-      if (motif === '401' || motif === '403') return 'Le service refuse l\'accès : les règles de la base ne sont pas celles du guide.';
-      if (motif === '404') return 'Le service est introuvable : l\'adresse indiquée dans config.js n\'est pas la bonne.';
-      if (motif === 'format') return 'La copie en ligne vient d\'une version plus récente de l\'application : mets cet appareil à jour.';
-      if (motif === 'cle') return 'La copie en ligne est illisible avec ce code.';
-      if (motif === 'reseau') return 'Le service ne répond pas. Vérifie ta connexion : un nouvel essai partira à ta prochaine réponse.';
-      return 'Le service a répondu par une erreur (' + motif + '). Un nouvel essai partira à ta prochaine réponse.';
-    }
-    /* Hors de Claude, deux façons de relier ses appareils. Par code : la progression, chiffrée ici, part dans le service indiqué
-       par config.js (git = { code, id, k, vu }). Par jeton : elle vit dans un gist privé du compte GitHub (git = { token, gist }). */
-    var API = 'https://api.github.com', FICHIER = 'plan-de-vol-progression.json';
-    var CODE = DATA.synchro, BASE = CODE && CODE.disponible() && /^https:\/\//.test(DATA.carnets || '') ? DATA.carnets : '';
-    var git = lireCfg(), enVol = false, encore = false, dernier = 0, ecoute = false, motif = '';
-    function lireCfg() {
-      try {
-        var c = JSON.parse(window.localStorage.getItem(CFG) || 'null');
-        if (c && typeof c.token === 'string' && c.token) return c;
-        if (c && typeof c.code === 'string' && c.id && c.k && BASE) return c;
-      } catch (e) { /* stockage absent ou illisible */ }
-      return null;
-    }
-    function ecrireCfg() {
-      try { if (git) window.localStorage.setItem(CFG, JSON.stringify(git)); else window.localStorage.removeItem(CFG); } catch (e) { /* stockage absent */ }
-    }
-    function appel(methode, chemin, corps) {
-      var o = { method: methode, cache: 'no-store', headers: { 'Accept': 'application/vnd.github+json', 'Authorization': 'Bearer ' + git.token } };
-      if (corps) { o.headers['Content-Type'] = 'application/json'; o.body = JSON.stringify(corps); }
-      return window.fetch(API + chemin, o).then(function (r) {
-        if (!r.ok) { var e = new Error('http ' + r.status); e.status = r.status; throw e; }
-        return r.json();
-      });
-    }
-    function trouver() {
-      if (git.gist) return Promise.resolve(git.gist);
-      return appel('GET', '/gists?per_page=100').then(function (l) {
-        for (var i = 0; i < (l || []).length; i++) if (l[i] && l[i].files && l[i].files[FICHIER]) { git.gist = l[i].id; ecrireCfg(); return git.gist; }
-        return null;
-      });
-    }
-    function lireGist(id) {
-      if (!id) return Promise.resolve(null);
-      return appel('GET', '/gists/' + id).then(function (g) {
-        var f = g && g.files && g.files[FICHIER];
-        if (!f) return null;
-        if (f.truncated) throw new Error('tronqué');
-        return f.content || '';
-      }, function (e) {
-        if (e && e.status === 404) { git.gist = null; ecrireCfg(); return null; }
-        throw e;
-      });
-    }
-    function lireGistTexte() { return trouver().then(lireGist).then(function (txt) { return txt ? { texte: txt } : { absent: true }; }); }
-    /* Par code : on demande d'abord la date de la dernière écriture (quelques octets) ; le carnet n'est relu que s'il a changé. */
-    function lireCarnet(moi) {
-      return CODE.version(BASE, moi).then(function (t) {
-        if (t === null) return { absent: true };
-        if (pret && t === moi.vu) return { inchange: true };
-        return CODE.lire(BASE, moi).then(function (rec) { return rec ? { texte: rec.texte, t: rec.t } : { absent: true }; });
-      });
-    }
-    function ecrireCarnet(moi) {
-      var t = Math.max(Date.now(), (moi.vu || 0) + 1);
-      return CODE.ecrire(BASE, moi, JSON.stringify(P), t).then(function () { moi.vu = t; if (git === moi) ecrireCfg(); });
-    }
-    function cycle() {
-      if (!git) return;
-      if (enVol) { encore = true; return; }
-      if (window.navigator.onLine === false) { dire('hors'); return; }
-      var moi = git;
-      enVol = true; encore = false; dire(pret ? 'sync' : 'wait');
-      (moi.code ? lireCarnet(moi) : lireGistTexte()).then(function (d) {
-        if (git !== moi) return null;
-        var envoyer = true;
-        if (d.inchange) envoyer = sale;
-        else if (d.texte) {
-          var dist = null;
-          try { dist = normaliser(JSON.parse(d.texte)); } catch (e) { dist = null; }
-          if (dist) {
-            var r = fusion(P, dist);
-            if (r.bPlus) { P = r.m; ecrireLocal(); distant(); }
-            envoyer = r.aPlus;
-          }
-          if (d.t) { moi.vu = d.t; ecrireCfg(); }
-        }
-        pret = true; sale = false;
-        if (!envoyer) return null;
-        if (moi.code) return ecrireCarnet(moi);
-        var corps = { files: {} };
-        corps.files[FICHIER] = { content: JSON.stringify(P) };
-        if (git.gist) return appel('PATCH', '/gists/' + git.gist, corps);
-        corps.description = 'Plan de vol : progression (fichier géré par l\'application)';
-        corps['public'] = false;
-        return appel('POST', '/gists', corps).then(function (g) { if (git === moi && g && g.id) { git.gist = g.id; ecrireCfg(); } });
-      }).then(function () {
-        enVol = false;
-        if (git !== moi) return;
-        motif = ''; dernier = Date.now(); dire('ok');
-        if (encore || sale) planifier();
-      }).catch(function (e) {
-        enVol = false;
-        if (git !== moi) return;
-        var s = e && e.status;
-        sale = true;
-        motif = moi.code ? String(s || (e && e.name === 'OperationError' ? 'cle' : 'reseau')) : '';
-        if (!moi.code && (s === 401 || s === 403)) dire('refus');
-        else dire(window.navigator.onLine === false ? 'hors' : 'off');
-      });
-    }
-    function planifier() { clearTimeout(t2); t2 = setTimeout(cycle, 5000); }
-    /* Envoi sans attendre, s'il reste quelque chose à envoyer : en fin de séance et quand l'application passe à l'arrière-plan. */
-    function vite() { if (git && sale && !enVol) { clearTimeout(t2); cycle(); } }
-    function demarrerGit() {
-      pret = false; dire('wait'); cycle();
-      if (ecoute) return;
-      ecoute = true;
-      window.addEventListener('online', function () { if (git) cycle(); });
-      window.addEventListener('offline', function () { if (git) dire('hors'); });
-      document.addEventListener('visibilitychange', function () {
-        if (!git) return;
-        if (document.visibilityState === 'hidden') vite();
-        else if (sale || Date.now() - dernier > 60000) cycle();
-      });
-    }
-    function activer(jeton) { git = { token: jeton, gist: null }; ecrireCfg(); ref = null; demarrerGit(); }
-    /* Relie cet appareil par un code. creation : vrai pour un code neuf ; sinon le carnet doit déjà exister (le code vient d'un autre appareil). */
-    function relier(code, creation) {
-      return CODE.cles(code).then(function (c) {
-        var lien = { code: code, id: c.id, k: c.k };
-        if (creation) return lien;
-        return CODE.version(BASE, lien).then(function (t) {
-          if (t === null) { var e = new Error('code inconnu'); e.status = 'inconnu'; throw e; }
-          return lien;
-        });
-      }).then(function (lien) { git = lien; ecrireCfg(); ref = null; demarrerGit(); return lien; });
-    }
-    function couper() { git = null; ecrireCfg(); clearTimeout(t2); pret = false; dire('local'); }
+  /* ---------- synchronisation entre appareils (synchronisation.js) ---------- */
+  var CHEZ_CLAUDE = /claude|anthropic/i.test(window.location.hostname || '');
+  var Sync = DATA.synchronisation({
+    lire: function () { return P; },
+    adopter: function (p) { P = p; ecrireLocal(); distant(); },
+    normaliser: normaliser, fusion: fusion, packs: recevoirPacks
+  });
 
-    function init() { if (git) demarrerGit(); else chercher(0); }
-    function chercher(n) {
-      if (git) return;
-      var c = window.claude;
-      if (!c || typeof c.use !== 'function') {
-        if (n === 0) dire('local');
-        if (n < 30) setTimeout(function () { chercher(n + 1); }, 500);
-        return;
-      }
-      dire('wait');
-      Promise.all([c.use('db'), c.use('user')]).then(function (r) {
-        var db = r[0], user = r[1];
-        if (!db || !user || typeof user.id !== 'function') { dire('local'); return null; }
-        chargerPacks(db);
-        return user.id().then(function (uid) {
-          if (!uid) { dire('local'); return; }
-          try { ref = db.doc('data/users/' + uid + '/progression'); } catch (e) { ref = null; dire('local'); return; }
-          t1 = setTimeout(function () { if (!pret) dire('late'); }, 10000);
-          ref.onSnapshot(recu, function () { clearTimeout(t1); ref = null; dire('off'); });
-        });
-      }).catch(function () { dire('local'); });
-    }
-    function recu(snap) {
-      var meta = snap.metadata || {};
-      if (meta.hasPendingWrites) return;
-      var sur = !meta.fromCache;
-      if (snap.exists) {
-        var r = fusion(P, normaliser(clone(snap.data())));
-        if (r.bPlus) { P = r.m; ecrireLocal(); distant(); }
-        if (r.aPlus) sale = true;
-      } else if (sur && (Object.keys(P.cards).length || P.oraux.length || P.set.t)) {
-        sale = true;
-      }
-      if (sur) { pret = true; clearTimeout(t1); }
-      if (!pret) return;
-      if (sale) bientot(); else if (!ecrit) dire('ok');
-    }
-    function bientot() { if (!ref || !pret) return; dire('sync'); clearTimeout(t2); t2 = setTimeout(ecrire, 1500); }
-    function ecrire() {
-      if (!ref || ecrit || !sale) return;
-      ecrit = true; sale = false;
-      ref.set(clone(P)).then(function () {
-        ecrit = false; essais = 0;
-        if (sale) bientot(); else dire('ok');
-      }).catch(function (e) {
-        ecrit = false;
-        var code = e && e.code;
-        if ((code === 'unavailable' || code === 'resource_exhausted') && essais < 2) {
-          essais++; sale = true; clearTimeout(t2); t2 = setTimeout(ecrire, 6000 + Math.random() * 4000);
-        } else if (code === 'quota_exceeded') { dire('full'); }
-        else { sale = true; dire('off'); }
-      });
-    }
-    function pousser() {
-      sale = true; essais = 0;
-      if (git) { if (enVol) encore = true; else planifier(); return; }
-      if (ref && pret) bientot();
-    }
-    function chargerPacks(db) {
-      try {
-        db.collection('packs').get().then(function (qs) {
-          var n = 0;
-          (qs.docs || []).forEach(function (d) { var p = d.data(); if (packValide(p)) { ajouterPack(p); n++; } });
-          if (n) { indexer(); distant(); }
-        }).catch(function () { /* pas de packs distants */ });
-      } catch (e) { /* idem */ }
-    }
-    return { init: init, pousser: pousser, vite: vite, etat: function () { return etat; }, raison: raison, activer: activer, relier: relier, couper: couper,
-      git: function () { return !!(git && git.token); },                 // relié par jeton GitHub
-      code: function () { return git && git.code ? git.code : ''; },    // relié par code : le code, sinon ''
-      parCode: function () { return !!BASE; } };                         // la synchronisation par code est-elle proposée ici ?
-  })();
+  /* ---------- actualités de l'accueil (actualites.js) ---------- */
+  var NEWS = DATA.actualites.suivre(function () { return page() === 'accueil' && !S.ses && !S.frise && !S.choix; });
 
   /* ---------- pack d'actualité servi comme fichier, et fonctionnement hors connexion ---------- */
-  /* ---------- actualités : les gros titres, mis à jour par le robot du dépôt (outils/actualites.mjs) ---------- */
-  var NEWS = null, NEWS_T = 0;
-  var THEMES_NEWS = { def: 'Défense', int: 'International', aero: 'Aéro et spatial', pol: 'Politique' };
-  function articleValide(a) { return !!a && typeof a.t === 'string' && a.t !== '' && /^https:\/\//.test(a.u || '') && typeof a.s === 'string'; }
-  function chargerNews() {
-    if (!window.fetch || !/^https?:$/.test(window.location.protocol)) return;
-    NEWS_T = Date.now();
-    window.fetch('data/news.json', { cache: 'no-store' }).then(function (r) { return r.ok ? r.json() : null; }).then(function (n) {
-      NEWS = n && Array.isArray(n.articles) ? { maj: n.maj || null, articles: n.articles.filter(articleValide).slice(0, 5) } : (NEWS || { maj: null, articles: [], echec: true });
-      majNews();
-    }).catch(function () { if (!NEWS) { NEWS = { maj: null, articles: [], echec: true }; majNews(); } });
-  }
-  /** « il y a 3 h », « hier », « le 12 nov. » */
-  function depuis(iso) {
-    var t = Date.parse(iso || ''); if (isNaN(t)) return '';
-    var m = Math.round((Date.now() - t) / 60000);
-    if (m < 2) return 'à l\'instant';
-    if (m < 60) return 'il y a ' + m + ' min';
-    if (m < 1440) return 'il y a ' + Math.round(m / 60) + ' h';
-    if (m < 2880) return 'hier';
-    var d = new Date(t); return 'le ' + (d.getDate() === 1 ? '1er' : d.getDate()) + ' ' + MOIS_C[d.getMonth()];
-  }
-  function carteNews(a) {
-    var quand = depuis(a.d), th = THEMES_NEWS[a.th] ? a.th : 'int', n = Math.floor(+a.n || 0);
-    var img = /^https:\/\/[^\s"'<>]+$/.test(a.i || '') ? '<img src="' + esc(a.i) + '" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer">' : '';
-    return '<a class="news-carte" data-a="lien" data-lien href="' + esc(a.u) + '" target="_blank" rel="noopener">' +
-      '<span class="news-img th-' + th + (img ? '' : ' vide') + '">' + img + '</span>' +
-      '<span class="news-corps"><span class="news-theme th-' + th + '">' + THEMES_NEWS[th] + '</span>' +
-      '<span class="news-titre">' + esc(a.t) + '</span>' +
-      '<span class="news-meta">' + esc(a.s) + (quand ? ', ' + esc(quand) : '') + '</span>' +
-      (n > 1 ? '<span class="news-reprise">Racontée par ' + n + ' médias</span>' : '') + '</span></a>';
-  }
-  function blocNews() {
-    var h = '<div class="bloc news" id="news"><div class="news-tete"><h2>Actualités</h2>';
-    if (!NEWS) return h + '</div><p class="note">Chargement des actualités…</p></div>';
-    if (!NEWS.articles.length) return h + '</div><p class="note">' + (window.navigator.onLine === false ? 'Les actualités s\'afficheront au retour du réseau.' : 'Actualités indisponibles pour l\'instant.') + '</p></div>';
-    h += NEWS.maj ? '<span class="news-maj">Mis à jour ' + esc(depuis(NEWS.maj)) + '</span>' : '';
-    h += '</div><div class="news-rail" id="news-rail">' + NEWS.articles.map(carteNews).join('') + '</div>';
-    return h + '<p class="note espace">Les histoires que les médias ont le plus suivies ces trois derniers jours. Touche une carte pour lire l\'article.</p></div>';
-  }
-  /* Image d'illustration introuvable : on garde le motif à la place. */
-  document.addEventListener('error', function (e) {
-    var t = e.target, p = t && t.parentNode;
-    if (t && t.tagName === 'IMG' && p && p.classList && p.classList.contains('news-img')) { p.classList.add('vide'); p.removeChild(t); }
-  }, true);
-  function majNews() {
-    var el = document.getElementById('news');
-    if (el && page() === 'accueil' && !S.ses && !S.frise && !S.choix) el.outerHTML = blocNews();
-  }
-  document.addEventListener('visibilitychange', function () {
-    if (document.visibilityState === 'visible' && Date.now() - NEWS_T > 30 * 60000) chargerNews();
-  });
   function chargerActu() {
     if (!window.fetch || !/^https?:$/.test(window.location.protocol)) return;
     window.fetch('data/actu.json', { cache: 'no-store' }).then(function (r) { return r.ok ? r.json() : null; }).then(function (p) {
-      if (p && packValide(p)) { ajouterPack(p); indexer(); distant(); }
+      if (p) recevoirPacks([p]);
     }).catch(function () { /* hors connexion et pas encore de copie */ });
   }
   var HORS = { etat: 'non' };
@@ -477,38 +203,11 @@
     r.pct = r.n ? Math.round(100 * r.pts / r.n) : 0;
     return r;
   }
-  function nouveaux(n) {
-    var files = DATA.packs.map(function (p) { return p.faits.filter(function (f) { var c = P.cards[f.id]; return !c || !c.b; }); });
-    var out = [], i = 0, vides = 0;
-    while (out.length < n && files.length && vides < files.length) {
-      var q = files[i % files.length];
-      if (q.length) { out.push(q.shift()); vides = 0; } else vides++;
-      i++;
-    }
-    return out;
-  }
-  /* Séance du jour : on lit d'abord les nouvelles fiches, puis un quiz de QUIZ questions au plus réunit leurs questions
-     et les révisions les plus urgentes. Quand les révisions s'accumulent, on lit moins de nouvelles fiches, sans descendre
-     sous le rythme qu'il faut pour avoir tout vu trois semaines avant l'oral (et jamais sous trois). */
-  var QUIZ = 20;
-  function neufsMini(reste) {
-    var j = joursRestants();
-    return j === null || j <= 0 ? 3 : Math.max(3, Math.ceil(reste / Math.max(1, j - 21)));
-  }
-  function dusDuJour() {
-    var d = auj();
-    var dus = tous().filter(function (f) { var c = P.cards[f.id]; return c && c.b >= 1 && c.due <= d; });
-    dus.sort(function (a, b) { var x = P.cards[a.id], y = P.cards[b.id]; return (x.due - y.due) || (x.b - y.b); });   // le plus en retard, puis le plus fragile
-    return dus;
-  }
+  /* Séance du jour : le calcul est dans seance.js, qui reçoit ici la progression. */
+  function nouveaux(n) { return SEA.nouveaux(DATA.packs, P.cards, n); }
+  function dusDuJour() { return SEA.dusDuJour(tous(), P.cards, auj()); }
   function planJour() {
-    var d = auj(), dus = dusDuJour(), jour = P.days[d] || {};
-    var quota = Math.max(0, (+P.set.neu || 10) - (jour.neu || 0));
-    var reste = tous().filter(function (f) { var c = P.cards[f.id]; return !c || !c.b; }).length;
-    var n = Math.min(quota, QUIZ, Math.max(neufsMini(reste), QUIZ - dus.length));
-    var neufs = nouveaux(n), place = Math.max(0, QUIZ - neufs.length);
-    return { dus: dus.slice(0, place), attente: Math.max(0, dus.length - place), total: dus.length, neufs: neufs,
-      prevu: Math.min(quota, reste), fait: !!jour.fait };
+    return SEA.planJour({ packs: DATA.packs, cartes: P.cards, jours: P.days, rythme: P.set.neu, jour: auj(), restants: joursRestants() });
   }
   function joursRestants() { return P.set.exam ? jourIso(P.set.exam) - auj() : null; }
   function serie() {
@@ -640,12 +339,8 @@
     if (plus) for (var k in plus) it[k] = plus[k];
     return it;
   }
-  function composer(dus, neufs) {
-    var lecture = neufs.map(function (f) { return { id: f.id, fmt: 'decouverte' }; });
-    var quiz = melange(neufs.concat(dus).map(function (f) { return item(f); }));
-    return lecture.length && quiz.length ? lecture.concat([{ fmt: 'pause' }], quiz) : lecture.concat(quiz);
-  }
-  function indexPause(items) { for (var j = 0; j < items.length; j++) if (items[j] && items[j].fmt === 'pause') return j; return -1; }
+  function composer(dus, neufs) { return SEA.composer(dus, neufs, function (f) { return item(f); }); }
+  function indexPause(items) { return SEA.indexPause(items); }
 
   /* ---------- état de l'interface ---------- */
   var S = { ses: null, frise: null, choix: null, oral: null, tirage: null, msg: null, raz: false, couper: false, haut: false, fiches: { pack: null, q: '', st: '' } };
@@ -708,23 +403,16 @@
     if (chrono.id) { clearInterval(chrono.id); chrono.id = 0; }
     if (chrono.auto) { clearTimeout(chrono.auto); chrono.auto = 0; }
   }
+  /** Enregistre une réponse : la fiche avance ou redescend (seance.js), la journée compte une question de plus. */
   function noter(it, res) {
-    var s = S.ses, d = auj();
-    var c = P.cards[it.id] ? clone(P.cards[it.id]) : { b: 0, due: 0, n: 0, ok: 0, t: 0 };
+    var s = S.ses, d = auj(), avant = P.cards[it.id];
+    var mode = s.kind === 'blitz' ? 'libre' : s.kind === 'diag' ? 'diag' : it.retry ? 'retry' : 'normal';
     var jour = P.days[d] ? clone(P.days[d]) : { n: 0, ok: 0, neu: 0 };
-    var libre = s.kind === 'blitz';
     jour.n++; if (res === 'ok') jour.ok++;
     var top = Date.now(); jour.ms = (jour.ms || 0) + Math.min(120000, Math.max(0, top - (s.tm || top))); s.tm = top;
-    if (!c.b && !libre) jour.neu = (jour.neu || 0) + 1;
+    if (!(avant && avant.b) && mode !== 'libre') jour.neu = (jour.neu || 0) + 1;
     P.days[d] = jour;
-    c.n++; if (res === 'ok') c.ok++;
-    if (libre) { if (res === 'ko' && c.b) { c.b = 1; c.due = d; } }
-    else if (s.kind === 'diag') { if (res === 'ok') { c.b = 3; c.due = d + IV[3]; } else { c.b = 1; c.due = d; } }
-    else if (it.retry) { if (res === 'ok') { c.b = Math.max(1, c.b); c.due = d + 1; } else { c.b = 1; c.due = d; } }
-    else if (res === 'ok') { c.b = Math.min(6, c.b + 1); c.due = d + IV[c.b]; }
-    else if (res === 'mid') { c.b = Math.max(1, c.b); c.due = d + 1; }
-    else { c.b = 1; c.due = d; }
-    c.t = Date.now(); P.cards[it.id] = c;
+    P.cards[it.id] = SEA.noter(avant, res, mode, d, top);
     commit();
   }
   function rater(it) {
@@ -1005,7 +693,7 @@
       }
       h += '</div>';
     }
-    h += blocNews();
+    h += NEWS.bloc();
 
     h += '<div class="bloc"><h2>Check-list de maîtrise</h2>';
     parTheme().forEach(function (t) {
@@ -1599,11 +1287,7 @@
       [[0, 'Jamais'], [3, 'Après 3 s'], [5, 'Après 5 s'], [8, 'Après 8 s']].map(function (o) { return '<option value="' + o[0] + '"' + ((+P.set.enchaine || 0) === o[0] ? ' selected' : '') + '>' + o[1] + '</option>'; }).join('') + '</select></div></div>';
     h += '<div class="bloc"><h2>Affichage</h2><div class="ligne"><label for="r-theme">Apparence sur cet appareil</label><select id="r-theme">' +
       [['', 'Automatique'], ['light', 'Claire'], ['dark', 'Sombre']].map(function (o) { return '<option value="' + o[0] + '"' + (themeChoisi() === o[0] ? ' selected' : '') + '>' + o[1] + '</option>'; }).join('') + '</select></div></div>';
-    h += '<div class="bloc"><h2>Synchronisation</h2><p><b id="sync-detail">' + LIB[st] + '</b></p>';
-    var parJeton = '<label class="sr" for="jeton">Jeton GitHub</label><input class="champ espace" id="jeton" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Jeton GitHub">' +
-      '<p class="erreur" id="jeton-err" hidden>Colle le jeton complet, sans espace.</p>' +
-      '<div class="rangee espace"><button class="btn' + (Sync.parCode() ? '' : ' primaire') + '" data-a="sync-activer">Activer la synchronisation</button><a class="lien" href="https://github.com/settings/tokens/new?scopes=gist&amp;description=Plan%20de%20vol" target="_blank" rel="noopener">Créer un jeton sur GitHub</a></div>' +
-      '<p class="note espace">Le jeton a seulement besoin du droit « gist ». Il reste enregistré sur cet appareil.</p>';
+    h += '<div class="bloc"><h2>Synchronisation</h2><p><b id="sync-detail">' + esc(Sync.libelle()) + '</b></p>';
     if (Sync.code()) {
       h += '<p class="note espace">Pour retrouver ta progression sur un autre appareil, ouvre l\'application là-bas, va dans Réglages et tape ce code. Garde-le pour toi : il donne accès à ta progression.</p>' +
         '<p class="code-affiche" id="code-affiche">' + esc(DATA.synchro.presenter(Sync.code())) + '</p>';
@@ -1614,9 +1298,6 @@
         h += '<div class="rangee espace"><button class="btn" data-a="code-copier">Copier le code</button><button class="btn" data-a="couper-oui">Ne plus synchroniser cet appareil</button></div>';
       }
       h += '<p class="note espace" id="sync-motif" role="status">' + esc(Sync.raison()) + '</p><p class="note" id="code-msg" role="status"></p>';
-    } else if (Sync.git()) {
-      h += '<p class="note espace">Ta progression est enregistrée dans un fichier privé de ton compte GitHub. Elle suit sur chaque appareil où tu as collé le même jeton. Si GitHub refuse le jeton, arrête la synchronisation puis colle-en un nouveau.</p>' +
-        '<button class="btn espace" data-a="sync-couper">Arrêter la synchronisation sur cet appareil</button>';
     } else if (CHEZ_CLAUDE || st !== 'local') {
       h += '<p class="note espace">' + (st === 'local' ? 'Ouvre cette page depuis ton compte Claude pour retrouver ta progression sur tes autres appareils. En attendant, elle est gardée dans ce navigateur.' : 'Ta progression est enregistrée sur ton compte Claude : ouvre cette page sur ton téléphone ou ton ordinateur, elle suit.') + '</p>';
     } else if (Sync.parCode()) {
@@ -1624,10 +1305,9 @@
         '<button class="btn primaire espace" data-a="code-creer">Créer un code de synchronisation</button>' +
         '<p class="groupe">J\'ai déjà un code</p><label class="sr" for="code">Code de synchronisation</label>' +
         '<div class="rangee"><input class="champ code" id="code" type="text" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false" maxlength="24" placeholder="XXXX-XXXX-XXXX-XXXX"><button class="btn" data-a="code-relier">Relier cet appareil</button></div>' +
-        '<p class="note espace" id="code-msg" role="status"></p>' +
-        '<details class="releve"><summary>Autre méthode : un jeton GitHub</summary>' + parJeton + '</details>';
+        '<p class="note espace" id="code-msg" role="status"></p>';
     } else {
-      h += '<p class="note espace">Ta progression est gardée sur cet appareil. Pour la retrouver sur ton téléphone et ton ordinateur, colle le même jeton GitHub sur chacun.</p>' + parJeton;
+      h += '<p class="note espace">Ta progression est gardée dans ce navigateur. La synchronisation entre appareils n\'est pas disponible ici.</p>';
     }
     h += '</div>';
     if (!CHEZ_CLAUDE) h += '<div class="bloc"><h2>Hors connexion</h2><p><b id="hors-detail">' + LIB_HORS[HORS.etat] + '</b></p><p class="note espace">Une fois la page ajoutée à l\'écran d\'accueil et ouverte une première fois avec du réseau, tout le contenu reste disponible sans connexion. Pour le vérifier : passe en mode avion, ferme l\'application, puis rouvre-la.</p>' +
@@ -1784,11 +1464,6 @@
       commit();
       S.msg = 'Débriefing enregistré : ' + total + ' / 20.'; S.oral = null; S.tirage = null; S.haut = true; rendre();
     },
-    'sync-activer': function () {
-      var el = document.getElementById('jeton'), v = el ? el.value.replace(/\s+/g, '') : '';
-      if (!/^[A-Za-z0-9_]{20,}$/.test(v)) { var er = document.getElementById('jeton-err'); if (er) er.hidden = false; return; }
-      Sync.activer(v); rendre();
-    },
     'sync-couper': function () { S.couper = false; Sync.couper(); rendre(); },
     maj: function (b) {
       var sw = window.navigator.serviceWorker, dit = function (t) { var m = document.getElementById('maj-msg'); if (m) m.textContent = t; };
@@ -1909,6 +1584,6 @@
   G.init();
   Sync.init();
   chargerActu();
-  chargerNews();
+  NEWS.charger();
   horsConnexion();
 })();

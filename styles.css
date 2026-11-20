@@ -74,7 +74,7 @@ body.focus .vers-reglages { display: none; }
 .sync::before { content: ""; flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--encre-2); }
 .sync[data-s="ok"]::before { background: var(--ok); }
 .sync[data-s="sync"]::before, .sync[data-s="wait"]::before, .sync[data-s="hors"]::before { background: var(--attn); }
-.sync[data-s="off"]::before, .sync[data-s="late"]::before, .sync[data-s="full"]::before, .sync[data-s="refus"]::before { background: var(--ko); }
+.sync[data-s="off"]::before, .sync[data-s="late"]::before, .sync[data-s="full"]::before { background: var(--ko); }
 .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 
 .tabs {
