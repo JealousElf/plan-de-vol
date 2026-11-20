@@ -1,41 +1,32 @@
 {
- "maj": "2026-11-20T14:10:47.590Z",
+ "maj": "2026-11-20T23:12:44.952Z",
  "articles": [
   {
-   "t": "Vladimir Poutine, Xi Jinping et Donald Trump signent une \"déclaration de paix\" lors d'un sommet inédit en Chine",
-   "u": "https://www.franceinfo.fr/monde/chine/vladimir-poutine-xi-jinping-et-donald-trump-signent-une-declaration-de-paix-lors-d-un-sommet-inedit-en-chine_8291768.html#xtor=RSS-3-%5Bmonde%5D",
+   "t": "Sommet à Shenzhen : Donald Trump assure que ses relations \"fantastiques\" avec Xi Jinping et Vladimir Poutine contribuent à la sécurité des Etats-Unis",
+   "u": "https://www.franceinfo.fr/monde/usa/presidentielle/donald-trump/direct-suivez-la-conference-de-presse-du-president-americain-donald-trump-apres-un-sommet-inedit-avec-xi-jinping-et-vladimir-poutine_8292656.html#xtor=RSS-3-%5Bmonde%5D",
    "s": "franceinfo",
    "th": "int",
-   "d": "2026-11-20T07:10:51.000Z",
+   "d": "2026-11-20T23:08:33.000Z",
    "n": 5,
-   "i": "https://www.franceinfo.fr/pictures/uFx22S8uPdVeEny0DiMHOq9p5Ig/0x28:1085x638/432x243/filters:format(jpg)/2026/11/20/6affeff26baa4688698355.jpg"
+   "i": "https://www.franceinfo.fr/pictures/TMEUF43fVsKIXbwImGl82BXxYYc/0x0:1024x576/432x243/filters:format(jpg)/2026/11/20/6b0088ca482bb561577600.jpg"
   },
   {
-   "t": "Fuites en provenance du ministère de l’intérieur vers le RN : des faits « extrêmement graves » s’ils sont avérés, juge Laurent Nuñez",
-   "u": "https://www.lemonde.fr/societe/article/2026/11/20/fuites-en-provenance-du-ministere-de-l-interieur-vers-le-rn-des-faits-extremement-graves-s-ils-sont-averes-juge-laurent-nunez_6813604_3224.html",
+   "t": "La loi sur la présomption de légitime défense pour les forces de l’ordre définitivement adoptée par le Parlement, ayant été approuvée au Sénat",
+   "u": "https://www.lemonde.fr/societe/article/2026/11/20/la-loi-sur-la-presomption-de-legitime-defense-pour-les-forces-de-l-ordre-definitivement-adoptee-par-le-parlement-ayant-ete-approuvee-au-senat_6813692_3224.html",
    "s": "Le Monde",
    "th": "pol",
-   "d": "2026-11-20T08:46:19.000Z",
+   "d": "2026-11-20T18:46:18.000Z",
    "n": 3,
-   "i": "https://img.lemde.fr/2026/11/06/322/0/3870/1935/644/322/60/0/526152c_ftp-1-vco24adnfdtr-afp-d6mt2we.jpg"
+   "i": "https://img.lemde.fr/2026/10/27/194/0/5490/2745/644/322/60/0/cf69f72_ftp-1-dz3pfzmhehhq-afp-d4la7pd.jpg"
   },
   {
-   "t": "Présidentielle 2027 : Marine Tondelier estime que la balle est dans le camp de Jean-Luc Mélenchon",
-   "u": "https://www.lemonde.fr/election-presidentielle-2027/article/2026/11/20/presidentielle-2027-marine-tondelier-estime-que-la-balle-est-dans-le-camp-de-jean-luc-melenchon_6813644_6205049.html",
-   "s": "Le Monde",
-   "th": "pol",
-   "d": "2026-11-20T13:51:08.000Z",
-   "n": 2,
-   "i": "https://img.lemde.fr/2026/11/20/684/0/8192/4096/644/322/60/0/d2717fc_ftp-1-rbjbmzfr2dfq-afp-d8626bz.jpg"
-  },
-  {
-   "t": "Le Royaume-Uni annonce un accord \"historique\" avec l'Union européenne, Bruxelles salue un \"tournant\", dix ans après le référendum sur le Brexit",
-   "u": "https://www.franceinfo.fr/monde/royaume-uni/le-royaume-uni-annonce-un-accord-historique-avec-l-union-europeenne-bruxelles-salue-un-tournant-dix-ans-apres-le-referendum-sur-le-brexit_8292233.html#xtor=RSS-3-%5Bmonde%5D",
+   "t": "Députés et sénateurs parviennent à un accord sur le projet de budget de \"fin de gestion\" pour 2026, avant une possible adoption définitive mardi",
+   "u": "https://www.franceinfo.fr/economie/budget/deputes-et-senateurs-parviennent-a-un-accord-sur-le-projet-de-budget-de-fin-de-gestion-pour-2026-avant-une-possible-adoption-definitive-mardi_8292914.html#xtor=RSS-3-%5Bpolitique%5D",
    "s": "franceinfo",
-   "th": "int",
-   "d": "2026-11-20T12:49:56.000Z",
-   "n": 2,
-   "i": "https://www.franceinfo.fr/pictures/C7d4mHPHz5iIMlUnK8p7C0q6PoI/0x0:1024x576/432x243/filters:format(jpg)/2026/11/20/6b0041dc3b368582793077.jpg"
+   "th": "pol",
+   "d": "2026-11-20T21:35:30.000Z",
+   "n": 3,
+   "i": "https://www.franceinfo.fr/pictures/T3RQHlyV5gPBqLB7Ou9Q7C6C120/0x53:1024x629/432x243/filters:format(jpg)/2026/11/20/6b00b4274f82f346232064.jpg"
   },
   {
    "t": "Deux missiles et un drone d’attaque russes sont tombés en Pologne, près de la zone où se déroule l’exercice KOALICJA",
@@ -43,8 +34,17 @@
    "s": "Zone Militaire",
    "th": "def",
    "d": "2026-11-20T12:04:17.000Z",
-   "n": 2,
+   "n": 4,
    "i": "https://www.opex360.com/wp-content/uploads/kh101-20261120.jpg"
+  },
+  {
+   "t": "REPORTAGE. \"C'était une grave erreur\" : à Londres, des Britanniques regrettent le Brexit et se disent prêts à revenir dans l'Union européenne",
+   "u": "https://www.franceinfo.fr/monde/royaume-uni/reportage-c-etait-une-grave-erreur-a-londres-des-britanniques-regrettent-le-brexit-et-se-disent-prets-a-revenir-dans-l-union-europeenne_8292533.html#xtor=RSS-3-%5Bmonde%5D",
+   "s": "franceinfo",
+   "th": "int",
+   "d": "2026-11-20T16:45:46.000Z",
+   "n": 2,
+   "i": "https://www.franceinfo.fr/pictures/3PHBhRvsrXjEmmRapxqcggBUdTw/0x54:1024x630/432x243/filters:format(jpg)/2026/11/20/6b0071c3c8a49631090152.jpg"
   }
  ]
 }
