@@ -1,5 +1,5 @@
 /* Plan de vol : tout le contenu est mis en cache à l'installation, puis servi sans réseau. */
-var VERSION = "pdv-7d0ac664e43a";
+var VERSION = "pdv-cdb11500d0bf";
 var FICHIERS = [
   "index.html",
   "styles.css",
@@ -8,6 +8,7 @@ var FICHIERS = [
   "suivi.js",
   "formats.js",
   "seance.js",
+  "questions.js",
   "graph.js",
   "synchro.js",
   "synchronisation.js",

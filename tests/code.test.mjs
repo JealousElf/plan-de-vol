@@ -73,7 +73,7 @@ test('un code relie deux appareils : la progression suit dans les deux sens', as
   assert.match(code, /^[0-9A-HJKMNP-TV-Z]{4}(-[0-9A-HJKMNP-TV-Z]{4}){3}$/);
   const ids = Object.keys(service.carnets);
   assert.equal(ids.length, 1);
-  assert.ok(!JSON.stringify(service.carnets[ids[0]]).includes('cards'), 'rien de lisible ne part en ligne');
+  assert.ok(!service.carnets[ids[0]].d.includes('"cards"'), 'rien de lisible ne part en ligne');
   await a.page.click('[data-a="code-copier"]');
   await a.page.waitForFunction(() => document.getElementById('code-msg').textContent === 'Code copié.');
   assert.equal(await a.page.evaluate(() => navigator.clipboard.readText()), code);

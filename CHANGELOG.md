@@ -1,5 +1,13 @@
 # Journal des versions
 
+## 1.9.1, 20 novembre 2026
+
+Suite du rangement, sans changement visible.
+
+- La fabrication des questions sort de `app.js` : `questions.js` dit quelles formes de question une fiche permet, choisit celle qu'on pose et prépare les propositions. Elle est désormais testée sans navigateur (années proposées, mauvaises réponses du même pack, conflit en cours, formats à écrire, correction).
+- `app.js` perd une fonction devenue inutile, et le point d'accès réservé aux tests ne garde que ce que les tests utilisent.
+- Un test du chiffrement échouait par hasard environ une fois sur deux cents (le texte chiffré contenait parfois « 1789 ») : il vérifie maintenant des caractères qui ne peuvent pas apparaître dans un texte chiffré.
+
 ## 1.9.0, 20 novembre 2026
 
 Rangement du code, sans changement visible dans les séances.

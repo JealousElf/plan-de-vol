@@ -78,8 +78,9 @@ Pour ne vérifier que les fiches, sans navigateur : `node --test tests/donnees.t
 
 | Chemin | Contenu |
 | --- | --- |
-| `index.html`, `styles.css`, `app.js` | L'application : écrans, navigation, fabrication des questions. Sans framework ni étape de compilation |
+| `index.html`, `styles.css`, `app.js` | L'application : écrans, navigation, déroulé des séances. Sans framework ni étape de compilation |
 | `seance.js` | Le calcul des séances : fiches du jour, révisions, quiz, étapes de la répétition espacée (testé sans navigateur) |
+| `questions.js` | La fabrication des questions : formes possibles pour une fiche, choix du format, propositions des choix multiples (testé sans navigateur) |
 | `formats.js` | Les questions à écrire (citation à trous, nom, année) et la remise en ordre, avec leur correction (testé sans navigateur) |
 | `suivi.js`, `graph.js` | Les calculs du carnet de vol et ses graphiques (testés sans navigateur) |
 | `synchro.js` | La synchronisation par code, côté technique : code, clés, chiffrement, échanges avec le service (testé sans navigateur) |

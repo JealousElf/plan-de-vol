@@ -6,7 +6,7 @@
   var LS = 'pdv.progression.v1';
   /* Dépôt qui reçoit les signalements d'erreur. À changer seulement si tu maintiens ta propre version des fiches. */
   var DEPOT = DATA.depot || 'JealousElf/plan-de-vol';
-  var VERSION_APP = '1.9.0', DATE_APP = '20 novembre 2026';
+  var VERSION_APP = '1.9.1', DATE_APP = '20 novembre 2026';
   var JOUR = 86400000;
   var MOIS = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
   var FACTS = {};
@@ -24,7 +24,6 @@
   function auj() { var d = new Date(); return Math.floor((d.getTime() - d.getTimezoneOffset() * 60000) / JOUR); }
   function melange(a) { return SEA.melange(a); }
   function clone(o) { return JSON.parse(JSON.stringify(o)); }
-  function annee(y) { y = Math.floor(y); return y < 0 ? (-y) + ' av. J.-C.' : String(y); }
   function dateFr(iso) {
     var p = String(iso || '').split('-'); if (p.length < 3) return '';
     var j = parseInt(p[2], 10);
@@ -45,8 +44,7 @@
   function norm(s) { return String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, ''); }
 
   /* ---------- données ---------- */
-  function aQcm(f) { return typeof f.q === 'string' && typeof f.a === 'string' && Array.isArray(f.x) && f.x.length >= 3; }
-  function aDate(f) { return typeof f.y === 'number' && typeof f.d === 'string' && f.d !== ''; }
+  var aQcm = DATA.questions.aQcm, aDate = DATA.questions.aDate;   // fiche à question, fiche datée
   function indexer() {
     FACTS = {};
     DATA.packs.forEach(function (p) {
@@ -217,128 +215,13 @@
     return n;
   }
 
-  /* ---------- fabrication des questions ---------- */
-  function peutEnCours(f) { var p = pack(f.pack); return f.st === 'cours' && p.faits.filter(function (x) { return x.st === 'fin'; }).length >= 3; }
-  function qQuand(f, dur) {
-    var y = Math.floor(f.y), max = new Date().getFullYear();
-    var k = y < 1000 ? 12 : y < 1700 ? 5 : y < 1900 ? 2 : 1;
-    var pas = dur ? [1, 2, 3, 4, 5] : [3, 4, 6, 8, 10, 12, 15];
-    var set = {}, n = 1, garde = 0; set[y] = 1;
-    while (n < 4 && garde++ < 400) {
-      var c = y + pas[Math.floor(Math.random() * pas.length)] * k * (Math.random() < 0.5 ? -1 : 1);
-      if (c > max || c === 0 || set[c]) continue;
-      set[c] = 1; n++;
-    }
-    var ys = Object.keys(set).map(Number).sort(function (a, b) { return a - b; });
-    var debut = f.y2 !== undefined && f.y2 !== f.y;
-    return { id: f.id, fmt: 'quand', petit: debut ? 'En quelle année cela commence-t-il ?' : 'En quelle année ?', grand: f.t, deux: true,
-      opts: ys.map(function (v) { return { t: annee(v), ok: v === y }; }) };
-  }
-  function voisins(f) {
-    var p = pack(f.pack), y = Math.floor(f.y);
-    var pool = p.faits.filter(function (x) { return x.id !== f.id && aDate(x) && Math.floor(x.y) !== y; });
-    if (pool.length < 3) pool = p.faits.filter(function (x) { return x.id !== f.id && aDate(x) && x.d !== f.d; });
-    return pool;
-  }
-  function formats(f) {
-    if (aQcm(f)) return ['sur'];
-    if (!aDate(f)) return [];
-    var r = [];
-    if (voisins(f).length >= 3) r.push('quoi');
-    if (pack(f.pack).ny >= 4) r.push('quand');
-    return r;
-  }
-  function qSur(f) {
-    var o = melange(f.x.slice()).slice(0, 3).map(function (t) { return { t: t, ok: false }; });
-    o.push({ t: f.a, ok: true });
-    if (o.every(function (x) { return /^\d{1,4}$/.test(x.t); })) o.sort(function (a, b) { return +a.t - +b.t; });
-    else melange(o);
-    return { id: f.id, fmt: 'sur', petit: f.g || 'Question', grand: f.q, deux: o.every(function (x) { return x.t.length <= 12; }), opts: o };
-  }
-  function qQuoi(f, dur) {
-    var p = pack(f.pack), pool = voisins(f);
-    pool.sort(function (a, b) { return Math.abs(a.y - f.y) - Math.abs(b.y - f.y); });
-    var cand = dur ? pool.slice(0, 6) : pool.slice(4);
-    if (cand.length < 3) cand = pool;
-    var choix = melange(cand.slice()).slice(0, 3);
-    return { id: f.id, fmt: 'quoi', petit: p.quoi || (p.statuts ? 'Quel conflit ?' : 'Quel événement ?'), grand: f.d.charAt(0).toUpperCase() + f.d.slice(1),
-      opts: melange([f].concat(choix)).map(function (x) { return { t: x.t, ok: x.id === f.id }; }) };
-  }
-  function qEnCours(f) {
-    var p = pack(f.pack);
-    var choix = melange(p.faits.filter(function (x) { return x.st === 'fin'; })).slice(0, 3);
-    return { id: f.id, fmt: 'encours', petit: 'Situation au ' + dateFr(p.maj), grand: p.encours || 'Lequel de ces conflits est toujours en cours ?',
-      opts: melange([f].concat(choix)).map(function (x) { return { t: x.t, ok: x.id === f.id }; }) };
-  }
-  function question(f, it) {
-    if (it.fmt === 'decouverte') return { id: f.id, fmt: 'decouverte' };
-    if (A_ECRIRE[it.fmt] && libres(f).indexOf(it.fmt) >= 0) return A_ECRIRE[it.fmt](f);
-    var l = formats(f);
-    if (it.fmt === 'ouverte' || !l.length) {
-      return aQcm(f) ? { id: f.id, fmt: 'ouverte', petit: 'Réponds à voix haute, puis vérifie.', grand: f.q }
-        : { id: f.id, fmt: 'ouverte', petit: 'Date, faits, portée : réponds à voix haute, puis vérifie.', grand: f.t };
-    }
-    if (it.fmt === 'encours' && peutEnCours(f)) return qEnCours(f);
-    var fmt = l.indexOf(it.fmt) >= 0 ? it.fmt : l[Math.floor(Math.random() * l.length)];
-    if (fmt === 'sur') return qSur(f);
-    if (fmt === 'quand') return qQuand(f, it.dur);
-    return qQuoi(f, it.dur);
-  }
-  function qcm(f) { var l = f ? formats(f) : []; return l.length ? l[Math.floor(Math.random() * l.length)] : 'ouverte'; }
-
-  /* ---------- questions à écrire et remise en ordre (formats.js corrige) ---------- */
-  /** Part des questions posées autrement qu'en choix multiple : une sur deux. window.PDV_LIBRES la fixe pour les tests. */
-  function partLibre() { var v = window.PDV_LIBRES; return typeof v === 'number' ? v : 0.5; }
-  function anneeEnReponse(f) { return aQcm(f) && /^\d{3,4}$/.test(f.a); }
-  /** Les formats à écrire ou à ordonner possibles pour une fiche. */
-  function libres(f) {
-    var r = [], p = pack(f.pack), dates = aDate(f) && p && p.ny >= 4;
-    if (f.trou && FMT.lireTrou(f.trou)) r.push('trou');
-    if (FMT.estNom(f)) r.push('nom');
-    if (anneeEnReponse(f) || dates) r.push('annee');
-    if (dates && FMT.voisinsOrdre(f, p.faits)) r.push('ordre');
-    return r;
-  }
-  /** Une fois sur deux en moyenne, un format à écrire ou à ordonner quand la fiche s'y prête ; sinon un choix multiple. */
-  function choisirFormat(f) {
-    var l = libres(f);
-    if (l.length && Math.random() < partLibre()) return l[Math.floor(Math.random() * l.length)];
-    return qcm(f);
-  }
-  function qTrou(f) {
-    var t = FMT.lireTrou(f.trou);
-    return { id: f.id, fmt: 'trou', petit: 'Complète la citation', grand: t.avant + '…' + t.apres, trou: t, auteur: f.a,
-      saisie: { genre: 'mot', choix: t.choix, attendu: t.mot }, indice: 'Le mot manquant' };
-  }
-  function qNom(f) { return { id: f.id, fmt: 'nom', petit: f.g || 'Question', grand: f.q, saisie: { genre: 'nom', attendu: f.a }, indice: 'Écris le nom' }; }
-  function qAnnee(f) {
-    if (anneeEnReponse(f)) return { id: f.id, fmt: 'annee', petit: f.g || 'Question', grand: f.q, saisie: { genre: 'annee', attendu: +f.a }, indice: 'Année' };
-    var debut = f.y2 !== undefined && f.y2 !== f.y;
-    return { id: f.id, fmt: 'annee', petit: debut ? 'En quelle année cela commence-t-il ?' : 'En quelle année ?', grand: f.t,
-      saisie: { genre: 'annee', attendu: Math.floor(f.y) }, indice: f.y < 0 ? 'Année (52 av. J.-C. par exemple)' : 'Année' };
-  }
-  function qOrdre(f) {
-    var v = FMT.voisinsOrdre(f, pack(f.pack).faits) || [];
-    return { id: f.id, fmt: 'ordre', petit: 'Du plus ancien au plus récent', grand: 'Remets ces événements dans l\'ordre',
-      ordre: melange([f.id].concat(v.map(function (x) { return x.id; }))), choix: [] };
-  }
-  var A_ECRIRE = { trou: qTrou, nom: qNom, annee: qAnnee, ordre: qOrdre };
-  function corriger(q, txt) {
-    if (q.saisie.genre === 'annee') return FMT.corrigerAnnee(q.saisie.attendu, txt);
-    if (q.saisie.genre === 'mot') return FMT.corrigerMot(q.saisie.choix, txt);
-    return FMT.corrigerNom(FACTS[q.id], txt);
-  }
-  function attenduTexte(q) { return q.saisie.genre === 'annee' ? annee(q.saisie.attendu) : String(q.saisie.attendu); }
-
-  function item(f, plus) {
-    var c = P.cards[f.id], b = c ? c.b : 0, fmt;
-    if (b >= 4) fmt = 'ouverte';
-    else if (b >= 1 && Math.random() < 0.3 && peutEnCours(f)) fmt = 'encours';
-    else fmt = choisirFormat(f);
-    var it = { id: f.id, fmt: fmt, dur: b >= 2 };
-    if (plus) for (var k in plus) it[k] = plus[k];
-    return it;
-  }
+  /* ---------- fabrication des questions (questions.js) ---------- */
+  var QS = DATA.questions.creer({
+    pack: pack,
+    /* Part des questions posées autrement qu'en choix multiple : une sur deux. window.PDV_LIBRES la fixe pour les tests. */
+    part: function () { var v = window.PDV_LIBRES; return typeof v === 'number' ? v : 0.5; }
+  });
+  function item(f) { return QS.item(f, P.cards[f.id]); }
   function composer(dus, neufs) { return SEA.composer(dus, neufs, function (f) { return item(f); }); }
   function indexPause(items) { return SEA.indexPause(items); }
 
@@ -382,7 +265,7 @@
     while (s.i < s.items.length && s.items[s.i].fmt !== 'pause' && !FACTS[s.items[s.i].id]) s.i++;
     if (s.i >= s.items.length) return debrief();
     var it = s.items[s.i];
-    s.q = it.fmt === 'pause' ? { fmt: 'pause' } : question(FACTS[it.id], it); s.rep = null; s.auto = false; s.frais = true;
+    s.q = it.fmt === 'pause' ? { fmt: 'pause' } : QS.question(FACTS[it.id], it); s.rep = null; s.auto = false; s.frais = true;
     s.res = null; s.note = null; s.avant = null; s.revue = null;
     sauverSeance();
     S.haut = true; rendre();
@@ -420,7 +303,7 @@
     if (s.rates.indexOf(it.id) < 0) s.rates.push(it.id);
     if (s.kind === 'jour' || s.kind === 'avance' || s.kind === 'revision' || s.kind === 'erreurs') {
       var deja = it.essais || 0;
-      if (deja < (s.kind === 'erreurs' ? 2 : 1)) s.items.push({ id: it.id, fmt: it.fmt === 'ouverte' ? 'ouverte' : choisirFormat(FACTS[it.id]), dur: false, retry: true, essais: deja + 1 });
+      if (deja < (s.kind === 'erreurs' ? 2 : 1)) s.items.push({ id: it.id, fmt: it.fmt === 'ouverte' ? 'ouverte' : QS.choisirFormat(FACTS[it.id]), dur: false, retry: true, essais: deja + 1 });
     }
   }
   function repondre(i) {
@@ -475,7 +358,7 @@
   function ecrire(txt) {
     var s = S.ses; if (!s || s.fini || s.rep !== null || s.revue !== null || !s.q || !s.q.saisie) return;
     txt = String(txt == null ? '' : txt).replace(/\s+/g, ' ').trim().slice(0, 80);
-    conclure(txt ? corriger(s.q, txt) : 'ko', 'ecrit', txt);
+    conclure(txt ? QS.corriger(s.q, txt, FACTS[s.q.id]) : 'ko', 'ecrit', txt);
   }
   function basculerOrdre(id) {
     var s = S.ses, q = s && s.q; if (!q || q.fmt !== 'ordre' || s.rep !== null || s.revue !== null || q.ordre.indexOf(id) < 0) return;
@@ -817,8 +700,8 @@
       corps += '</div>' + ficheHtml(f, p);
     } else {
       corps += '<p class="donne">Ta réponse : ' + (e.res && e.res.donne ? '<b>' + esc(e.res.donne) + '</b>' : 'aucune') + '</p>' +
-        '<p class="bonne">' + (r === 'ok' ? 'Réponse attendue : ' : 'Bonne réponse : ') + '<b>' + esc(attenduTexte(q)) + '</b></p>' +
-        ficheHtml(f, p, q.fmt === 'nom' || (q.fmt === 'annee' && anneeEnReponse(f)) ? { sansQ: true, sansA: true } : null);
+        '<p class="bonne">' + (r === 'ok' ? 'Réponse attendue : ' : 'Bonne réponse : ') + '<b>' + esc(QS.attenduTexte(q)) + '</b></p>' +
+        ficheHtml(f, p, q.fmt === 'nom' || (q.fmt === 'annee' && QS.anneeEnReponse(f)) ? { sansQ: true, sansA: true } : null);
     }
     return h + '</section>' + feuille(cl, corps + '<div class="actions">' + actions + '</div>');
   }
@@ -899,12 +782,12 @@
     return h + '</section>';
   }
   function jouables(faits, blitz) {
-    return faits.filter(function (f) { return blitz ? formats(f).length > 0 : aDate(f) && pack(f.pack).ny >= 5; });
+    return faits.filter(function (f) { return blitz ? QS.formats(f).length > 0 : aDate(f) && pack(f.pack).ny >= 5; });
   }
   function lancerBlitz(pid) {
     var items = melange(jouables(faitsDe(pid), true)).slice(0, 20).map(function (f) {
       var c = P.cards[f.id];
-      return { id: f.id, fmt: (peutEnCours(f) && Math.random() < 0.2) ? 'encours' : qcm(f), dur: !!(c && c.b >= 2) };
+      return { id: f.id, fmt: (QS.peutEnCours(f) && Math.random() < 0.2) ? 'encours' : QS.qcm(f), dur: !!(c && c.b >= 2) };
     });
     lancer('blitz', items, { pack: pid || '' });
   }
@@ -1360,7 +1243,7 @@
     avance: function () { lancer('avance', composer([], nouveaux(+P.set.neu || 10))); },
     diag: function () {
       var items = [], par = Math.max(2, Math.ceil(28 / DATA.packs.length));
-      DATA.packs.forEach(function (p) { melange(jouables(p.faits, true)).slice(0, par).forEach(function (f) { items.push({ id: f.id, fmt: qcm(f), dur: false }); }); });
+      DATA.packs.forEach(function (p) { melange(jouables(p.faits, true)).slice(0, par).forEach(function (f) { items.push({ id: f.id, fmt: QS.qcm(f), dur: false }); }); });
       lancer('diag', melange(items));
     },
     choix: function (b) { S.choix = { m: b.getAttribute('data-m') }; S.haut = true; rendre(); },
@@ -1382,7 +1265,7 @@
     lien: function () { /* le lien s'ouvre tout seul */ },
     accueil: function () { fermer(); S.haut = true; if (page() !== 'accueil') window.location.hash = '#accueil'; else rendre(); },
     rejouer: function () { var pid = S.ses ? S.ses.opt.pack : ''; fermer(); lancerBlitz(pid); },
-    erreurs: function () { var ids = S.ses ? S.ses.rates.slice() : []; fermer(); lancer('erreurs', ids.filter(function (id) { return FACTS[id]; }).map(function (id) { return { id: id, fmt: choisirFormat(FACTS[id]), dur: false, retry: true }; })); },
+    erreurs: function () { var ids = S.ses ? S.ses.rates.slice() : []; fermer(); lancer('erreurs', ids.filter(function (id) { return FACTS[id]; }).map(function (id) { return { id: id, fmt: QS.choisirFormat(FACTS[id]), dur: false, retry: true }; })); },
     precedent: function () {
       var s = S.ses; if (!peutReculer(s)) return;
       s.auto = false; if (chrono.auto) { clearTimeout(chrono.auto); chrono.auto = 0; }
@@ -1508,7 +1391,7 @@
     },
     faibles: function () {
       var ids = SUIVI.fragiles(P.cards, FACTS, 8).map(function (x) { return x.id; });
-      fermer(); lancer('erreurs', ids.map(function (id) { return { id: id, fmt: choisirFormat(FACTS[id]), dur: false, retry: true }; }));
+      fermer(); lancer('erreurs', ids.map(function (id) { return { id: id, fmt: QS.choisirFormat(FACTS[id]), dur: false, retry: true }; }));
     },
     raz: function () { S.raz = true; rendre(); },
     'raz-non': function () { S.raz = false; rendre(); },
@@ -1569,8 +1452,8 @@
   });
   window.addEventListener('hashchange', function () { fermer(); S.raz = false; S.haut = true; rendre(); });
 
-  DATA.test = { fusion: fusion, vide: vide, qQuand: qQuand, qQuoi: qQuoi, qSur: qSur, formats: formats, libres: libres, question: question, composer: composer, nouveaux: nouveaux,
-    tirer: tirer, parTheme: parTheme, packValide: packValide, prevoir: prevoir, faits: function () { return FACTS; }, seance: function () { return S.ses; },
+  /* Pour les tests (tests/aide.mjs) et les captures d'écran : les fiches, la séance en cours, un lancement direct. */
+  DATA.test = { vide: vide, faits: function () { return FACTS; }, seance: function () { return S.ses; }, questions: QS,
     lancer: function (kind, items) { fermer(); lancer(kind, items); } };
   appliquerTheme(themeChoisi());
   indexer();

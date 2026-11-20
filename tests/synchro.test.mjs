@@ -71,7 +71,8 @@ test('chiffrement : aller-retour fidèle, texte illisible en route, mauvaise cl�
   const clair = JSON.stringify({ cards: { 'fr-1789': { b: 3 } }, note: 'Été 1940 : l\'appel du 18 juin', gros: 'x'.repeat(70000) });
   const c1 = await S.chiffrer(a.k, clair), c2 = await S.chiffrer(a.k, clair);
   assert.notEqual(c1, c2, 'un vecteur neuf à chaque chiffrement');
-  assert.ok(!c1.includes('cards') && !c1.includes('1789'));
+  // guillemets et espaces n'existent pas en base64 : seul un texte resté en clair peut les contenir
+  assert.ok(!c1.includes('"cards"') && !c1.includes('appel du 18 juin'), 'rien de lisible : ni la structure ni le texte');
   assert.equal(await S.dechiffrer(a.k, c1), clair);
   await assert.rejects(S.dechiffrer(b.k, c1));
   await assert.rejects(S.dechiffrer(a.k, c1.slice(0, -4) + 'AAAA'), 'un texte chiffré modifié est rejeté');
@@ -89,7 +90,7 @@ test('service : écrire puis relire, sans en-tête particulier, et rien de lisib
     assert.deepEqual(await S.lire(BASE, lien), { t: 1234, texte: '{"cards":{"a":1}}' });
     const stocke = service.carnets[lien.id];
     assert.deepEqual(Object.keys(stocke).sort(), ['d', 't', 'v']);
-    assert.ok(!JSON.stringify(stocke).includes('cards'));
+    assert.ok(!stocke.d.includes('"cards"'));
     assert.ok(service.appels.every((x) => x.entetes === undefined), 'aucun en-tête ajouté : la requête reste « simple » pour le navigateur');
     assert.deepEqual([...new Set(service.appels.map((x) => x.m))].sort(), ['GET', 'POST']);
 

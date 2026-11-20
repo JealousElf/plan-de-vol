@@ -171,7 +171,7 @@ test('flèche retour : la fiche précédente pendant la lecture, la question pr�
 
 test('questions à écrire : citation à trous, nom, année et remise en ordre, corrigées avec indulgence', async () => {
   const { contexte, page, erreurs } = await ouvrir(env.navigateur, env.url, { libres: 1 });
-  assert.deepEqual(await page.evaluate(() => window.PDV.test.libres(window.PDV.test.faits()['ci-turenne'])), ['trou', 'nom']);
+  assert.deepEqual(await page.evaluate(() => window.PDV.test.questions.libres(window.PDV.test.faits()['ci-turenne'])), ['trou', 'nom']);
   await page.evaluate(() => window.PDV.test.lancer('revision', [{ id: 'ci-napoleon-impossible', fmt: 'trou' }, { id: 'ae-guynemer', fmt: 'nom' },
     { id: 'fr-charlemagne', fmt: 'annee' }, { id: 'fr-poitiers', fmt: 'ordre' }]));
 
