@@ -4,42 +4,194 @@
   "titre": "Actualité de la semaine",
   "court": "Actualité",
   "sous": "Les faits de la semaine à connaître pour l'oral",
-  "maj": "2026-11-18",
+  "maj": "2026-11-23",
   "sources": [
     {
-      "t": "AFP (DH), fin des pourparlers d'Abou Dhabi, 11 novembre 2026",
-      "u": "https://www.dhnet.be/dernieres-depeches/2026/11/11/poursuite-des-pourparlers-ukraine-russie-apres-des-changements-salues-par-zelensky-EYH4NR3SNVHRRDQCXIVJSD7HTY/"
+      "t": "AFP (Paris Match), sommet Trump-Xi-Poutine à Shenzhen, 19 novembre 2026",
+      "u": "https://www.parismatch.be/actualites/monde/2026/11/19/entre-declaration-de-paix-guerre-en-ukraine-et-controle-de-lia-trump-xi-et-poutine-se-felicitent-dun-sommet-inedit-qui-ecrit-lhistoire-PMZ7SPCPOZEPJHGO7GNQ2G7TZY/"
     },
     {
-      "t": "Al Jazeera, rencontre Trump-Xi-Poutine à l'APEC, 14 novembre 2026",
-      "u": "https://www.aljazeera.com/news/2026/11/14/trump-xi-putin-trilateral-meeting-at-apec-what-to-expect"
+      "t": "Euronews, réunion de la coalition des volontaires à Berlin, 19 novembre 2026",
+      "u": "https://fr.euronews.com/2026/11/19/les-dirigeants-europeens-rejettent-tout-yalta-20-sur-lukraine"
     },
     {
-      "t": "Kyiv Independent, l'OTAN contre le Donbass selon Zelensky, 13 novembre 2026",
-      "u": "https://kyivindependent.com/us-floats-nato-membership-for-ukraine-in-exchange-for-donbas-withdrawal-zelensky-says/"
+      "t": "Armees.com, missiles Kh-101 tombés en Pologne, 23 novembre 2026",
+      "u": "https://armees.com/pologne-trois-missiles-kh101-parquet-lublin-22-novembre-2026/"
     },
     {
-      "t": "Al Jazeera, sommet de la Communauté politique européenne à Dublin, 12 novembre 2026",
-      "u": "https://www.aljazeera.com/news/2026/11/12/regional-security-dominates-european-talks-in-dublin-amid-hybrid-attacks"
+      "t": "Euronews, nouveau prêt européen de 45 milliards à l'Ukraine, 18 novembre 2026",
+      "u": "https://fr.euronews.com/2026/11/18/ue-bruxelles-propose-un-pret-de-45-milliards-a-lukraine-via-euro-obligations"
     },
     {
-      "t": "Élysée, 108e anniversaire de l'armistice, 11 novembre 2026",
-      "u": "https://www.elysee.fr/emmanuel-macron/2026/11/11/ceremonie-de-commemoration-du-108e-anniversaire-de-larmistice-du-11-novembre-1918"
+      "t": "Al Jazeera, les Houthis près d'Aden après le retrait de Bab el-Mandeb, 16 novembre 2026",
+      "u": "https://www.aljazeera.com/news/2026/11/16/houthis-edge-closer-to-aden-as-yemeni-forces-pull-out-of-bab-al-mandeb"
     },
     {
-      "t": "Zone Militaire, centre international d'IA de défense à Rennes, 13 novembre 2026",
-      "u": "https://www.opex360.com/2026/11/13/la-france-officialise-la-creation-dun-centre-international-dedie-a-lintelligence-artificielle-militaire-a-rennes/"
+      "t": "Al Jazeera, guerre contre l'Iran et détroit d'Ormuz, 16 novembre 2026",
+      "u": "https://aljazeera.com/amp/news/liveblog/2026/11/16/iran-war-live-tehran-warns-it-may-strike-first-before-another-us-attack"
     },
     {
-      "t": "Reuters (Star-Advertiser), manœuvres chinoises non annoncées, 13 novembre 2026",
-      "u": "https://www.staradvertiser.com/2026/11/13/breaking-news/china-stages-unannounced-pacific-drills-in-intimidation-of-taiwan/"
+      "t": "Ministère des Armées, exercice Taranis 26, 20 novembre 2026",
+      "u": "https://www.defense.gouv.fr/actualites/exercice-taranis-26-larmee-lair-lespace-se-prepare-au-combat-haute-intensite"
     },
     {
-      "t": "Al Jazeera, accord de défense entre la Turquie et le Qatar, 13 novembre 2026",
-      "u": "https://aljazeera.com/news/2026/11/13/turkiye-and-qatar-sign-mutual-defence-agreement"
+      "t": "OTAN, groupe de contact pour la défense de l'Ukraine, 18 novembre 2026",
+      "u": "https://nato.int/fr/news-and-events/articles/news/2026/11/18/nato-secretary-general-welcomes-strong-allied-support-at-ukraine-defence-contact-group-meeting"
     }
   ],
   "faits": [
+    {
+      "id": "ac-20261119-1",
+      "g": "Semaine du 16 novembre 2026",
+      "y": 2026,
+      "d": "19 novembre 2026",
+      "t": "Premier sommet à trois Trump-Xi-Poutine à Shenzhen",
+      "q": "À quoi Donald Trump, Xi Jinping et Vladimir Poutine se sont-ils engagés dans leur déclaration commune de Shenzhen ?",
+      "a": "Maintenir la stabilité stratégique",
+      "x": [
+        "Réduire de moitié leurs arsenaux",
+        "Instaurer une trêve en Ukraine",
+        "Former une alliance militaire"
+      ],
+      "r": "Le 19 novembre, en marge du sommet de l'APEC à Shenzhen, Donald Trump, Xi Jinping et Vladimir Poutine ont tenu leur première rencontre à trois, qui a duré environ 1 h 20. Ils ont adopté une courte « déclaration pour la paix », dans laquelle ils s'engagent à maintenir la stabilité stratégique et la sécurité internationale, sans évoquer l'Ukraine. Donald Trump a jugé les trois pays en « position unique » pour réduire le nombre d'armes nucléaires, mais aucun engagement chiffré n'a été pris.",
+      "o": "Sans traité ni chiffres, ce sommet montre que la maîtrise des armements nucléaires se jouera désormais à trois, et non plus seulement entre Washington et Moscou.",
+      "c": "Le traité New START, qui limitait les arsenaux stratégiques russe et américain, a expiré le 5 février 2026 : pour la première fois depuis des décennies, aucun traité n'encadre plus ces deux arsenaux. Washington veut désormais y associer la Chine, dont l'arsenal grossit vite (plus de 600 ogives en 2024 selon le Pentagone, plus de 1 000 attendues vers 2030), mais Pékin a toujours refusé toute limitation tant que ses stocks restent très inférieurs à ceux des deux autres. Avant la réunion à trois, Donald Trump a eu avec Vladimir Poutine leur premier entretien de fond depuis le sommet d'Alaska d'août 2025, sans avancée majeure. Absents, les Européens étaient sceptiques : le ministre français des Affaires étrangères, Jean-Noël Barrot, avait jugé que les trois dirigeants ne s'entendaient sur rien.",
+      "w": "New START",
+      "maj": 1
+    },
+    {
+      "id": "ac-20261119-2",
+      "g": "Semaine du 16 novembre 2026",
+      "y": 2026,
+      "d": "19 novembre 2026",
+      "t": "À Berlin, la coalition des volontaires refuse un « Yalta 2.0 »",
+      "q": "À quelle conférence de 1945 les dirigeants européens réunis à Berlin ont-ils fait référence pour refuser un règlement imposé par les grandes puissances ?",
+      "a": "La conférence de Yalta",
+      "x": [
+        "La conférence de Potsdam",
+        "La conférence de San Francisco",
+        "La conférence de Moscou"
+      ],
+      "r": "Le 19 novembre, quelques heures après le sommet de Shenzhen, une trentaine de dirigeants de la coalition des volontaires se sont réunis à Berlin autour de Friedrich Merz, d'Emmanuel Macron et du Premier ministre britannique Andy Burnham, en présence de Volodymyr Zelensky et des émissaires américains Steve Witkoff et Jared Kushner. Ils ont rejeté tout « Yalta 2.0 », c'est-à-dire un règlement imposé par les grandes puissances, et réclamé leur place dans les négociations, où l'Europe serait représentée par sept délégués (France, Royaume-Uni, Allemagne, Pologne, Italie, Union européenne et OTAN). Jared Kushner a indiqué que Donald Trump était ouvert à une garantie de sécurité inspirée de l'article 5, si elle sert les intérêts américains.",
+      "o": "Refuser un « Yalta 2.0 », c'est défendre le principe selon lequel les frontières et les alliances d'un État ne se décident pas sans lui, inscrit dans l'Acte final d'Helsinki de 1975.",
+      "c": "Lancée en mars 2025 à l'initiative d'Emmanuel Macron et de Keir Starmer, la coalition des volontaires réunit les pays prêts à garantir la sécurité de l'Ukraine après un cessez-le-feu. Par la déclaration de Paris du 6 janvier 2026, la France et le Royaume-Uni se sont engagés à déployer une force multinationale, dont l'état-major est installé au Mont-Valérien : elle ne combattrait pas, mais aiderait à reconstruire l'armée ukrainienne. Moscou rejette toute présence militaire européenne en Ukraine, et Vladimir Poutine propose plutôt aux Européens de venir exposer leurs positions à Moscou. Pendant la réunion, Donald Trump a appelé depuis son avion ; selon la presse britannique, il a mis en doute le plan européen pour couvrir les besoins financiers de l'Ukraine en 2027, estimés à 70 milliards d'euros.",
+      "w": "Coalition des volontaires",
+      "maj": 1
+    },
+    {
+      "id": "ac-20261120-1",
+      "g": "Semaine du 16 novembre 2026",
+      "y": 2026,
+      "d": "20 novembre 2026",
+      "t": "Des missiles russes tombent en Pologne près de l'exercice KOALICJA",
+      "q": "Quel type de missiles russes le parquet polonais a-t-il identifié après les chutes d'engins du 20 novembre ?",
+      "a": "Des missiles de croisière Kh-101",
+      "x": [
+        "Des missiles balistiques Iskander",
+        "Des missiles hypersoniques Kinjal",
+        "Des missiles antinavires Onyx"
+      ],
+      "r": "Le 20 novembre au matin, pendant une frappe massive de la Russie contre l'Ukraine, trois engins sont tombés dans l'est de la Pologne, à Nowy Lipowiec, Rudnik nad Sanem et Mołodycz, sans faire de victimes. Le 22 novembre, le parquet de Lublin a annoncé avoir trouvé sur les trois sites des débris de missiles de croisière russes Kh-101. Le ministre de la Défense Władysław Kosiniak-Kamysz estime qu'il ne s'agit pas d'un accident : les engins sont tombés non loin du camp de Nowa Dęba, où la coalition des volontaires achevait l'exercice KOALICJA.",
+      "o": "Voulues ou non, ces chutes de missiles sur le sol d'un allié éprouvent les défenses aériennes et la cohésion de l'OTAN, sous le seuil qui déclencherait l'article 5.",
+      "c": "La Pologne a déjà subi plusieurs incidents : en novembre 2022, un missile de la défense antiaérienne ukrainienne avait tué deux personnes à Przewodów ; en septembre 2025, une vingtaine de drones russes avaient pénétré son espace aérien, si bien que Varsovie avait invoqué l'article 4 et que l'OTAN avait lancé l'opération Eastern Sentry ; fin juillet 2026, un missile russe s'était encore écrasé dans l'est du pays. Le Kh-101 est un missile de croisière tiré depuis des bombardiers stratégiques, très utilisé contre les infrastructures ukrainiennes. L'exercice KOALICJA, du 9 au 22 novembre, était le premier de la force multinationale prévue pour l'Ukraine : environ 2 800 soldats de onze pays, sous commandement franco-britannique, dont 1 100 Français, le plus gros contingent. Varsovie veut demander à l'OTAN davantage de moyens pour Eastern Sentry.",
+      "w": "Kh-101",
+      "maj": 1
+    },
+    {
+      "id": "ac-20261118-1",
+      "g": "Semaine du 16 novembre 2026",
+      "y": 2026,
+      "d": "18 novembre 2026",
+      "t": "L'Union européenne propose un nouveau prêt de 45 milliards à Kiev",
+      "q": "Selon la proposition de la Commission du 18 novembre, à quelle condition l'Ukraine devra-t-elle rembourser le nouveau prêt européen ?",
+      "a": "Si la Russie lui verse des réparations",
+      "x": [
+        "Si elle adhère à l'Union européenne",
+        "Si la guerre s'arrête avant 2028",
+        "Si sa croissance dépasse 3 % par an"
+      ],
+      "r": "Le 18 novembre, la présidente de la Commission européenne Ursula von der Leyen a proposé un nouveau prêt de 45 milliards d'euros à l'Ukraine pour 2027, financé par un emprunt commun garanti par le budget de l'Union. Il s'ajouterait au prêt de 90 milliards décidé en décembre 2025 et ne serait remboursé que si la Russie verse des réparations ; à défaut, l'Union se réserve d'utiliser les avoirs russes gelés. La Hongrie, la Slovaquie et la République tchèque restent réticentes, et les dirigeants européens doivent en débattre lors d'un sommet extraordinaire fin novembre.",
+      "o": "Financer l'effort de guerre ukrainien par une dette commune, comme le plan de relance de 2020, fait de l'Union européenne un acteur de sa propre sécurité.",
+      "c": "L'Ukraine consacre l'essentiel de ses recettes à la guerre et dépend de ses alliés pour payer salaires, retraites et armes : son besoin de financement pour 2027 est estimé à environ 70 milliards d'euros, dont ce prêt couvrirait les deux tiers, le reste étant attendu du Royaume-Uni, de la Norvège, du Canada ou du Japon. Environ 25 milliards iraient aux besoins militaires, en particulier aux drones. En décembre 2025, les Vingt-Sept n'avaient pas réussi à s'entendre sur un « prêt de réparations » financé par les quelque 210 milliards d'euros d'avoirs russes gelés dans l'Union, surtout chez Euroclear en Belgique, et avaient choisi un emprunt commun, dont la Hongrie, la Slovaquie et la République tchèque s'étaient tenues à l'écart.",
+      "w": "Euroclear",
+      "maj": 1
+    },
+    {
+      "id": "ac-20261116-1",
+      "g": "Semaine du 16 novembre 2026",
+      "y": 2026,
+      "d": "16 novembre 2026",
+      "t": "Yémen : les Houthis reprennent Bab el-Mandeb et menacent Aden",
+      "q": "Quel détroit stratégique les forces progouvernementales yéménites ont-elles abandonné aux Houthis à la mi-novembre ?",
+      "a": "Le détroit de Bab el-Mandeb",
+      "x": [
+        "Le détroit d'Ormuz",
+        "Le détroit de Tiran",
+        "Le détroit de Malacca"
+      ],
+      "r": "Le 15 novembre, les forces du Sud alliées au gouvernement yéménite reconnu ont annoncé quitter la zone de Bab el-Mandeb pour se replier vers Aden, capitale provisoire de ce gouvernement. Le lendemain, les Houthis, soutenus par l'Iran, ont atteint la côte à une centaine de kilomètres à l'ouest d'Aden, et la coalition menée par l'Arabie saoudite a riposté le 17 novembre en frappant une soixantaine de cibles houthies. Les Houthis reprennent ainsi la rive yéménite du détroit qui relie la mer Rouge au golfe d'Aden.",
+      "o": "Avec Ormuz, Bab el-Mandeb est l'un des deux verrous maritimes du Moyen-Orient : la route entre l'Asie et l'Europe par Suez, que la France surveille depuis sa base de Djibouti, en dépend.",
+      "c": "La guerre civile yéménite oppose depuis 2014 les Houthis, mouvement zaïdite qui tient Sanaa et le nord du pays avec l'appui de l'Iran, au gouvernement reconnu par l'ONU, soutenu depuis 2015 par une coalition menée par l'Arabie saoudite. La trêve de 2022 s'est effondrée et, depuis septembre 2026, les Houthis ont repris l'offensive : ils ont conquis la côte ouest et le port de Mokha, puis encerclé Taëz. Large d'une trentaine de kilomètres, Bab el-Mandeb commande le passage entre l'océan Indien et la Méditerranée par le canal de Suez ; il compte encore davantage depuis que la guerre contre l'Iran perturbe Ormuz. Entre 2023 et 2025, les attaques houthies contre les navires avaient déjà conduit l'Union européenne à lancer l'opération navale Aspides, à laquelle participent des frégates françaises.",
+      "w": "Bab-el-Mandeb",
+      "maj": 1
+    },
+    {
+      "id": "ac-20261116-2",
+      "g": "Semaine du 16 novembre 2026",
+      "y": 2026,
+      "d": "16 novembre 2026",
+      "t": "Ormuz : nouvelle montée des tensions entre Washington et Téhéran",
+      "q": "Quel porte-avions américain le commandement central des États-Unis a-t-il annoncé dans sa zone le 16 novembre ?",
+      "a": "L'USS Theodore Roosevelt",
+      "x": [
+        "L'USS Gerald R. Ford",
+        "L'USS Abraham Lincoln",
+        "L'USS Carl Vinson"
+      ],
+      "r": "Le 16 novembre, le commandement central américain a confirmé la présence du porte-avions USS Theodore Roosevelt au Moyen-Orient, alors que Téhéran menace de frapper en premier en cas de nouvelle attaque américaine. Dans le détroit d'Ormuz, plusieurs pétroliers ont encore heurté des mines, l'Iran affirmant qu'ils naviguaient sans son autorisation, tandis que les États-Unis maintiennent leur blocus des ports iraniens. Le Qatar et le Pakistan intensifient leur médiation, sans accord en vue.",
+      "o": "Ormuz montre qu'avec des moyens peu coûteux comme les mines, un État peut perturber l'économie mondiale : la liberté de navigation, garantie par le droit de la mer, repose aussi sur la puissance navale.",
+      "c": "La guerre a commencé le 28 février 2026 par des frappes américaines et israéliennes contre l'Iran. Téhéran a riposté en s'en prenant à la navigation dans le détroit d'Ormuz, par lequel passait avant le conflit environ un cinquième des hydrocarbures consommés dans le monde. Les États-Unis ont imposé en avril un blocus des exportations pétrolières iraniennes, levé en juin après un projet d'accord, puis rétabli le 14 juillet quand ce projet a échoué. Début novembre, Donald Trump a jugé la guerre terminée sur le plan militaire, mais aucun accord n'est signé : le négociateur iranien Mohammad Bagher Ghalibaf, président du Parlement, lie la paix à la fin de la guerre au Liban, et l'Arabie saoudite contourne le détroit grâce à son oléoduc est-ouest.",
+      "w": "Détroit d'Ormuz",
+      "maj": 1
+    },
+    {
+      "id": "ac-20261119-3",
+      "g": "Semaine du 16 novembre 2026",
+      "y": 2026,
+      "d": "19 novembre 2026",
+      "t": "Taranis 26 : le transport aérien militaire face à la haute intensité",
+      "q": "Quelle composante de l'armée de l'Air et de l'Espace l'exercice Taranis 26 met-il à l'épreuve ?",
+      "a": "Le transport aérien militaire",
+      "x": [
+        "L'aviation de chasse",
+        "La défense sol-air",
+        "La surveillance spatiale"
+      ],
+      "r": "Le 19 novembre, la générale de brigade aérienne Solène Le Floch, qui commande la brigade aérienne d'assaut et de projection (BAAP), a présenté l'exercice Taranis 26, prévu du 30 novembre au 10 décembre depuis Nancy-Ochey, Châteauroux et Dijon. Plus de 400 militaires et une trentaine d'appareils, dont des A400M, des C-130J, des CASA 235 et des hélicoptères, y affronteront une crise de haute intensité : évacuation de blessés après une attaque de drones, récupération de ressortissants, largages de parachutistes, le tout sous cyberattaques et désinformation. Depuis le 16 novembre, l'exercice CENTAURIS 26 entraîne par ailleurs 600 aviateurs à installer des bases aériennes projetées au camp de La Courtine, dans la Creuse.",
+      "o": "La haute intensité concerne aussi la logistique : sans avions de transport ni bases projetées, la puissance aérienne ne peut ni se déployer loin ni durer.",
+      "c": "La BAAP regroupe les avions de transport, les hélicoptères et les unités de transit aérien de l'armée de l'Air et de l'Espace. Ses moyens servent aux opérations aéroportées avec l'armée de Terre, aux évacuations sanitaires et aux évacuations de ressortissants, comme à Kaboul en 2021 (opération Apagan) ou à Khartoum en 2023 (opération Sagittaire). Taranis, exercice de synthèse de l'année, insiste cette fois sur le « MCO de combat » : réparer et remettre en vol des appareils en milieu dégradé, avec des équipes de l'industrie, l'impression 3D et l'intelligence artificielle. Les unités d'appui au déploiement engagées dans CENTAURIS, comme le 25e régiment du génie de l'Air, savent aménager une piste sommaire, monter un poste de commandement et des réseaux, en se protégeant des menaces chimiques et biologiques.",
+      "w": "Airbus A400M Atlas",
+      "maj": 1
+    },
+    {
+      "id": "ac-20261117-1",
+      "g": "Semaine du 16 novembre 2026",
+      "y": 2026,
+      "d": "17 novembre 2026",
+      "t": "Groupe de contact Ramstein : nouveaux financements pour l'Ukraine",
+      "q": "Que finance le mécanisme PURL, abondé par les alliés lors du groupe de contact du 17 novembre ?",
+      "a": "L'achat d'armes américaines pour l'Ukraine",
+      "x": [
+        "La production de drones en Ukraine",
+        "La reconstruction des villes ukrainiennes",
+        "La formation de pilotes ukrainiens"
+      ],
+      "r": "Le 17 novembre, le groupe de contact pour la défense de l'Ukraine, dit format Ramstein, s'est réuni au siège de l'OTAN à Bruxelles, à l'initiative des ministres de la Défense allemand, Boris Pistorius, et britannique, Wes Streeting. Les alliés y ont annoncé de nouvelles contributions, de plusieurs centaines de millions de dollars, au mécanisme PURL, qui finance l'achat d'armes américaines pour Kiev, surtout pour la défense antiaérienne et les munitions. Le secrétaire général Mark Rutte a plaidé pour une « OTAN 3.0 », où l'Europe et le Canada pèsent davantage.",
+      "o": "PURL illustre le partage du fardeau voulu par Washington, les Européens payant des armes américaines, et nourrit le débat sur la préférence européenne en matière d'armement.",
+      "c": "Le groupe de contact pour la défense de l'Ukraine a été créé en avril 2022 sur la base américaine de Ramstein, en Allemagne, pour coordonner l'aide militaire d'une cinquantaine de pays. Depuis le retour de Donald Trump à la Maison Blanche en 2025, les États-Unis n'en assurent plus la conduite, reprise par le Royaume-Uni et l'Allemagne, et ils n'offrent plus guère d'armes : ils les vendent. Lancé à l'été 2025, le mécanisme PURL (liste des besoins prioritaires de l'Ukraine) permet aux alliés de payer des équipements américains, comme les intercepteurs des systèmes Patriot, livrés ensuite à Kiev. L'OTAN y voit un moyen de maintenir le flux d'armes malgré le désengagement américain ; certains Européens préfèrent acheter européen pour soutenir leur propre industrie de défense.",
+      "w": "Groupe de contact pour la défense de l'Ukraine",
+      "maj": 1
+    },
     {
       "id": "ac-20261111-1",
       "g": "Semaine du 9 novembre 2026",
@@ -55,6 +207,8 @@
       ],
       "r": "Les 10 et 11 novembre, Russes et Ukrainiens ont négocié directement à Abou Dhabi, pour la première fois depuis neuf mois, avec les émissaires américains Steve Witkoff et Jared Kushner comme médiateurs. Ils se sont accordés sur un vaste échange de prisonniers, sans avancée sur le fond : Moscou exige le retrait ukrainien de toute la région de Donetsk, ce que Kiev refuse. Le 12 novembre, les deux émissaires ont été reçus plus de quatre heures par Vladimir Poutine au Kremlin.",
       "o": "Les échanges de prisonniers sont des mesures de confiance : ils entretiennent le dialogue quand la question territoriale reste bloquée.",
+      "c": "Depuis l'invasion de février 2022, les rares négociations directes ont surtout produit des échanges de prisonniers, souvent avec la médiation des Émirats arabes unis : en mai 2025 à Istanbul, les deux camps avaient ainsi convenu d'un échange de 1 000 prisonniers contre 1 000. Revenu à la Maison Blanche en 2025, Donald Trump a confié les discussions avec Moscou à Steve Witkoff, promoteur immobilier devenu émissaire spécial, rejoint ensuite par son gendre Jared Kushner ; un plan américain en 28 points, présenté en novembre 2025, avait été jugé trop favorable à Moscou par Kiev et les Européens. Le point de blocage reste le Donbass : la Russie revendique toute la région de Donetsk, dont l'Ukraine contrôle encore une partie qu'elle a fortifiée.",
+      "w": "Négociations de paix russo-ukrainiennes",
       "maj": 1
     },
     {
@@ -72,6 +226,8 @@
       ],
       "r": "Le 13 novembre, la Maison Blanche a annoncé une première rencontre à trois entre Donald Trump, Vladimir Poutine et Xi Jinping, en marge du sommet de l'APEC à Shenzhen, les 18 et 19 novembre. Washington veut y parler de prolifération et de maîtrise des armes nucléaires, alors que le traité russo-américain New START a expiré en février 2026. La guerre contre l'Iran et le commerce sont aussi au programme ; à Moscou, un député a parlé d'un possible « nouveau Yalta ».",
       "o": "Une négociation entre les trois grandes puissances nucléaires, sans les Européens, ravive la crainte d'un partage du monde en zones d'influence.",
+      "c": "Créée en 1989, la Coopération économique pour l'Asie-Pacifique (APEC) réunit 21 économies du pourtour du Pacifique, dont les États-Unis, la Chine, la Russie et le Japon ; Taïwan y siège sous le nom de « Taipei chinois ». La Chine présidait le forum en 2026 et avait choisi Shenzhen, l'une des premières zones économiques spéciales ouvertes par Deng Xiaoping en 1980 et symbole de son essor industriel. La formule de « nouveau Yalta » renvoie à la conférence de février 1945 où Roosevelt, Churchill et Staline avaient préparé l'après-guerre : elle reste, surtout en Europe centrale, le symbole d'un partage du continent entre grandes puissances, décidé sans les peuples concernés.",
+      "w": "Conférence de Yalta",
       "maj": 1
     },
     {
@@ -89,6 +245,8 @@
       ],
       "r": "Le 13 novembre, Volodymyr Zelensky a déclaré que les États-Unis avaient, pour la première fois, évoqué une adhésion de l'Ukraine à l'OTAN si elle se retirait des parties du Donbass qu'elle contrôle encore. Il répond que les Ukrainiens auraient le dernier mot, sans reconnaître les territoires occupés comme russes, et réclame des garanties comparables à l'article 5. Washington exclut d'envoyer des soldats américains en Ukraine.",
       "o": "Toute paix durable en Ukraine dépendra de garanties de sécurité crédibles : c'est tout l'enjeu de l'article 5 du traité de l'Atlantique Nord.",
+      "c": "Le sommet de l'OTAN de Bucarest avait promis en 2008 que l'Ukraine et la Géorgie deviendraient membres, sans calendrier. Kiev a déposé une demande d'adhésion accélérée le 30 septembre 2022, le jour où Moscou annonçait l'annexion de quatre régions ukrainiennes, mais l'administration Trump avait jusqu'ici écarté cette perspective. L'article 5 du traité de Washington de 1949 prévoit qu'une attaque contre un allié est une attaque contre tous, chacun restant libre des moyens de sa réponse ; il n'a été invoqué qu'une fois, après les attentats du 11 septembre 2001. Le Donbass, bassin minier et industriel formé des régions de Donetsk et de Louhansk, est en guerre depuis 2014 ; la Russie contrôle la quasi-totalité de Louhansk et la majeure partie de Donetsk.",
+      "w": "Traité de l'Atlantique nord",
       "maj": 1
     },
     {
@@ -104,8 +262,10 @@
         "Le Conseil européen",
         "L'Union de l'Europe occidentale"
       ],
-      "r": "Le 12 novembre, plus de 40 dirigeants européens se sont retrouvés à Dublin pour le neuvième sommet de la Communauté politique européenne, créée en 2022 sur une idée d'Emmanuel Macron. Les débats ont porté sur la sécurité du continent, les attaques hybrides et la place des Européens dans les négociations sur l'Ukraine. L'émissaire américain Steve Witkoff a affirmé que Vladimir Poutine acceptait que des représentants européens rejoignent la prochaine série de pourparlers.",
+      "r": "Le 12 novembre, plus de 40 dirigeants européens se sont retrouvés à Dublin pour le neuvième sommet de la Communauté politique européenne, créée en 2022 sur une idée d'Emmanuel Macron. Les débats ont porté sur la sécurité du continent, les attaques hybrides et la place des Européens dans les négociations sur l'Ukraine. L'émissaire américain Steve Witkoff a affirmé que Vladimir Poutine acceptait que des représentants européens rejoignent la prochaine série de pourparlers, ce que le Kremlin a contesté quelques jours plus tard.",
       "o": "Les Européens refusent d'être spectateurs d'un règlement négocié entre Washington et Moscou : c'est l'enjeu de l'autonomie stratégique européenne.",
+      "c": "Proposée par Emmanuel Macron en mai 2022, la Communauté politique européenne a tenu son premier sommet à Prague en octobre 2022. Elle rassemble près de cinquante États du continent, membres ou non de l'Union européenne, comme le Royaume-Uni, la Norvège, la Suisse, la Turquie ou l'Ukraine, mais exclut la Russie et la Biélorussie. Sans traité ni secrétariat, c'est un forum de dialogue qui se réunit deux fois par an, tour à tour dans un pays de l'Union et hors de l'Union, sur la sécurité, l'énergie ou les migrations. Les attaques hybrides au cœur des débats de Dublin désignent les sabotages, cyberattaques, survols de drones et campagnes de désinformation attribués à la Russie, qui restent sous le seuil d'une agression armée.",
+      "w": "Communauté politique européenne",
       "maj": 1
     },
     {
@@ -123,6 +283,8 @@
       ],
       "r": "Le 11 novembre, Emmanuel Macron a présidé à l'Arc de Triomphe la commémoration du 108e anniversaire de l'armistice de 1918, la dernière de son mandat. Il a annoncé plusieurs mesures pour le monde combattant : un Conseil du monde combattant dès janvier, la création d'une Fondation du Bleuet de France et une place pour la mémoire du 11-Novembre dans toutes les écoles, grâce aux classes de défense et de cohésion nationale.",
       "o": "La mémoire combattante entretient le lien entre l'armée et la nation, l'un des piliers de la résilience face aux menaces actuelles.",
+      "c": "L'armistice a été signé le 11 novembre 1918 vers 5 h 15, dans le wagon du maréchal Foch à Rethondes, en forêt de Compiègne, et les combats ont cessé à 11 heures ; la guerre avait coûté la vie à environ 1,4 million de soldats français. Jour férié depuis 1922, le 11-Novembre rend hommage depuis une loi de 2012 à tous les morts pour la France, y compris ceux des opérations extérieures. Le Bleuet de France est né en 1916 dans un atelier de l'Institution nationale des Invalides où travaillaient des soldats blessés ; on achète ce petit insigne le 11 novembre et le 8 mai au profit des anciens combattants, des victimes de guerre et des pupilles de la Nation. C'était le dernier 11-Novembre d'Emmanuel Macron, dont le second mandat s'achève au printemps 2027.",
+      "w": "Bleuet de France",
       "maj": 1
     },
     {
@@ -140,6 +302,8 @@
       ],
       "r": "Le 12 novembre, le ministère des Armées a présenté l'International Center for Artificial Intelligence in Defence (ICAID), installé à Rennes et lancé avec plusieurs pays partenaires. À la différence de l'Agence ministérielle de l'intelligence artificielle de défense (AMIAD), il ne produira pas d'outils, mais des référentiels communs, notamment sur la fiabilité des algorithmes. Il démarre avec 34 personnes, dont 17 Français, et pourrait plus tard être reconnu par l'OTAN.",
       "o": "Maîtriser l'intelligence artificielle de défense est un enjeu de souveraineté et d'interopérabilité entre alliés, comme le cyber, dont Rennes est déjà un pôle.",
+      "c": "Créée en 2024, l'Agence ministérielle de l'intelligence artificielle de défense (AMIAD) développe pour les armées des outils d'IA, par exemple pour analyser des images ou des signaux. Le nouveau centre a une autre mission : établir avec les alliés des règles et des méthodes communes pour tester, certifier et employer l'IA militaire de façon fiable et responsable, dans l'esprit des sommets internationaux sur l'IA, dont celui de Paris en février 2025. Rennes a été choisie parce que la métropole est déjà le premier pôle français de cyberdéfense, avec la DGA Maîtrise de l'information à Bruz, des unités cyber des armées et le salon European Cyber Week. Une reconnaissance par l'OTAN pourrait en faire l'un de ses centres d'excellence, comme celui de Tallinn consacré à la cyberdéfense.",
+      "w": "Intelligence artificielle militaire",
       "maj": 1
     },
     {
@@ -155,8 +319,10 @@
         "Une cinquantaine",
         "Plus de 300"
       ],
-      "r": "Le 13 novembre, des responsables taïwanais ont révélé que la marine et les garde-côtes chinois avaient massé à un moment plus de 100 navires début novembre, autour de Taïwan et dans le Pacifique occidental, sans aucune annonce. Le dispositif, avec le groupe aéronaval du porte-avions Liaoning, dépasse celui des manœuvres « Justice Mission 2025 ». Taipei y voit une « intimidation silencieuse » avant le sommet de l'APEC à Shenzhen, où Xi Jinping doit recevoir Donald Trump.",
+      "r": "Le 13 novembre, des responsables taïwanais ont révélé que la marine et les garde-côtes chinois avaient massé à un moment plus de 100 navires début novembre, autour de Taïwan et dans le Pacifique occidental, sans aucune annonce. Le dispositif, avec le groupe aéronaval du porte-avions Liaoning, dépasse celui des manœuvres « Justice Mission 2025 ». Taipei y voit une « intimidation silencieuse » avant le sommet de l'APEC à Shenzhen, où Xi Jinping a reçu Donald Trump les 18 et 19 novembre.",
       "o": "Ces démonstrations de force non annoncées relèvent de la zone grise : faire pression sans franchir le seuil de la guerre.",
+      "c": "Depuis l'élection de Lai Ching-te à la présidence taïwanaise en 2024, Pékin multiplie les grandes manœuvres autour de l'île, comme « Joint Sword » en 2024, « Strait Thunder » en avril 2025 et « Justice Mission 2025 » fin décembre 2025, qui simulent un blocus. Le Liaoning, ancien porte-avions soviétique racheté à l'Ukraine et mis en service en 2012, est le premier des trois porte-avions chinois, avec le Shandong et le Fujian. Xi Jinping aurait demandé à l'Armée populaire de libération d'être capable de prendre Taïwan d'ici 2027, année du centenaire de l'armée chinoise, et le président Lai veut des forces prêtes à cette date. La zone grise désigne ces actions de pression, ni paix ni guerre, qui usent l'adversaire sans franchir le seuil du conflit ouvert.",
+      "w": "Relations entre la Chine et Taïwan",
       "maj": 1
     },
     {
@@ -174,6 +340,8 @@
       ],
       "r": "Le 13 novembre à Istanbul, après une rencontre entre Recep Tayyip Erdogan et l'émir Tamim ben Hamad Al Thani, la Turquie et le Qatar ont signé un accord de défense mutuelle. Depuis la guerre lancée le 28 février 2026 par les États-Unis et Israël contre l'Iran, les monarchies du Golfe cherchent à multiplier leurs garanties de sécurité. La Turquie, qui a déjà des soldats au Qatar, vient aussi de ratifier un pacte de défense avec l'Arabie saoudite et le Pakistan.",
       "o": "La recomposition des alliances dans le Golfe illustre la montée de puissances moyennes comme la Turquie dans un monde multipolaire.",
+      "c": "La Turquie dispose depuis 2015 d'une base militaire au Qatar, renforcée en 2017 quand l'Arabie saoudite, les Émirats arabes unis, Bahreïn et l'Égypte imposaient un blocus à l'émirat. Le Qatar accueille aussi la base américaine d'Al-Udeid, la plus grande de la région, que l'Iran avait visée en juin 2025. La frappe israélienne contre des dirigeants du Hamas à Doha, en septembre 2025, a convaincu les monarchies du Golfe que la protection américaine ne suffisait plus : l'Arabie saoudite a signé dans la foulée un pacte de défense mutuelle avec le Pakistan, puissance nucléaire. Membre de l'OTAN, la Turquie de Recep Tayyip Erdogan s'affirme comme une puissance régionale, grâce à son industrie de défense, en particulier ses drones.",
+      "w": "Relations entre la Turquie et le Qatar",
       "maj": 1
     },
     {
@@ -191,6 +359,8 @@
       ],
       "r": "Le 11 novembre, environ 6 300 écoles italiennes ont reçu des courriels d'alerte à la bombe signés d'un pseudonyme à consonance russe, et une nouvelle vague a suivi le lendemain. Le 12 novembre, des lycées ont aussi été évacués en France, notamment à Marseille et dans le Jura. Emmanuel Macron juge trop tôt pour attribuer ces menaces, mais le ministre de l'Intérieur Laurent Nuñez les a jugées « concertées » et relevant possiblement d'une ingérence étrangère.",
       "o": "Ces opérations peu coûteuses visent la confiance de la population : c'est la logique de la guerre hybride, à laquelle répond l'effort de résilience nationale.",
+      "c": "Depuis 2022, la France et ses voisins font face à des opérations que les enquêteurs attribuent à des ingérences étrangères, souvent russes, qui cherchent à diviser l'opinion à moindre coût : étoiles de David taguées à Paris en 2023, mains rouges sur le Mémorial de la Shoah et cercueils déposés au pied de la tour Eiffel en 2024, têtes de cochon devant des mosquées en 2025. Pour les repérer, le secrétariat général de la défense et de la sécurité nationale s'appuie depuis 2021 sur Viginum, service chargé de détecter les ingérences numériques étrangères. Les fausses alertes à la bombe désorganisent écoles et services publics, mobilisent police et démineurs et entretiennent l'inquiétude. La Revue nationale stratégique de 2025 fait de la résilience de la nation face à ces menaces hybrides une priorité.",
+      "w": "Viginum",
       "maj": 1
     },
     {
@@ -208,6 +378,8 @@
       ],
       "r": "Le 12 novembre, le gouvernement suédois a présenté un projet de budget qui prévoit la cession à la France de 20 vedettes de combat CB90, d'État à État. Commandés par l'agence suédoise de l'armement puis remis à la DGA, ces bateaux iront à la Marine nationale, après l'abandon du programme de vedettes de fusiliers marins lancé en 2018. Rapide et armé de mitrailleuses téléopérées, le CB90 peut transporter un demi-peloton d'infanterie.",
       "o": "Acheter du matériel éprouvé à un partenaire européen permet de combler vite une lacune : un exemple concret de coopération européenne d'armement.",
+      "c": "Conçu par le chantier suédois Dockstavarvet et en service depuis le début des années 1990, le CB90 (Combat Boat 90) est une vedette d'assaut rapide, propulsée par hydrojets, capable de dépasser 40 nœuds et de débarquer une vingtaine de soldats directement sur une plage. Il équipe une dizaine de marines, dont celles de la Suède, de la Norvège, de la Finlande, du Mexique ou de la Malaisie, et la Suède en a cédé à l'Ukraine. En France, ces vedettes doivent servir aux fusiliers marins, qui protègent les sites sensibles de la Marine comme la base des sous-marins nucléaires de l'île Longue, et aux commandos marine basés à Lorient. Une vente d'État à État passe par les agences d'armement des deux pays, ce qui raccourcit les délais.",
+      "w": "Combat Boat 90",
       "maj": 1
     }
   ]
