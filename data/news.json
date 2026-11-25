@@ -1,50 +1,50 @@
 {
- "maj": "2026-11-25T01:29:15.222Z",
+ "maj": "2026-11-25T15:49:05.116Z",
  "articles": [
   {
-   "t": "Budget : un premier texte adopté par le Parlement, Sébastien Lecornu rêve désormais d’un compromis pour 2027",
-   "u": "https://www.lemonde.fr/politique/article/2026/11/24/budget-un-premier-texte-adopte-par-le-parlement-sebastien-lecornu-reve-desormais-d-un-compromis-pour-2027_6814842_823448.html",
-   "s": "Le Monde",
+   "t": "Sébastien Lecornu n'a pas de \"volonté de passage en force\" et appelle au \"compromis\" pour faire adopter le budget 2027",
+   "u": "https://www.franceinfo.fr/economie/budget/sebastien-lecornu-n-a-pas-de-volonte-de-passage-en-force-et-appelle-au-compromis-pour-faire-adopter-le-budget-2027_8299881.html#xtor=RSS-3-%5Bpolitique%5D",
+   "s": "franceinfo",
    "th": "pol",
-   "d": "2026-11-24T18:59:13.000Z",
+   "d": "2026-11-25T15:23:32.000Z",
    "n": 3,
-   "i": "https://img.lemde.fr/2026/11/24/0/0/6384/3192/644/322/60/0/d5cc593_ftp-1-svowunud0bi6-afp-d8gd8j8.jpg"
+   "i": "https://www.franceinfo.fr/pictures/BUt6P4eCmxbrgVGqTt77EQNpWhs/0x241:4121x2560/432x243/filters:format(jpg)/2026/11/25/6b06fcf2154c8315584596.jpg"
   },
   {
-   "t": "Présidentielle 2027 : Edouard Philippe souhaite un débat télévisé avec David Lisnard, qu’il soupçonne de ne pas être « étanche » vis-à-vis de l’extrême droite",
-   "u": "https://www.lemonde.fr/election-presidentielle-2027/article/2026/11/24/edouard-philippe-a-vote-pour-david-lisnard-a-la-presidence-de-l-amf-mais-fustige-sa-posture-dans-la-course-a-l-elysee_6814832_6205049.html",
-   "s": "Le Monde",
+   "t": "\"C'est le fruit de la mobilisation d'une France de terrain\" : David Lisnard, candidat à la présidentielle, est réélu à la tête de l'Association des maires de France",
+   "u": "https://www.franceinfo.fr/politique/david-lisnard/c-est-le-fruit-de-la-mobilisation-d-une-france-de-terrain-david-lisnard-candidat-a-la-presidentielle-est-reelu-a-la-tete-de-l-association-des-maires-de-france_8299698.html#xtor=RSS-3-%5Bpolitique%5D",
+   "s": "franceinfo",
    "th": "pol",
-   "d": "2026-11-24T17:43:11.000Z",
+   "d": "2026-11-25T13:39:48.000Z",
    "n": 3,
-   "i": "https://img.lemde.fr/2026/11/24/182/0/5857/2928/644/322/60/0/6788e2d_ftp-1-mmjruyjyhoya-2026-11-24t122408z-10560996-rc2buoapbbnt-rtrmadp-3-france-politics.JPG"
+   "i": "https://www.franceinfo.fr/pictures/XMohGaNFtePztWJkcbD3qYv4Ntc/395x0:6992x3710/432x243/filters:format(jpg)/2026/11/25/6b06e1bf3fd9a749552463.jpg"
   },
   {
-   "t": "Les forces ukrainiennes ont coulé une corvette russe dans le port de Benghazi, en Libye",
-   "u": "https://www.opex360.com/2026/11/23/les-forces-ukrainiennes-ont-coule-une-corvette-russe-dans-le-port-de-benghazi-en-libye/",
+   "t": "Donald Trump persiste avec une nouvelle salve de droits de douane, notamment contre l’UE et la Chine, malgré la claque électorale",
+   "u": "https://www.lemonde.fr/economie/article/2026/11/25/donald-trump-persiste-avec-une-nouvelle-salve-de-droits-de-douane-malgre-la-claque-electorale_6815108_3234.html",
+   "s": "Le Monde",
+   "th": "int",
+   "d": "2026-11-25T14:04:49.000Z",
+   "n": 2,
+   "i": "https://img.lemde.fr/2026/11/24/685/0/8225/4112/644/322/60/0/3dac54a_ftp-1-5hapjx1d3y1y-f6c999cf0f7b4c7daded4d5d29e15f89-0-b1859d1fb08648d3bcf4638b6964951a.jpg"
+  },
+  {
+   "t": "Le Haut-Commissariat des Nations unies aux droits de l’homme alerte sur le risque de nouveaux « crimes atroces » commis par Israël contre les Palestiniens",
+   "u": "https://www.lemonde.fr/international/article/2026/11/25/le-haut-commissariat-des-nations-unies-aux-droits-de-l-homme-alerte-sur-le-risque-de-nouveaux-crimes-atroces-commis-par-israel-contre-les-palestiniens_6815114_3210.html",
+   "s": "Le Monde",
+   "th": "int",
+   "d": "2026-11-25T14:34:07.000Z",
+   "n": 2,
+   "i": "https://img.lemde.fr/2025/10/31/53/0/5687/2843/644/322/60/0/2e56c08_ftp-import-images-1-kmiqlciko7vy-fffb79f3388c4de397aa72fb9b154082-0-e427e48f71ff48c5bff0bb000bb67960.jpg"
+  },
+  {
+   "t": "L’armée ukrainienne a mis en service le véhicule de combat d’infanterie KF-41 Lynx de Rheinmetall",
+   "u": "https://www.opex360.com/2026/11/24/larmee-ukrainienne-a-mis-en-service-le-vehicule-de-combat-dinfanterie-kf-41-lynx-de-rheinmetall/",
    "s": "Zone Militaire",
    "th": "def",
-   "d": "2026-11-23T11:55:38.000Z",
-   "n": 2,
-   "i": "https://www.opex360.com/wp-content/uploads/merkury-20261123.jpg"
-  },
-  {
-   "t": "Le ministre de la Défense israélien affirme que l'Iran développe \"des armes chimiques\"",
-   "u": "https://www.franceinfo.fr/monde/conflit-israel-iran/le-ministre-de-la-defense-israelien-affirme-que-l-iran-developpe-des-armes-chimiques_8298327.html#xtor=RSS-3-%5Bmonde%5D",
-   "s": "franceinfo",
-   "th": "int",
-   "d": "2026-11-24T19:42:33.000Z",
+   "d": "2026-11-24T18:51:03.000Z",
    "n": 1,
-   "i": "https://www.franceinfo.fr/pictures/5okEWQLn0e4ACcTKShMgGIgM_v8/0x0:4426x2489/432x243/filters:format(jpg)/2026/11/24/6b05e4e88b8c4366098369.jpg"
-  },
-  {
-   "t": "Relancer ou non la guerre : l’alliance israélo-américaine au défi du réarmement iranien",
-   "u": "https://www.lemonde.fr/international/article/2026/11/24/relancer-ou-non-la-guerre-l-alliance-israelo-americaine-au-defi-du-rearmement-iranien_6814843_3210.html",
-   "s": "Le Monde",
-   "th": "int",
-   "d": "2026-11-24T19:00:01.000Z",
-   "n": 1,
-   "i": "https://img.lemde.fr/2026/11/13/618/0/7422/3711/644/322/60/0/2a3e920_ftp-1-vx7gnwybie3d-dc1f8460036c4673844c9897dd601910-0-7c08145ec9c8461d8a266064a01c90c5.jpg"
+   "i": "https://www.opex360.com/wp-content/uploads/kf41-ukraine-20261124.jpg"
   }
  ]
 }
