@@ -1,14 +1,23 @@
 {
- "maj": "2026-11-27T15:21:10.436Z",
+ "maj": "2026-11-28T00:36:30.067Z",
  "articles": [
   {
-   "t": "Les subtiles oscillations de David Lisnard, du vote Macron à la main tendue au RN",
-   "u": "https://www.lemonde.fr/les-decodeurs/article/2026/11/27/les-subtiles-oscillations-de-david-lisnard-du-vote-macron-a-la-main-tendue-au-rn_6815839_4355770.html",
+   "t": "Ecrits antisémites : la défense de Jordan Bardella patine, Marine Le Pen maintient timidement sa confiance",
+   "u": "https://www.lemonde.fr/politique/article/2026/11/27/ecrits-antisemites-la-defense-de-jordan-bardella-patine-marine-le-pen-maintient-timidement-sa-confiance_6815931_823448.html",
    "s": "Le Monde",
    "th": "pol",
-   "d": "2026-11-27T10:30:12.000Z",
+   "d": "2026-11-27T20:14:22.000Z",
    "n": 3,
-   "i": "https://img.lemde.fr/2026/11/26/487/0/5848/2924/644/322/60/0/983033f_ftp-1-3rzvh774gdfs-afp-d8qf2t3.jpg"
+   "i": "https://img.lemde.fr/2026/11/18/1983/0/5200/2600/644/322/60/0/7dff2fa_upload-1-cyztjhlvvdyk-kzihnioglu-paris-bardella-lepen-17112026-112.jpg"
+  },
+  {
+   "t": "Agriculture, guerre en Ukraine, présidentielle en France... On vous explique pourquoi les négociations sur le budget de l'Union européenne sont dans l'impasse",
+   "u": "https://www.franceinfo.fr/monde/europe/union-europeenne/agriculture-guerre-en-ukraine-presidentielle-en-france-on-vous-explique-pourquoi-les-negociations-sur-le-budget-de-l-union-europeenne-sont-dans-l-impasse_8302635.html#xtor=RSS-3-%5Bpolitique%5D",
+   "s": "franceinfo",
+   "th": "pol",
+   "d": "2026-11-27T09:30:55.000Z",
+   "n": 2,
+   "i": "https://www.franceinfo.fr/pictures/d5olvghSBOAGCEyCs8Cqk3u3ySQ/0x650:6240x4160/432x243/filters:format(jpg)/2026/11/27/6b0939d2b2ac1136108669.jpg"
   },
   {
    "t": "SpaceX reçoit l’autorisation de lancer jusqu’à un million de satellites pour ses centres de données spatiaux",
@@ -20,22 +29,13 @@
    "i": "https://img.lemde.fr/2026/11/25/333/0/4000/2000/644/322/60/0/9bf7864_ftp-1-ywzskelvecxd-2026-11-25t182119z-215101840-rc2urlamebgu-rtrmadp-3-space-exploration-spacex.JPG"
   },
   {
-   "t": "Ecrits antisémites de Jordan Bardella : Marine Le Pen renouvelle sa confiance au président du RN",
-   "u": "https://www.lemonde.fr/politique/article/2026/11/27/ecrits-antisemites-de-jordan-bardella-marine-le-pen-renouvelle-sa-confiance-au-president-du-rassemblement-national_6815858_823448.html",
-   "s": "Le Monde",
-   "th": "pol",
-   "d": "2026-11-27T12:25:05.000Z",
-   "n": 3,
-   "i": "https://img.lemde.fr/2026/11/27/363/0/4356/2178/644/322/60/0/d80c0df_ftp-1-3rwjqrelvghv-afp-d8tb46l.jpg"
-  },
-  {
-   "t": "En Serbie, le mouvement des étudiants choisit l’universitaire Radomir Saicic, novice en politique, comme candidat à l’élection présidentielle",
-   "u": "https://www.lemonde.fr/international/article/2026/11/27/en-serbie-le-mouvement-des-etudiants-choisit-l-universitaire-radomir-saicic-novice-en-politique-comme-candidat-a-l-election-presidentielle_6815883_3210.html",
-   "s": "Le Monde",
+   "t": "Volodymyr Zelensky compare la relation de Donald Trump avec Vladimir Poutine à une amitié avec Hitler pendant la Seconde Guerre mondiale",
+   "u": "https://www.franceinfo.fr/monde/europe/manifestations-en-ukraine/volodymyr-zelensky-compare-la-relation-de-donald-trump-avec-vladimir-poutine-a-une-amitie-avec-hitler-pendant-la-seconde-guerre-mondiale_8303130.html#xtor=RSS-3-%5Bmonde%5D",
+   "s": "franceinfo",
    "th": "int",
-   "d": "2026-11-27T15:13:19.000Z",
-   "n": 2,
-   "i": "https://img.lemde.fr/2026/11/27/0/0/4553/2276/644/322/60/0/a790723_ftp-1-dzhxs85i6lav-afp-d8tn377.jpg"
+   "d": "2026-11-27T15:22:58.000Z",
+   "n": 1,
+   "i": "https://www.franceinfo.fr/pictures/kYhaXoyN8_DPlbvJwdX2zomYsHY/0x0:5846x3288/432x243/filters:format(jpg)/2026/11/27/6b098e22dc68e408322993.jpg"
   },
   {
    "t": "Le ministère des armées intègre un volet «lutte antidrone» au pacte «drones aériens de défense» de la DGA",
